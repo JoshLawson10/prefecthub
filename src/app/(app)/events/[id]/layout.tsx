@@ -53,7 +53,7 @@ export default async function EventLayout({ children, params }: Props) {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="flex h-16 shrink-0 items-center">
+      <header className="mb-4">
         <EventBreadcrumbs eventId={id} eventName="Event Name" />
       </header>
 
