@@ -1,12 +1,7 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
-import {
-  TrendingUpIcon,
-  TrendingDownIcon,
-  PlusIcon,
-  BellIcon,
-} from "lucide-react";
+import { PlusIcon, BellIcon } from "lucide-react";
 
 export default async function DashboardPage() {
   return (
@@ -26,43 +21,27 @@ export default async function DashboardPage() {
       />
       <div className="grid grid-cols-4 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         <StatCard
-          description="Total Revenue"
-          title="$1,250.00"
-          badgeIcon={<TrendingUpIcon />}
-          badgeLabel="+12.5%"
-          footerTitle="Trending up this month"
-          footerIcon={<TrendingUpIcon className="size-4" />}
-          footerDescription="Visitors for the last 6 months"
+          description="Upcoming Events"
+          title="4"
+          footerDescription="Next: PAT, Fri, 30 May"
         />
 
         <StatCard
-          description="New Customers"
-          title="1,234"
-          badgeIcon={<TrendingDownIcon />}
-          badgeLabel="-20%"
-          footerTitle="Down 20% this period"
-          footerIcon={<TrendingDownIcon className="size-4" />}
-          footerDescription="Acquisition needs attention"
+          description="Open Tasks"
+          title="11"
+          footerDescription="Accross all events"
         />
 
         <StatCard
-          description="Active Accounts"
-          title="45,678"
-          badgeIcon={<TrendingUpIcon />}
-          badgeLabel="+12.5%"
-          footerTitle="Strong user retention"
-          footerIcon={<TrendingUpIcon className="size-4" />}
-          footerDescription="Engagement exceed targets"
+          description="Overdue"
+          title="3"
+          footerDescription="Needs attention"
         />
 
         <StatCard
-          description="Growth Rate"
-          title="4.5%"
-          badgeIcon={<TrendingUpIcon />}
-          badgeLabel="+4.5%"
-          footerTitle="Steady performance increase"
-          footerIcon={<TrendingUpIcon className="size-4" />}
-          footerDescription="Meets growth projections"
+          description="Team Members"
+          title="18"
+          footerDescription="2 Admins · 16 Prefects"
         />
       </div>
     </div>
