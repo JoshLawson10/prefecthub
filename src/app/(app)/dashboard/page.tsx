@@ -1,9 +1,29 @@
 import { StatCard } from "@/components/dashboard/stat-card";
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react";
+import { Header } from "@/components/ui/header";
+import { Button } from "@/components/ui/button";
+import {
+  TrendingUpIcon,
+  TrendingDownIcon,
+  PlusIcon,
+  BellIcon,
+} from "lucide-react";
 
 export default async function DashboardPage() {
   return (
     <div>
+      <Header
+        title="Dashboard"
+        actions={
+          <>
+            <Button variant="outline">
+              <BellIcon />
+            </Button>
+            <Button>
+              <PlusIcon /> New event
+            </Button>
+          </>
+        }
+      />
       <div className="grid grid-cols-4 gap-4 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         <StatCard
           description="Total Revenue"
