@@ -1,4 +1,5 @@
-// TODO Sprint 1: implement login form
+import { LoginForm } from "@/components/auth/login-form";
+
 export default function LoginPage() {
-  return null
+  return <LoginForm />;
 }
