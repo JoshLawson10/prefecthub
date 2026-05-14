@@ -1,11 +1,9 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavSecondary } from "@/components/nav-secondary"
-import { NavUser } from "@/components/nav-user"
+import { NavMain } from "@/components/nav-main";
+import { NavFooter } from "@/components/nav-footer";
 import {
   Sidebar,
   SidebarContent,
@@ -14,159 +12,84 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
-import { TerminalSquareIcon, BotIcon, BookOpenIcon, Settings2Icon, LifeBuoyIcon, SendIcon, FrameIcon, PieChartIcon, MapIcon, TerminalIcon } from "lucide-react"
+} from "@/components/ui/sidebar";
+import {
+  LayoutDashboardIcon,
+  CalendarCheckIcon,
+  CalendarDaysIcon,
+  UsersIcon,
+  ArchiveIcon,
+  TerminalIcon,
+  SettingsIcon,
+  BellIcon,
+  LogOutIcon,
+} from "lucide-react";
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
+    name: "Josh Lawson",
+    email: "joshua.lawson13@education.nsw.gov.au",
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
-      icon: (
-        <TerminalSquareIcon
-        />
-      ),
-      isActive: true,
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: <LayoutDashboardIcon />,
+    },
+    {
+      title: "Events",
+      url: "/events",
+      icon: <CalendarCheckIcon />,
       items: [
         {
-          title: "History",
-          url: "#",
+          title: "Event 1",
+          url: "/events/#",
         },
         {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
+          title: "Event 2",
+          url: "/events/#",
         },
       ],
     },
     {
-      title: "Models",
-      url: "#",
-      icon: (
-        <BotIcon
-        />
-      ),
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
+      title: "Calendar",
+      url: "/calendar",
+      icon: <CalendarDaysIcon />,
     },
     {
-      title: "Documentation",
-      url: "#",
-      icon: (
-        <BookOpenIcon
-        />
-      ),
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
+      title: "Members",
+      url: "/members",
+      icon: <UsersIcon />,
     },
     {
-      title: "Settings",
-      url: "#",
-      icon: (
-        <Settings2Icon
-        />
-      ),
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
+      title: "Archive",
+      url: "/archive",
+      icon: <ArchiveIcon />,
     },
   ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: (
-        <LifeBuoyIcon
-        />
-      ),
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: (
-        <SendIcon
-        />
-      ),
-    },
+  navFooter: [
+    [
+      {
+        title: "Settings",
+        url: "/settings",
+        icon: <SettingsIcon />,
+      },
+      {
+        title: "Notifications",
+        url: "/notifications",
+        icon: <BellIcon />,
+      },
+    ],
+    [
+      {
+        title: "Log out",
+        url: "/logout",
+        icon: <LogOutIcon />,
+      },
+    ],
   ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: (
-        <FrameIcon
-        />
-      ),
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: (
-        <PieChartIcon
-        />
-      ),
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: (
-        <MapIcon
-        />
-      ),
-    },
-  ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -175,13 +98,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/settings">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <TerminalIcon className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-medium">{data.user.name}</span>
+                  <span className="truncate text-xs">{data.user.email}</span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -190,12 +113,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavFooter user={data.user} items={data.navFooter} />
       </SidebarFooter>
     </Sidebar>
-  )
+  );
 }
