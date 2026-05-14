@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { NavMain } from "@/components/nav-main";
-import { NavFooter } from "@/components/nav-footer";
+import { NavMain } from "@/components/sidebar/nav-main";
+import { NavFooter } from "@/components/sidebar/nav-footer";
 import {
   Sidebar,
   SidebarContent,
