@@ -117,7 +117,7 @@ export default async function DashboardPage() {
         }
       />
       <Separator className="my-4" />
-      <div className="grid grid-cols-4 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      <div className="mt-8 grid grid-cols-4 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         <StatCard
           description="Upcoming Events"
           title="4"
