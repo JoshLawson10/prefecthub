@@ -5,7 +5,7 @@ type AppHeaderProps = {
 
 export function Header({ title, actions }: AppHeaderProps) {
   return (
-    <header className="mb-4 flex items-center justify-between">
+    <header className="flex items-center justify-between">
       <h1 className="text-2xl font-bold tracking-tight">{title}</h1>
 
       <div className="flex items-center gap-2">{actions}</div>
