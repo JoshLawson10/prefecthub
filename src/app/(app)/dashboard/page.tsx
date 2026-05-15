@@ -1,6 +1,7 @@
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { PlusIcon, BellIcon } from "lucide-react";
 import { Table } from "@/components/ui/info-table";
 import { Calendar as CalendarIcon, Clock, MapPin, Users } from "lucide-react";
@@ -115,6 +116,7 @@ export default async function DashboardPage() {
           </>
         }
       />
+      <Separator className="my-4" />
       <div className="grid grid-cols-4 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
         <StatCard
           description="Upcoming Events"
