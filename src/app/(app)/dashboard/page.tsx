@@ -81,6 +81,24 @@ const tasks = [
   },
 ];
 
+const yourNotifications = [
+  {
+    id: 1,
+    title: "Task assigned: Book catering for PAT",
+    description:
+      "You have been assigned a new task for the Prefect Afternoon Tea event.",
+    badgeContent: "3d late",
+    badgeVariant: "destructive" as const,
+  },
+  {
+    id: 2,
+    title: "Event update: Yr 12 Assembly",
+    description: "The venue for the Yr 12 Assembly has been changed to Hall A.",
+    badgeContent: "Updated today",
+    badgeVariant: "default" as const,
+  },
+];
+
 export default async function DashboardPage() {
   return (
     <div>
@@ -136,6 +154,14 @@ export default async function DashboardPage() {
           items={tasks}
           maxItems={4}
           viewAllPath="/tasks"
+        />
+      </div>
+      <div className="mt-8">
+        <Table
+          title="Your Notifications"
+          items={yourNotifications}
+          maxItems={5}
+          viewAllPath="/notifications"
         />
       </div>
     </div>

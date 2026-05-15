@@ -15,7 +15,7 @@ type Item = {
   id: string | number;
   icon?: ReactNode | string;
   title: string;
-  description?: DescriptionItem[];
+  description?: string | DescriptionItem[];
   badgeContent?: string;
   badgeVariant?: "default" | "secondary" | "destructive" | "outline";
 };
@@ -43,26 +43,30 @@ function ItemIcon({ icon }: { icon?: ReactNode | string }) {
   return <span className="shrink-0 text-muted-foreground">{icon}</span>;
 }
 
-function ItemDescription({ items }: { items?: DescriptionItem[] }) {
-  if (!items || items.length === 0) return null;
+function ItemDescription({ items }: { items?: string | DescriptionItem[] }) {
+  if (!items || (Array.isArray(items) && items.length === 0)) return null;
 
   return (
     <div className="mt-0.5 flex flex-wrap items-center gap-1">
-      {items.map((item, index) => (
-        <span key={index} className="flex items-center gap-1">
-          {index > 0 && (
-            <span className="text-muted-foreground/40 text-xs">·</span>
-          )}
+      {Array.isArray(items) ? (
+        items.map((item, index) => (
+          <span key={index} className="flex items-center gap-1">
+            {index > 0 && (
+              <span className="text-muted-foreground/40 text-xs">·</span>
+            )}
 
-          {item.icon && (
-            <span className="text-muted-foreground/60 [&>svg]:h-3 [&>svg]:w-3">
-              {item.icon}
-            </span>
-          )}
+            {item.icon && (
+              <span className="text-muted-foreground/60 [&>svg]:h-3 [&>svg]:w-3">
+                {item.icon}
+              </span>
+            )}
 
-          <span className="text-muted-foreground text-xs">{item.label}</span>
-        </span>
-      ))}
+            <span className="text-muted-foreground text-xs">{item.label}</span>
+          </span>
+        ))
+      ) : (
+        <span className="text-muted-foreground text-xs">{items}</span>
+      )}
     </div>
   );
 }
