@@ -24,6 +24,7 @@ type TableProps = {
   title?: string;
   onViewAll?: () => void;
   items?: Item[];
+  maxItems?: number;
   className?: string;
 };
 
@@ -66,9 +67,17 @@ function ItemDescription({ items }: { items?: DescriptionItem[] }) {
   );
 }
 
-export function Table({ title, onViewAll, items = [], className }: TableProps) {
+export function Table({
+  title,
+  onViewAll,
+  items = [],
+  maxItems,
+  className,
+}: TableProps) {
+  const displayedItems = maxItems ? items.slice(0, maxItems) : items;
+
   return (
-    <Card className={className}>
+    <Card className={`pb-0 ${className ?? ""}`}>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
 
@@ -79,8 +88,8 @@ export function Table({ title, onViewAll, items = [], className }: TableProps) {
         )}
       </CardHeader>
 
-      <CardContent className="px-0 pb-2">
-        {items.map((item, index) => (
+      <CardContent className="px-0">
+        {displayedItems.map((item, index) => (
           <div key={item.id}>
             {index > 0 && <Separator className="mx-5" />}
 
