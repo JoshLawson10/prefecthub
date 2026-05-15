@@ -123,8 +123,20 @@ export default async function DashboardPage() {
         />
       </div>
       <div className="mt-8 flex gap-4">
-        <Table className="flex-1" title="Upcoming Events" items={events} />
-        <Table className="flex-1" title="Open Tasks" items={tasks} />
+        <Table
+          className="flex-1"
+          title="Upcoming Events"
+          items={events}
+          maxItems={4}
+          viewAllPath="/events"
+        />
+        <Table
+          className="flex-1"
+          title="Open Tasks"
+          items={tasks}
+          maxItems={4}
+          viewAllPath="/tasks"
+        />
       </div>
     </div>
   );

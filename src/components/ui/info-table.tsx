@@ -1,9 +1,9 @@
 import { ReactNode } from "react";
+import Link from "next/link";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
 import { ChevronRight } from "lucide-react";
 
 type DescriptionItem = {
@@ -22,7 +22,7 @@ type Item = {
 
 type TableProps = {
   title?: string;
-  onViewAll?: () => void;
+  viewAllPath?: string;
   items?: Item[];
   maxItems?: number;
   className?: string;
@@ -69,7 +69,7 @@ function ItemDescription({ items }: { items?: DescriptionItem[] }) {
 
 export function Table({
   title,
-  onViewAll,
+  viewAllPath,
   items = [],
   maxItems,
   className,
@@ -81,10 +81,13 @@ export function Table({
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
 
-        {onViewAll && (
-          <Button variant="ghost" size="sm" onClick={onViewAll}>
+        {viewAllPath && (
+          <Link
+            href={viewAllPath}
+            className="flex items-center text-sm font-medium text-foreground hover:text-foreground/80 transition-colors"
+          >
             View all <ChevronRight className="ml-0.5 h-4 w-4" />
-          </Button>
+          </Link>
         )}
       </CardHeader>
 
