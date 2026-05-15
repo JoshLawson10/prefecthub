@@ -2,9 +2,10 @@ import { StatCard } from "@/components/dashboard/stat-card";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { PlusIcon, BellIcon } from "lucide-react";
+import { BellIcon } from "lucide-react";
 import { Table } from "@/components/ui/info-table";
 import { Calendar as CalendarIcon, Clock, MapPin, Users } from "lucide-react";
+import { NewEventDialog } from "@/components/dashboard/new-event-dialog";
 
 const events = [
   {
@@ -110,9 +111,7 @@ export default async function DashboardPage() {
             <Button variant="outline">
               <BellIcon />
             </Button>
-            <Button>
-              <PlusIcon /> New event
-            </Button>
+            <NewEventDialog />
           </>
         }
       />
