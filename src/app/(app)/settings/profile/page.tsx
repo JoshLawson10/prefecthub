@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -7,8 +7,9 @@ export default async function ProfilePage() {
   return (
     <div>
       <Card>
-        <CardHeader>
+        <CardHeader className="flex items-center justify-between">
           <CardTitle>Profile Information</CardTitle>
+          <Button className="self-end">Save Changes</Button>
         </CardHeader>
         <CardFooter className="grid grid-cols-2 gap-4">
           <Field>
@@ -29,9 +30,14 @@ export default async function ProfilePage() {
           </Field>
           <Field>
             <FieldLabel htmlFor="input-field-role">Role</FieldLabel>
-            <Input id="input-field-role" type="text" placeholder="Role" />
+            <Input
+              id="input-field-role"
+              type="text"
+              placeholder="Prefect"
+              disabled
+            />
+            <FieldDescription>Only admins can change this</FieldDescription>
           </Field>
-          <Button className="self-end">Save Changes</Button>
         </CardFooter>
       </Card>
     </div>

@@ -5,7 +5,6 @@ import { SettingsTabs } from "@/components/settings/settings-tabs";
 const tabs = [
   { label: "Profile", href: "/settings/profile" },
   { label: "Notifications", href: "/settings/notifications" },
-  { label: "Appearance", href: "/settings/appearance" },
   { label: "Security", href: "/settings/security" },
   { label: "Teams", href: "/settings/teams" },
 ];
