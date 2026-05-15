@@ -1,3 +1,5 @@
-export default async function SettingsPage() {
-  return <div>Settings — TODO Sprint 4</div>
+import { redirect } from "next/navigation";
+
+export default async function SettingsIndexPage() {
+  redirect(`/settings/profile`);
 }
