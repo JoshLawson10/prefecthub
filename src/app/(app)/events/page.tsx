@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Header } from "@/components/ui/header";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import {
   InputGroup,
   InputGroupAddon,
@@ -27,6 +28,7 @@ export default function EventsPage() {
           </Button>
         }
       />
+      <Separator className="my-4" />
 
       <div className="mt-8 flex items-center gap-4">
         <InputGroup className="max-w-xs">
