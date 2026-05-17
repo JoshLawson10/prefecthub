@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -10,9 +10,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+type StatCardVariant = "default" | "destructive" | "warning" | "success";
+
+const TITLE_CLASSES: Record<StatCardVariant, string> = {
+  default:     "",
+  destructive: "text-destructive",
+  warning:     "text-amber-500 dark:text-amber-400",
+  success:     "text-emerald-600 dark:text-emerald-400",
+};
+
 interface StatCardProps {
   description?: string;
   title?: string | number;
+  variant?: StatCardVariant;
 
   badgeIcon?: ReactNode;
   badgeLabel?: string;
@@ -27,6 +37,7 @@ interface StatCardProps {
 export function StatCard({
   description,
   title,
+  variant = "default",
   badgeIcon,
   badgeLabel,
   footerTitle,
@@ -40,7 +51,12 @@ export function StatCard({
         {description && <CardDescription>{description}</CardDescription>}
 
         {title !== undefined && (
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+          <CardTitle
+            className={cn(
+              "text-2xl font-semibold tabular-nums @[250px]/card:text-3xl",
+              TITLE_CLASSES[variant],
+            )}
+          >
             {title}
           </CardTitle>
         )}
@@ -63,7 +79,6 @@ export function StatCard({
               {footerIcon}
             </div>
           )}
-
           {footerDescription && (
             <div className="text-muted-foreground">{footerDescription}</div>
           )}
