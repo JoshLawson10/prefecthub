@@ -12,6 +12,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 const TEAM_MEMBERS = [
@@ -42,27 +51,36 @@ export function AssignMemberDialog() {
         <FieldGroup>
           <Field>
             <FieldLabel htmlFor="assign-member">Team member</FieldLabel>
-            <select
-              id="assign-member"
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">Select a member...</option>
-              {TEAM_MEMBERS.map((m) => (
-                <option key={m.id} value={m.id}>
-                  {m.name}
-                </option>
-              ))}
-            </select>
+            <Select name="assign_member">
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a member..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Team members</SelectLabel>
+                  {TEAM_MEMBERS.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </Field>
           <Field>
             <FieldLabel htmlFor="assign-role">Event role</FieldLabel>
-            <select
-              id="assign-role"
-              className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="member">Member</option>
-              <option value="lead">Event lead</option>
-            </select>
+            <Select name="assign_role">
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select a role..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectLabel>Roles</SelectLabel>
+                  <SelectItem value="member">Member</SelectItem>
+                  <SelectItem value="lead">Event lead</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </Field>
         </FieldGroup>
         <DialogFooter>

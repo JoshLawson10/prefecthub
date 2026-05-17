@@ -12,15 +12,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
 const LOG_TYPES = [
-  { value: "email",   label: "Email"   },
+  { value: "email", label: "Email" },
   { value: "meeting", label: "Meeting" },
-  { value: "phone",   label: "Phone"   },
-  { value: "note",    label: "Note"    },
+  { value: "phone", label: "Phone" },
+  { value: "note", label: "Note" },
 ];
 
 export function LogCorrespondenceDialog() {
@@ -44,41 +53,65 @@ export function LogCorrespondenceDialog() {
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="log-type">Type</FieldLabel>
-              <select
-                id="log-type"
-                name="log_type"
-                className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-xs outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {LOG_TYPES.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
+              <Select name="log_type">
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a log type..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Log type</SelectLabel>
+                    {LOG_TYPES.map((t) => (
+                      <SelectItem key={t.value} value={t.value}>
+                        {t.label}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </Field>
 
             <Field>
               <FieldLabel htmlFor="log-subject">Subject</FieldLabel>
-              <Input id="log-subject" name="subject" placeholder="Brief subject line" />
+              <Input
+                id="log-subject"
+                name="subject"
+                placeholder="Brief subject line"
+              />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
               <Field>
                 <FieldLabel htmlFor="log-contact-name">Contact name</FieldLabel>
-                <Input id="log-contact-name" name="contact_name" placeholder="e.g. Ms Carter" />
+                <Input
+                  id="log-contact-name"
+                  name="contact_name"
+                  placeholder="e.g. Ms Carter"
+                />
               </Field>
               <Field>
                 <FieldLabel htmlFor="log-contact-email">
                   Contact email{" "}
-                  <span className="text-muted-foreground font-normal">(optional)</span>
+                  <span className="text-muted-foreground font-normal">
+                    (optional)
+                  </span>
                 </FieldLabel>
-                <Input id="log-contact-email" name="contact_email" type="email" placeholder="email@school.edu.au" />
+                <Input
+                  id="log-contact-email"
+                  name="contact_email"
+                  type="email"
+                  placeholder="email@school.edu.au"
+                />
               </Field>
             </div>
 
             <Field>
               <FieldLabel htmlFor="log-body">Notes</FieldLabel>
-              <Textarea id="log-body" name="body" rows={4} placeholder="Summarise the correspondence..." />
+              <Textarea
+                id="log-body"
+                name="body"
+                rows={4}
+                placeholder="Summarise the correspondence..."
+              />
             </Field>
           </FieldGroup>
 
