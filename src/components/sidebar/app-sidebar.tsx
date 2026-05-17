@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavFooter } from "@/components/sidebar/nav-footer";
@@ -12,13 +11,13 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboardIcon,
   CalendarCheckIcon,
   CalendarDaysIcon,
+  CheckSquareIcon,
   UsersIcon,
   ArchiveIcon,
   TerminalIcon,
@@ -44,15 +43,16 @@ const data = {
       url: "/events",
       icon: <CalendarCheckIcon />,
       items: [
-        {
-          title: "Event 1",
-          url: "/events/#",
-        },
-        {
-          title: "Event 2",
-          url: "/events/#",
-        },
+        { title: "Prefect Afternoon Tea", url: "/events/1" },
+        { title: "Yr 12 Assembly",        url: "/events/2" },
+        { title: "Yr 7 Orientation Day",  url: "/events/3" },
+        { title: "Farewell Ceremony",     url: "/events/4" },
       ],
+    },
+    {
+      title: "Tasks",
+      url: "/tasks",
+      icon: <CheckSquareIcon />,
     },
     {
       title: "Calendar",
