@@ -18,6 +18,7 @@ type Item = {
   description?: string | DescriptionItem[];
   badgeContent?: string;
   badgeVariant?: "default" | "secondary" | "destructive" | "outline";
+  href?: string;
 };
 
 type TableProps = {
@@ -30,7 +31,6 @@ type TableProps = {
 
 function ItemIcon({ icon }: { icon?: ReactNode | string }) {
   if (!icon) return null;
-
   if (typeof icon === "string") {
     return (
       <span
@@ -39,13 +39,11 @@ function ItemIcon({ icon }: { icon?: ReactNode | string }) {
       />
     );
   }
-
-  return <span className="shrink-0 text-muted-foreground">{icon}</span>;
+  return <span className="shrink-0 text-muted-foreground [&>svg]:h-4 [&>svg]:w-4">{icon}</span>;
 }
 
 function ItemDescription({ items }: { items?: string | DescriptionItem[] }) {
   if (!items || (Array.isArray(items) && items.length === 0)) return null;
-
   return (
     <div className="mt-0.5 flex flex-wrap items-center gap-1">
       {Array.isArray(items) ? (
@@ -54,13 +52,11 @@ function ItemDescription({ items }: { items?: string | DescriptionItem[] }) {
             {index > 0 && (
               <span className="text-muted-foreground/40 text-xs">·</span>
             )}
-
             {item.icon && (
               <span className="text-muted-foreground/60 [&>svg]:h-3 [&>svg]:w-3">
                 {item.icon}
               </span>
             )}
-
             <span className="text-muted-foreground text-xs">{item.label}</span>
           </span>
         ))
@@ -84,7 +80,6 @@ export function Table({
     <Card className={`pb-0 ${className ?? ""}`}>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-base font-semibold">{title}</CardTitle>
-
         {viewAllPath && (
           <Link
             href={viewAllPath}
@@ -96,23 +91,16 @@ export function Table({
       </CardHeader>
 
       <CardContent className="px-0">
-        {displayedItems.map((item, index) => (
-          <div key={item.id}>
-            {index > 0 && <Separator className="mx-5" />}
-
+        {displayedItems.map((item, index) => {
+          const inner = (
             <div className="flex cursor-pointer items-center justify-between px-5 py-4 transition-colors hover:bg-muted/50">
               <div className="flex items-center gap-3">
                 <ItemIcon icon={item.icon} />
-
                 <div>
-                  <p className="text-sm font-semibold leading-snug">
-                    {item.title}
-                  </p>
-
+                  <p className="text-sm font-semibold leading-snug">{item.title}</p>
                   <ItemDescription items={item.description} />
                 </div>
               </div>
-
               {item.badgeContent && (
                 <Badge
                   variant={item.badgeVariant ?? "secondary"}
@@ -122,8 +110,21 @@ export function Table({
                 </Badge>
               )}
             </div>
-          </div>
-        ))}
+          );
+
+          return (
+            <div key={item.id}>
+              {index > 0 && <Separator className="mx-5" />}
+              {item.href ? (
+                <Link href={item.href} className="block">
+                  {inner}
+                </Link>
+              ) : (
+                inner
+              )}
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );
