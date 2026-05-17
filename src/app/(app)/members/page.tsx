@@ -1,57 +1,51 @@
 import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/ui/header";
-import { Button } from "@/components/ui/button";
-import { UserPlusIcon } from "lucide-react";
 import { MemberCard, MemberCardData } from "@/components/members/member-card";
+import { InviteMemberDialog } from "@/components/members/invite-member-dialog";
 
 const members: MemberCardData[] = [
   {
     id: 1,
-    name: "Alice Johnson",
-    avatar: {
-      imageUrl: "https://randomuser.me/api/portraits/women/44.jpg",
-      fallback: "AJ",
-    },
-    role: {
-      label: "Prefect",
-    },
-    badge: {
-      label: "You",
-      variant: "default",
-    },
+    name: "Josh Lawson",
+    avatar: { fallback: "JL" },
+    role: { label: "Admin" },
+    badge: { label: "You", variant: "default" },
   },
   {
     id: 2,
-    name: "Bob Smith",
-    avatar: {
-      imageUrl: "https://randomuser.me/api/portraits/men/46.jpg",
-      fallback: "BS",
-    },
-    role: {
-      label: "Admin",
-    },
+    name: "Sophie Nguyen",
+    avatar: { fallback: "SN" },
+    role: { label: "Admin" },
   },
   {
     id: 3,
-    name: "Charlie Davis",
-    avatar: {
-      imageUrl: "https://randomuser.me/api/portraits/men/65.jpg",
-      fallback: "CD",
-    },
-    role: {
-      label: "Staff",
-    },
+    name: "Alex Kim",
+    avatar: { fallback: "AK" },
+    role: { label: "Prefect" },
   },
   {
     id: 4,
-    name: "Diana Evans",
-    avatar: {
-      imageUrl: "https://randomuser.me/api/portraits/women/68.jpg",
-      fallback: "DE",
-    },
-    role: {
-      label: "Student",
-    },
+    name: "Mia Thompson",
+    avatar: { fallback: "MT" },
+    role: { label: "Prefect" },
+  },
+  {
+    id: 5,
+    name: "Ryan Patel",
+    avatar: { fallback: "RP" },
+    role: { label: "Prefect" },
+  },
+  {
+    id: 6,
+    name: "Emma Chen",
+    avatar: { fallback: "EC" },
+    role: { label: "Prefect" },
+  },
+  {
+    id: 7,
+    name: "James Wu",
+    avatar: { fallback: "JW" },
+    role: { label: "Prefect" },
   },
 ];
 
@@ -60,16 +54,10 @@ export default async function MembersPage() {
     <div>
       <Header
         title="Members"
-        actions={
-          <>
-            <Button>
-              <UserPlusIcon /> Invite member
-            </Button>
-          </>
-        }
+        actions={<InviteMemberDialog />}
       />
       <Separator className="my-4" />
-      <div className="mt-8 grid grid-cols-4 gap-4 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {members.map((member) => (
           <MemberCard key={member.id} member={member} />
         ))}
