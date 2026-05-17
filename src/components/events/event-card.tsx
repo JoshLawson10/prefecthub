@@ -19,41 +19,46 @@ export type EventStatus = "upcoming" | "ongoing" | "completed" | "cancelled";
 
 export type EventCardData = {
   id: string | number;
-
   title: string;
-
   datetime: {
     dateLabel: string;
     timeLabel: string;
   };
-
   location: {
     label: string;
   };
-
   status: EventStatus;
-
   stats?: {
     tasksCount?: number;
     rsvpsCount?: number;
   };
 };
 
-export const EVENT_STATUS_BADGE = {
-  upcoming: "secondary",
-  ongoing: "default",
+export const EVENT_STATUS_BADGE: Record<
+  EventStatus,
+  "default" | "secondary" | "outline" | "destructive"
+> = {
+  upcoming:  "secondary",
+  ongoing:   "default",
   completed: "outline",
   cancelled: "destructive",
-} as const;
+};
 
-export function EventCard({ event }: { event: EventCardData }) {
+interface EventCardProps {
+  event: EventCardData;
+  onClick?: () => void;
+}
+
+export function EventCard({ event, onClick }: EventCardProps) {
   return (
-    <Card>
+    <Card
+      className="cursor-pointer transition-shadow hover:shadow-md"
+      onClick={onClick}
+    >
       <CardHeader>
         <CardDescription>
           {event.datetime.dateLabel} · {event.datetime.timeLabel}
         </CardDescription>
-
         <CardTitle>{event.title}</CardTitle>
       </CardHeader>
 
@@ -62,7 +67,6 @@ export function EventCard({ event }: { event: EventCardData }) {
           <MapPinIcon className="h-4 w-4" />
           {event.location.label}
         </p>
-
         <Badge className="mt-4" variant={EVENT_STATUS_BADGE[event.status]}>
           {event.status}
         </Badge>
@@ -76,7 +80,6 @@ export function EventCard({ event }: { event: EventCardData }) {
               {event.stats.tasksCount} tasks
             </p>
           )}
-
           {event.stats?.rsvpsCount !== undefined && (
             <p className="flex items-center gap-2 text-sm text-muted-foreground">
               <TicketIcon className="h-4 w-4" />
@@ -84,8 +87,11 @@ export function EventCard({ event }: { event: EventCardData }) {
             </p>
           )}
         </div>
-
-        <Button variant="outline" size="icon">
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+        >
           <ChevronRightIcon />
         </Button>
       </CardFooter>
