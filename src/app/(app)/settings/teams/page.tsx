@@ -7,17 +7,11 @@ import {
   CardTitle,
   CardDescription,
   CardContent,
-  CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
-import {
-  Field,
-  FieldLabel,
-  FieldGroup,
-} from "@/components/ui/field";
 import {
   Dialog,
   DialogContent,
@@ -26,7 +20,6 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog";
 import {
   UserPlusIcon,
@@ -35,15 +28,63 @@ import {
   UserIcon,
 } from "lucide-react";
 
-// Mock team members
 const MEMBERS = [
-  { id: "1", name: "Josh Lawson",    email: "joshua.lawson13@education.nsw.gov.au", role: "admin",   initials: "JL", joined: "1 Feb 2026" },
-  { id: "2", name: "Sophie Nguyen",  email: "sophie.nguyen@education.nsw.gov.au",   role: "admin",   initials: "SN", joined: "1 Feb 2026" },
-  { id: "3", name: "Alex Kim",       email: "alex.kim@education.nsw.gov.au",         role: "prefect", initials: "AK", joined: "3 Feb 2026" },
-  { id: "4", name: "Mia Thompson",   email: "mia.thompson@education.nsw.gov.au",     role: "prefect", initials: "MT", joined: "3 Feb 2026" },
-  { id: "5", name: "Ryan Patel",     email: "ryan.patel@education.nsw.gov.au",       role: "prefect", initials: "RP", joined: "3 Feb 2026" },
-  { id: "6", name: "Emma Chen",      email: "emma.chen@education.nsw.gov.au",         role: "prefect", initials: "EC", joined: "5 Feb 2026" },
-  { id: "7", name: "James Wu",       email: "james.wu@education.nsw.gov.au",          role: "prefect", initials: "JW", joined: "5 Feb 2026" },
+  {
+    id: "1",
+    name: "Josh Lawson",
+    email: "joshua.lawson13@education.nsw.gov.au",
+    role: "admin",
+    initials: "JL",
+    joined: "1 Feb 2026",
+  },
+  {
+    id: "2",
+    name: "Sophie Nguyen",
+    email: "sophie.nguyen@education.nsw.gov.au",
+    role: "admin",
+    initials: "SN",
+    joined: "1 Feb 2026",
+  },
+  {
+    id: "3",
+    name: "Alex Kim",
+    email: "alex.kim@education.nsw.gov.au",
+    role: "prefect",
+    initials: "AK",
+    joined: "3 Feb 2026",
+  },
+  {
+    id: "4",
+    name: "Mia Thompson",
+    email: "mia.thompson@education.nsw.gov.au",
+    role: "prefect",
+    initials: "MT",
+    joined: "3 Feb 2026",
+  },
+  {
+    id: "5",
+    name: "Ryan Patel",
+    email: "ryan.patel@education.nsw.gov.au",
+    role: "prefect",
+    initials: "RP",
+    joined: "3 Feb 2026",
+  },
+  {
+    id: "6",
+    name: "Emma Chen",
+    email: "emma.chen@education.nsw.gov.au",
+    role: "prefect",
+    initials: "EC",
+    joined: "5 Feb 2026",
+  },
+  {
+    id: "7",
+    name: "James Wu",
+    email: "james.wu@education.nsw.gov.au",
+    role: "prefect",
+    initials: "JW",
+    joined: "5 Feb 2026",
+  },
 ];
 
 const AVATAR_COLOURS = [
@@ -102,14 +143,12 @@ export default function TeamsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-
-      {/* ── Invite ───────────────────────────────────────────────────── */}
       <Card>
         <CardHeader>
           <CardTitle>Invite a member</CardTitle>
           <CardDescription>
-            Send an invitation link to a new prefect. They'll be added as a
-            Prefect by default — promote to Admin once they've joined.
+            Send an invitation link to a new prefect. They&apos;ll be added as a
+            Prefect by default — promote to Admin once they&apos;ve joined.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -128,7 +167,6 @@ export default function TeamsPage() {
         </CardContent>
       </Card>
 
-      {/* ── Members list ─────────────────────────────────────────────── */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -143,7 +181,6 @@ export default function TeamsPage() {
         </CardHeader>
 
         <CardContent className="px-0 py-0">
-          {/* Admins */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5">
               Admins
@@ -173,7 +210,6 @@ export default function TeamsPage() {
             ))}
           </div>
 
-          {/* Prefects */}
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5 border-t border-border mt-1">
               Prefects
@@ -200,19 +236,24 @@ export default function TeamsPage() {
                       <DialogTrigger asChild>
                         <Button variant="ghost" size="icon-sm">
                           <MoreHorizontalIcon />
-                          <span className="sr-only">Options for {member.name}</span>
+                          <span className="sr-only">
+                            Options for {member.name}
+                          </span>
                         </Button>
                       </DialogTrigger>
                       <DialogContent>
                         <DialogHeader>
                           <DialogTitle>Manage {member.name}</DialogTitle>
                           <DialogDescription>
-                            Change this member's role or remove them from the
-                            workspace.
+                            Change this member&apos;s role or remove them from
+                            the workspace.
                           </DialogDescription>
                         </DialogHeader>
                         <div className="flex flex-col gap-2 py-2">
-                          <Button variant="outline" className="justify-start gap-2">
+                          <Button
+                            variant="outline"
+                            className="justify-start gap-2"
+                          >
                             <ShieldIcon className="size-4" />
                             Promote to Admin
                           </Button>
@@ -234,28 +275,37 @@ export default function TeamsPage() {
         </CardContent>
       </Card>
 
-      {/* ── Workspace info ───────────────────────────────────────────── */}
       <Card>
         <CardHeader>
           <CardTitle>Workspace</CardTitle>
-          <CardDescription>Details about this Prefect Hub workspace.</CardDescription>
+          <CardDescription>
+            Details about this Prefect Hub workspace.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Workspace name</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Workspace name
+              </p>
               <p>Cumberland HS Prefects 2026</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Created</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Created
+              </p>
               <p>1 February 2026</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Members</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Members
+              </p>
               <p>{MEMBERS.length} total</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Your role</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Your role
+              </p>
               <p>Admin</p>
             </div>
           </div>
