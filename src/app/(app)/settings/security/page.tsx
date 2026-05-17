@@ -14,11 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import {
-  CheckIcon,
-  ShieldCheckIcon,
-  MonitorSmartphoneIcon,
-} from "lucide-react";
+import { CheckIcon, MonitorSmartphoneIcon } from "lucide-react";
 
 const SESSIONS = [
   {
