@@ -11,65 +11,13 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-
-interface EventNote {
-  id: string;
-  title: string;
-  body: string;
-  authorName: string;
-  authorInitials: string;
-  updatedAt: string;
-  eventId: string;
-}
-
-const ALL_NOTES: EventNote[] = [
-  {
-    id: "n1",
-    title: "Catering ideas & budget",
-    body: "Finger food for ~150 people. Budget ~$650 from P&C. Looking at 3 vendors — local bakery, supermarket platters, or school canteen.",
-    authorName: "Josh Lawson",
-    authorInitials: "JL",
-    updatedAt: "10 May",
-    eventId: "1",
-  },
-  {
-    id: "n2",
-    title: "Run sheet draft",
-    body: "3:00 PM — Doors open, music starts. 3:15 PM — Welcome speech. 3:30 PM — Catering served. 4:30 PM — Games and activities.",
-    authorName: "Sophie Nguyen",
-    authorInitials: "SN",
-    updatedAt: "9 May",
-    eventId: "1",
-  },
-  {
-    id: "n3",
-    title: "Decoration checklist",
-    body: "Navy + gold colour scheme. Balloon arch at entrance. Tablecloths x10. Photo wall backdrop. Fairy lights for tables.",
-    authorName: "Mia Thompson",
-    authorInitials: "MT",
-    updatedAt: "7 May",
-    eventId: "1",
-  },
-  {
-    id: "n4",
-    title: "Assembly order of service",
-    body: "1. Welcome by principal. 2. Prefect address. 3. Year group recognition. 4. Awards. 5. Close.",
-    authorName: "Alex Kim",
-    authorInitials: "AK",
-    updatedAt: "8 May",
-    eventId: "2",
-  },
-];
+import type { EventNote } from "@/types";
 
 interface NotesViewProps {
-  eventId?: string;
+  notes: EventNote[];
 }
 
-export function NotesView({ eventId }: NotesViewProps) {
-  const notes = eventId
-    ? ALL_NOTES.filter((n) => n.eventId === eventId)
-    : ALL_NOTES;
-
+export function NotesView({ notes }: NotesViewProps) {
   if (notes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -100,12 +48,12 @@ export function NotesView({ eventId }: NotesViewProps) {
           <CardFooter className="justify-between pt-3 pb-3">
             <div className="flex items-center gap-2">
               <Avatar size="sm">
-                <AvatarFallback>{note.authorInitials}</AvatarFallback>
+                <AvatarFallback>{note.author_initials}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-xs font-medium">{note.authorName}</p>
+                <p className="text-xs font-medium">{note.author_name}</p>
                 <p className="text-xs text-muted-foreground">
-                  {note.updatedAt}
+                  {note.updated_at}
                 </p>
               </div>
             </div>
