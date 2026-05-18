@@ -1,6 +1,7 @@
 import { Header } from "@/components/ui/header";
 import { CorrespondenceView } from "@/components/correspondence/correspondence-view";
 import { LogCorrespondenceDialog } from "@/components/correspondence/log-correspondence-dialog";
+import { getCorrespondenceByEvent } from "@/lib/data/correspondence";
 
 export default async function CorrespondencePage({
   params,
@@ -8,11 +9,13 @@ export default async function CorrespondencePage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const logs = getCorrespondenceByEvent(id);
+
   return (
     <div>
       <Header title="Correspondence" actions={<LogCorrespondenceDialog />} />
       <div className="mt-4">
-        <CorrespondenceView eventId={id} />
+        <CorrespondenceView logs={logs} />
       </div>
     </div>
   );
