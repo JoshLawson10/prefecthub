@@ -1,5 +1,5 @@
 import { format } from "date-fns";
-import type { CalendarItem } from "./calendar-view";
+import type { CalendarItem } from "@/types";
 import { MapPinIcon, CheckSquareIcon, CalendarDaysIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -42,17 +42,17 @@ export function AgendaPanel({
                   key={item.id}
                   className={cn(
                     "rounded-lg p-2.5 flex flex-col gap-0.5 cursor-pointer transition-opacity hover:opacity-80",
-                    item.colorClass,
+                    item.color_class,
                   )}
                 >
-                  <p className={cn("text-xs font-semibold", item.textClass)}>
+                  <p className={cn("text-xs font-semibold", item.text_class)}>
                     {item.title}
                   </p>
                   {item.location && (
                     <p
                       className={cn(
                         "text-[11px] flex items-center gap-1 opacity-75",
-                        item.textClass,
+                        item.text_class,
                       )}
                     >
                       <MapPinIcon className="size-2.5" />

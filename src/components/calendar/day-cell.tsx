@@ -1,6 +1,6 @@
 import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
-import type { CalendarItem } from "./calendar-view";
+import type { CalendarItem } from "@/types";
 import { EventChip } from "./event-chip";
 
 export function DayCell({

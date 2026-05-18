@@ -1,4 +1,4 @@
-import type { CalendarItem } from "./calendar-view";
+import type { CalendarItem } from "@/types";
 import { cn } from "@/lib/utils";
 import { CheckSquareIcon } from "lucide-react";
 
@@ -8,8 +8,8 @@ export function EventChip({ item }: { item: CalendarItem }) {
       title={item.title}
       className={cn(
         "flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium truncate cursor-pointer transition-opacity hover:opacity-75",
-        item.colorClass,
-        item.textClass,
+        item.color_class,
+        item.text_class,
       )}
     >
       {item.type === "task-due" ? (
