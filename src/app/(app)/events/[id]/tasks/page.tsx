@@ -1,24 +1,21 @@
 import { Header } from "@/components/ui/header";
 import { TasksView } from "@/components/tasks/tasks-view";
 import { CreateTaskDialog } from "@/components/tasks/create-task-dialog";
+import { getTasksByEvent } from "@/lib/data/tasks";
 
-// Mock tasks scoped to this event — replace with Supabase fetch
 export default async function EventTasksPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const tasks = getTasksByEvent(id);
 
   return (
     <div>
-      <Header
-        title="Tasks"
-        actions={<CreateTaskDialog />}
-      />
-      {/* TasksView accepts an optional eventId to scope its mock data */}
+      <Header title="Tasks" actions={<CreateTaskDialog />} />
       <div className="mt-4">
-        <TasksView eventId={id} />
+        <TasksView tasks={tasks} scopedToEvent />
       </div>
     </div>
   );

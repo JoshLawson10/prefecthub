@@ -31,143 +31,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-
-type TaskStatus = "todo" | "in_progress" | "overdue" | "done";
-type TaskPriority = "high" | "medium" | "low";
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: TaskStatus;
-  priority: TaskPriority;
-  dueDate: string;
-  dueDateSort: string;
-  assignee: string;
-  assigneeInitials: string;
-  eventTitle: string;
-  eventId: string;
-}
-
-const ALL_TASKS: Task[] = [
-  {
-    id: "t1",
-    title: "Book catering for PAT",
-    description: "Confirm vendor, quantities and dietary requirements",
-    status: "overdue",
-    priority: "high",
-    dueDate: "20 May",
-    dueDateSort: "2026-05-20",
-    assignee: "Josh Lawson",
-    assigneeInitials: "JL",
-    eventTitle: "Prefect Afternoon Tea",
-    eventId: "1",
-  },
-  {
-    id: "t2",
-    title: "Submit P&C funding form",
-    description: "$650 catering request",
-    status: "overdue",
-    priority: "high",
-    dueDate: "12 May",
-    dueDateSort: "2026-05-12",
-    assignee: "Sophie Nguyen",
-    assigneeInitials: "SN",
-    eventTitle: "Prefect Afternoon Tea",
-    eventId: "1",
-  },
-  {
-    id: "t3",
-    title: "Confirm AV equipment for assembly",
-    description: "Microphone, projector, clicker",
-    status: "overdue",
-    priority: "high",
-    dueDate: "15 May",
-    dueDateSort: "2026-05-15",
-    assignee: "Alex Kim",
-    assigneeInitials: "AK",
-    eventTitle: "Yr 12 Assembly",
-    eventId: "2",
-  },
-  {
-    id: "t4",
-    title: "Design RSVP form",
-    description: "Public link for PAT invitations",
-    status: "todo",
-    priority: "medium",
-    dueDate: "22 May",
-    dueDateSort: "2026-05-22",
-    assignee: "Josh Lawson",
-    assigneeInitials: "JL",
-    eventTitle: "Prefect Afternoon Tea",
-    eventId: "1",
-  },
-  {
-    id: "t5",
-    title: "Post Instagram reminder",
-    description: "Yr 12 cohort — @cumboprefects",
-    status: "todo",
-    priority: "medium",
-    dueDate: "26 May",
-    dueDateSort: "2026-05-26",
-    assignee: "Mia Thompson",
-    assigneeInitials: "MT",
-    eventTitle: "Prefect Afternoon Tea",
-    eventId: "1",
-  },
-  {
-    id: "t6",
-    title: "Prepare assembly run sheet",
-    description: "Timings, speakers, order of events",
-    status: "in_progress",
-    priority: "medium",
-    dueDate: "24 May",
-    dueDateSort: "2026-05-24",
-    assignee: "Alex Kim",
-    assigneeInitials: "AK",
-    eventTitle: "Yr 12 Assembly",
-    eventId: "2",
-  },
-  {
-    id: "t7",
-    title: "Book orientation day volunteers",
-    description: "Confirm 8 prefects for Yr 7 day",
-    status: "todo",
-    priority: "low",
-    dueDate: "1 Jun",
-    dueDateSort: "2026-06-01",
-    assignee: "Ryan Patel",
-    assigneeInitials: "RP",
-    eventTitle: "Yr 7 Orientation Day",
-    eventId: "3",
-  },
-  {
-    id: "t8",
-    title: "Organise farewell ceremony program",
-    description: "Design and print order of service",
-    status: "todo",
-    priority: "low",
-    dueDate: "10 Jun",
-    dueDateSort: "2026-06-10",
-    assignee: "Emma Chen",
-    assigneeInitials: "EC",
-    eventTitle: "Farewell Ceremony",
-    eventId: "4",
-  },
-  {
-    id: "t9",
-    title: "Draft P&C funding letter",
-    description: "Cover letter for $650 ask",
-    status: "done",
-    priority: "low",
-    dueDate: "16 May",
-    dueDateSort: "2026-05-16",
-    assignee: "Josh Lawson",
-    assigneeInitials: "JL",
-    eventTitle: "Prefect Afternoon Tea",
-    eventId: "1",
-  },
-];
+import type { Task, TaskStatus, TaskPriority } from "@/types";
 
 const STATUS_CONFIG: Record<
   TaskStatus,
@@ -241,55 +105,48 @@ type StatusFilter = TaskStatus | "all";
 type PriorityFilter = TaskPriority | "all";
 
 interface TasksViewProps {
-  /** When provided, scopes the view to tasks for that event only */
-  eventId?: string;
+  tasks: Task[];
+  scopedToEvent?: boolean;
 }
 
-export function TasksView({ eventId }: TasksViewProps) {
+export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
 
-  // Scope tasks to event if eventId provided
-  const baseTasks = useMemo(
-    () =>
-      eventId ? ALL_TASKS.filter((t) => t.eventId === eventId) : ALL_TASKS,
-    [eventId],
-  );
-
   const counts = useMemo(
     () => ({
-      overdue: baseTasks.filter((t) => t.status === "overdue").length,
-      in_progress: baseTasks.filter((t) => t.status === "in_progress").length,
-      todo: baseTasks.filter((t) => t.status === "todo").length,
-      done: baseTasks.filter((t) => t.status === "done").length,
+      overdue: tasks.filter((t) => t.status === "overdue").length,
+      in_progress: tasks.filter((t) => t.status === "in_progress").length,
+      todo: tasks.filter((t) => t.status === "todo").length,
+      done: tasks.filter((t) => t.status === "done").length,
     }),
-    [baseTasks],
+    [tasks],
   );
 
   const filtered = useMemo(() => {
-    let tasks = baseTasks;
+    let result = tasks;
     if (search.trim()) {
       const q = search.toLowerCase();
-      tasks = tasks.filter(
+      result = result.filter(
         (t) =>
           t.title.toLowerCase().includes(q) ||
-          t.eventTitle.toLowerCase().includes(q) ||
-          t.assignee.toLowerCase().includes(q),
+          t.event_title.toLowerCase().includes(q) ||
+          (t.assignee_name ?? "").toLowerCase().includes(q),
       );
     }
     if (statusFilter !== "all")
-      tasks = tasks.filter((t) => t.status === statusFilter);
+      result = result.filter((t) => t.status === statusFilter);
     if (priorityFilter !== "all")
-      tasks = tasks.filter((t) => t.priority === priorityFilter);
-    return [...tasks].sort((a, b) => {
+      result = result.filter((t) => t.priority === priorityFilter);
+    return [...result].sort((a, b) => {
       const s = STATUS_SORT[a.status] - STATUS_SORT[b.status];
       if (s !== 0) return s;
       const p = PRIORITY_SORT[a.priority] - PRIORITY_SORT[b.priority];
       if (p !== 0) return p;
-      return a.dueDateSort.localeCompare(b.dueDateSort);
+      return (a.due_date_sort ?? "").localeCompare(b.due_date_sort ?? "");
     });
-  }, [baseTasks, search, statusFilter, priorityFilter]);
+  }, [tasks, search, statusFilter, priorityFilter]);
 
   const STATUS_FILTERS: {
     value: StatusFilter;
@@ -416,7 +273,7 @@ export function TasksView({ eventId }: TasksViewProps) {
             <TableRow>
               <TableHead className="w-8" />
               <TableHead>Task</TableHead>
-              {!eventId && (
+              {!scopedToEvent && (
                 <TableHead className="hidden sm:table-cell">Event</TableHead>
               )}
               <TableHead className="w-10">Assignee</TableHead>
@@ -432,7 +289,7 @@ export function TasksView({ eventId }: TasksViewProps) {
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={eventId ? 6 : 7}>
+                <TableCell colSpan={scopedToEvent ? 6 : 7}>
                   <div className="flex flex-col items-center justify-center py-12 gap-3">
                     <CircleCheckIcon className="size-8 text-muted-foreground/30" />
                     <p className="text-sm text-muted-foreground">
@@ -479,20 +336,22 @@ export function TasksView({ eventId }: TasksViewProps) {
                         </p>
                       )}
                     </TableCell>
-                    {!eventId && (
+                    {!scopedToEvent && (
                       <TableCell className="hidden sm:table-cell">
                         <Link
-                          href={`/events/${task.eventId}/tasks`}
+                          href={`/events/${task.event_id}/tasks`}
                           onClick={(e) => e.stopPropagation()}
                           className="text-xs text-muted-foreground hover:text-foreground transition-colors truncate max-w-36 block"
                         >
-                          {task.eventTitle}
+                          {task.event_title}
                         </Link>
                       </TableCell>
                     )}
                     <TableCell>
                       <Avatar size="sm">
-                        <AvatarFallback>{task.assigneeInitials}</AvatarFallback>
+                        <AvatarFallback>
+                          {task.assignee_initials ?? "?"}
+                        </AvatarFallback>
                       </Avatar>
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
@@ -515,7 +374,7 @@ export function TasksView({ eventId }: TasksViewProps) {
                             : "text-muted-foreground",
                         )}
                       >
-                        {task.dueDate}
+                        {task.due_date}
                       </span>
                     </TableCell>
                     <TableCell className="hidden lg:table-cell">
@@ -533,7 +392,7 @@ export function TasksView({ eventId }: TasksViewProps) {
 
       {filtered.length > 0 && (
         <p className="text-xs text-muted-foreground text-right">
-          Showing {filtered.length} of {baseTasks.length} tasks
+          Showing {filtered.length} of {tasks.length} tasks
         </p>
       )}
     </div>
