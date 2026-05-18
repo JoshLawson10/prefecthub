@@ -1,0 +1,98 @@
+import type { TimelineEntry } from "@/types";
+
+const ENTRIES: TimelineEntry[] = [
+  {
+    id: "tl1",
+    type: "task_overdue",
+    title: "Task overdue — Book catering for PAT",
+    meta: "Assigned to Josh Lawson · High priority",
+    author_initials: "JL",
+    timestamp: "13 May",
+    event_id: "1",
+  },
+  {
+    id: "tl2",
+    type: "email",
+    title: "Email logged — PAT catering budget approval",
+    meta: "Contact: Ms Carter · Logged by Josh Lawson",
+    author_initials: "JL",
+    timestamp: "12 May",
+    event_id: "1",
+  },
+  {
+    id: "tl3",
+    type: "task_completed",
+    title: "Task completed — Draft P&C funding letter",
+    meta: "Completed by Josh Lawson",
+    author_initials: "JL",
+    timestamp: "11 May",
+    event_id: "1",
+  },
+  {
+    id: "tl4",
+    type: "document_uploaded",
+    title: "Document uploaded — PAT_RunSheet_v2.pdf",
+    meta: "Uploaded by Josh Lawson · 248 KB",
+    author_initials: "JL",
+    timestamp: "11 May",
+    event_id: "1",
+  },
+  {
+    id: "tl5",
+    type: "phone",
+    title: "Phone call — Hall B booking confirmed",
+    meta: "Contact: Mrs Patel · Logged by Josh Lawson",
+    author_initials: "JL",
+    timestamp: "8 May",
+    event_id: "1",
+  },
+  {
+    id: "tl6",
+    type: "note_created",
+    title: "Note created — Decoration checklist",
+    meta: "By Mia Thompson",
+    author_initials: "MT",
+    timestamp: "7 May",
+    event_id: "1",
+  },
+  {
+    id: "tl7",
+    type: "meeting",
+    title: "Meeting — PAT planning, prefect body",
+    meta: "All prefects · Logged by Sophie Nguyen",
+    author_initials: "SN",
+    timestamp: "5 May",
+    event_id: "1",
+  },
+  {
+    id: "tl8",
+    type: "event_created",
+    title: "Event created — Prefect Afternoon Tea",
+    meta: "Created by Josh Lawson",
+    author_initials: "JL",
+    timestamp: "1 May",
+    event_id: "1",
+  },
+  {
+    id: "tl9",
+    type: "meeting",
+    title: "Meeting — Assembly AV requirements",
+    meta: "AV team · Logged by Mia Thompson",
+    author_initials: "MT",
+    timestamp: "4 May",
+    event_id: "2",
+  },
+  {
+    id: "tl10",
+    type: "event_created",
+    title: "Event created — Yr 12 Assembly",
+    meta: "Created by Sophie Nguyen",
+    author_initials: "SN",
+    timestamp: "1 May",
+    event_id: "2",
+  },
+];
+
+export function getTimelineByEvent(eventId: string): TimelineEntry[] {
+  return ENTRIES.filter((e) => e.event_id === eventId);
+}

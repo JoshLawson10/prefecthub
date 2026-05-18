@@ -10,128 +10,11 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-
-type TimelineItemType =
-  | "event_created"
-  | "task_created"
-  | "task_completed"
-  | "task_overdue"
-  | "email"
-  | "meeting"
-  | "phone"
-  | "note_created"
-  | "document_uploaded";
-
-interface TimelineEntry {
-  id: string;
-  type: TimelineItemType;
-  title: string;
-  meta: string;
-  authorInitials: string;
-  timestamp: string;
-  eventId: string;
-}
-
-const ALL_ENTRIES: TimelineEntry[] = [
-  {
-    id: "tl1",
-    type: "task_overdue",
-    title: "Task overdue — Book catering for PAT",
-    meta: "Assigned to Josh Lawson · High priority",
-    authorInitials: "JL",
-    timestamp: "13 May",
-    eventId: "1",
-  },
-  {
-    id: "tl2",
-    type: "email",
-    title: "Email logged — PAT catering budget approval",
-    meta: "Contact: Ms Carter · Logged by Josh Lawson",
-    authorInitials: "JL",
-    timestamp: "12 May",
-    eventId: "1",
-  },
-  {
-    id: "tl3",
-    type: "task_completed",
-    title: "Task completed — Draft P&C funding letter",
-    meta: "Completed by Josh Lawson",
-    authorInitials: "JL",
-    timestamp: "11 May",
-    eventId: "1",
-  },
-  {
-    id: "tl4",
-    type: "document_uploaded",
-    title: "Document uploaded — PAT_RunSheet_v2.pdf",
-    meta: "Uploaded by Josh Lawson · 248 KB",
-    authorInitials: "JL",
-    timestamp: "11 May",
-    eventId: "1",
-  },
-  {
-    id: "tl5",
-    type: "phone",
-    title: "Phone call — Hall B booking confirmed",
-    meta: "Contact: Mrs Patel · Logged by Josh Lawson",
-    authorInitials: "JL",
-    timestamp: "8 May",
-    eventId: "1",
-  },
-  {
-    id: "tl6",
-    type: "note_created",
-    title: "Note created — Decoration checklist",
-    meta: "By Mia Thompson",
-    authorInitials: "MT",
-    timestamp: "7 May",
-    eventId: "1",
-  },
-  {
-    id: "tl7",
-    type: "meeting",
-    title: "Meeting — PAT planning, prefect body",
-    meta: "All prefects · Logged by Sophie Nguyen",
-    authorInitials: "SN",
-    timestamp: "5 May",
-    eventId: "1",
-  },
-  {
-    id: "tl8",
-    type: "event_created",
-    title: "Event created — Prefect Afternoon Tea",
-    meta: "Created by Josh Lawson",
-    authorInitials: "JL",
-    timestamp: "1 May",
-    eventId: "1",
-  },
-  {
-    id: "tl9",
-    type: "meeting",
-    title: "Meeting — Assembly AV requirements",
-    meta: "AV team · Logged by Mia Thompson",
-    authorInitials: "MT",
-    timestamp: "4 May",
-    eventId: "2",
-  },
-  {
-    id: "tl10",
-    type: "event_created",
-    title: "Event created — Yr 12 Assembly",
-    meta: "Created by Sophie Nguyen",
-    authorInitials: "SN",
-    timestamp: "1 May",
-    eventId: "2",
-  },
-];
+import type { TimelineEntry, TimelineItemType } from "@/types";
 
 const ENTRY_CONFIG: Record<
   TimelineItemType,
-  {
-    icon: React.ReactNode;
-    iconBg: string;
-    iconColor: string;
-  }
+  { icon: React.ReactNode; iconBg: string; iconColor: string }
 > = {
   event_created: {
     icon: <CalendarPlusIcon className="size-3.5" />,
@@ -181,14 +64,10 @@ const ENTRY_CONFIG: Record<
 };
 
 interface TimelineViewProps {
-  eventId?: string;
+  entries: TimelineEntry[];
 }
 
-export function TimelineView({ eventId }: TimelineViewProps) {
-  const entries = eventId
-    ? ALL_ENTRIES.filter((e) => e.eventId === eventId)
-    : ALL_ENTRIES;
-
+export function TimelineView({ entries }: TimelineViewProps) {
   const grouped = entries.reduce<Record<string, TimelineEntry[]>>(
     (acc, entry) => {
       (acc[entry.timestamp] ??= []).push(entry);
@@ -242,7 +121,7 @@ export function TimelineView({ eventId }: TimelineViewProps) {
                     </p>
                   </div>
                   <Avatar size="sm" className="shrink-0">
-                    <AvatarFallback>{entry.authorInitials}</AvatarFallback>
+                    <AvatarFallback>{entry.author_initials}</AvatarFallback>
                   </Avatar>
                 </div>
               );
