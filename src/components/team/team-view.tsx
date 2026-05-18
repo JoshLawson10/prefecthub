@@ -13,86 +13,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-type EventRole = "lead" | "member";
-
-interface EventMember {
-  id: string;
-  name: string;
-  initials: string;
-  role: "Admin" | "Prefect";
-  eventRole: EventRole;
-  eventId: string;
-}
-
-const ALL_MEMBERS: EventMember[] = [
-  {
-    id: "1",
-    name: "Josh Lawson",
-    initials: "JL",
-    role: "Admin",
-    eventRole: "lead",
-    eventId: "1",
-  },
-  {
-    id: "2",
-    name: "Sophie Nguyen",
-    initials: "SN",
-    role: "Admin",
-    eventRole: "member",
-    eventId: "1",
-  },
-  {
-    id: "3",
-    name: "Alex Kim",
-    initials: "AK",
-    role: "Prefect",
-    eventRole: "member",
-    eventId: "1",
-  },
-  {
-    id: "4",
-    name: "Mia Thompson",
-    initials: "MT",
-    role: "Prefect",
-    eventRole: "member",
-    eventId: "1",
-  },
-  {
-    id: "5",
-    name: "Ryan Patel",
-    initials: "RP",
-    role: "Prefect",
-    eventRole: "member",
-    eventId: "1",
-  },
-  {
-    id: "6",
-    name: "Alex Kim",
-    initials: "AK",
-    role: "Prefect",
-    eventRole: "lead",
-    eventId: "2",
-  },
-  {
-    id: "7",
-    name: "Mia Thompson",
-    initials: "MT",
-    role: "Prefect",
-    eventRole: "member",
-    eventId: "2",
-  },
-];
+import type { EventMember } from "@/types";
 
 interface TeamViewProps {
-  eventId?: string;
+  members: EventMember[];
 }
 
-export function TeamView({ eventId }: TeamViewProps) {
-  const members = eventId
-    ? ALL_MEMBERS.filter((m) => m.eventId === eventId)
-    : ALL_MEMBERS;
-
+export function TeamView({ members }: TeamViewProps) {
   return (
     <Card className="py-0 overflow-hidden">
       <Table>
@@ -108,8 +35,8 @@ export function TeamView({ eventId }: TeamViewProps) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {members.map((member) => (
-            <TableRow key={member.id}>
+          {members.map((member, i) => (
+            <TableRow key={`${member.id}-${i}`}>
               <TableCell className="pl-4">
                 <Avatar size="sm">
                   <AvatarFallback>{member.initials}</AvatarFallback>
@@ -120,10 +47,12 @@ export function TeamView({ eventId }: TeamViewProps) {
               </TableCell>
               <TableCell className="hidden sm:table-cell">
                 <Badge
-                  variant={member.role === "Admin" ? "default" : "outline"}
+                  variant={
+                    member.workspace_role === "admin" ? "default" : "outline"
+                  }
                   className="gap-1"
                 >
-                  {member.role === "Admin" ? (
+                  {member.workspace_role === "admin" ? (
                     <>
                       <ShieldIcon className="size-3" /> Admin
                     </>
@@ -137,11 +66,11 @@ export function TeamView({ eventId }: TeamViewProps) {
               <TableCell>
                 <Badge
                   variant={
-                    member.eventRole === "lead" ? "secondary" : "outline"
+                    member.event_role === "lead" ? "secondary" : "outline"
                   }
                   className="capitalize"
                 >
-                  {member.eventRole === "lead" ? "Event lead" : "Member"}
+                  {member.event_role === "lead" ? "Event lead" : "Member"}
                 </Badge>
               </TableCell>
               <TableCell className="text-right">

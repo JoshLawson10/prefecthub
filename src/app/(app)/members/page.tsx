@@ -1,65 +1,27 @@
-import { Separator } from "@/components/ui/separator";
 import { Header } from "@/components/ui/header";
-import { MemberCard, MemberCardData } from "@/components/members/member-card";
+import { Separator } from "@/components/ui/separator";
+import { MemberCard } from "@/components/members/member-card";
 import { InviteMemberDialog } from "@/components/members/invite-member-dialog";
-
-const members: MemberCardData[] = [
-  {
-    id: 1,
-    name: "Josh Lawson",
-    avatar: { fallback: "JL" },
-    role: { label: "Admin" },
-    badge: { label: "You", variant: "default" },
-  },
-  {
-    id: 2,
-    name: "Sophie Nguyen",
-    avatar: { fallback: "SN" },
-    role: { label: "Admin" },
-  },
-  {
-    id: 3,
-    name: "Alex Kim",
-    avatar: { fallback: "AK" },
-    role: { label: "Prefect" },
-  },
-  {
-    id: 4,
-    name: "Mia Thompson",
-    avatar: { fallback: "MT" },
-    role: { label: "Prefect" },
-  },
-  {
-    id: 5,
-    name: "Ryan Patel",
-    avatar: { fallback: "RP" },
-    role: { label: "Prefect" },
-  },
-  {
-    id: 6,
-    name: "Emma Chen",
-    avatar: { fallback: "EC" },
-    role: { label: "Prefect" },
-  },
-  {
-    id: 7,
-    name: "James Wu",
-    avatar: { fallback: "JW" },
-    role: { label: "Prefect" },
-  },
-];
+import { getMembers } from "@/lib/data/members";
 
 export default async function MembersPage() {
+  const members = getMembers();
+
   return (
     <div>
-      <Header
-        title="Members"
-        actions={<InviteMemberDialog />}
-      />
+      <Header title="Members" actions={<InviteMemberDialog />} />
       <Separator className="my-4" />
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {members.map((member) => (
-          <MemberCard key={member.id} member={member} />
+          <MemberCard
+            key={member.id}
+            member={{
+              id: member.id,
+              name: member.full_name,
+              avatar: { fallback: member.initials },
+              role: { label: member.role === "admin" ? "Admin" : "Prefect" },
+            }}
+          />
         ))}
       </div>
     </div>
