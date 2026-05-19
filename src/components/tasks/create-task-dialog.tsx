@@ -33,16 +33,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { getMembers } from "@/lib/data/members";
 
-const MEMBERS = [
-  { id: "1", name: "Josh Lawson" },
-  { id: "2", name: "Sophie Nguyen" },
-  { id: "3", name: "Alex Kim" },
-  { id: "4", name: "Mia Thompson" },
-  { id: "5", name: "Ryan Patel" },
-  { id: "6", name: "Emma Chen" },
-  { id: "7", name: "James Wu" },
-];
+const MEMBERS = getMembers();
 
 interface CreateTaskDialogProps {
   trigger?: React.ReactNode;
@@ -102,7 +95,7 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
                       <SelectLabel>Team members</SelectLabel>
                       {MEMBERS.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
-                          {m.name}
+                          {m.full_name}
                         </SelectItem>
                       ))}
                     </SelectGroup>

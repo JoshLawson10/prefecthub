@@ -22,16 +22,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { getMembers } from "@/lib/data/members";
 
-const TEAM_MEMBERS = [
-  { id: "1", name: "Josh Lawson", initials: "JL" },
-  { id: "2", name: "Sophie Nguyen", initials: "SN" },
-  { id: "3", name: "Alex Kim", initials: "AK" },
-  { id: "4", name: "Mia Thompson", initials: "MT" },
-  { id: "5", name: "Ryan Patel", initials: "RP" },
-  { id: "6", name: "Emma Chen", initials: "EC" },
-  { id: "7", name: "James Wu", initials: "JW" },
-];
+const MEMBERS = getMembers();
 
 export function AssignMemberDialog() {
   return (
@@ -58,9 +51,9 @@ export function AssignMemberDialog() {
               <SelectContent>
                 <SelectGroup>
                   <SelectLabel>Team members</SelectLabel>
-                  {TEAM_MEMBERS.map((m) => (
+                  {MEMBERS.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      {m.name}
+                      {m.full_name}
                     </SelectItem>
                   ))}
                 </SelectGroup>
