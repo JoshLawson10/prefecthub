@@ -81,3 +81,14 @@ export async function inviteMember(email: string): Promise<void> {
   console.log("[action] inviteMember", { email });
   // TODO: send invite email via Supabase auth / email provider
 }
+
+export interface CreateNoteInput {
+  eventId: string;
+  title: string;
+  body: string;
+}
+
+export async function createNote(input: CreateNoteInput): Promise<void> {
+  console.log("[action] createNote", input);
+  // TODO: insert into notes table
+}

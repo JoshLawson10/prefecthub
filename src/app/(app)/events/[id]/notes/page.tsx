@@ -13,7 +13,7 @@ export default async function NotesPage({
 
   return (
     <div>
-      <Header title="Notes" actions={<CreateNoteSheet />} />
+      <Header title="Notes" actions={<CreateNoteSheet eventId={id} />} />
       <div className="mt-4">
         <NotesView notes={notes} />
       </div>

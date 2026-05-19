@@ -10,9 +10,29 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createNote } from "@/lib/actions";
 
-export function CreateNoteSheet() {
-  const [open, setOpen] = useState(false);
+interface CreateNoteSheetProps {
+  eventId: string;
+}
+
+export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
+  const [open,    setOpen]    = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    setLoading(true);
+    await createNote({
+      eventId,
+      title: data.get("title") as string,
+      body:  data.get("body")  as string,
+    });
+    setLoading(false);
+    setOpen(false);
+  }
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <Button onClick={() => setOpen(true)}>
@@ -22,11 +42,11 @@ export function CreateNoteSheet() {
         <SheetHeader className="px-6 pt-6 pb-4 border-b">
           <SheetTitle>New note</SheetTitle>
         </SheetHeader>
-        <form className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-4">
+        <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-4">
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="note-title">Title</FieldLabel>
-              <Input id="note-title" name="title" placeholder="Note title" />
+              <Input id="note-title" name="title" placeholder="Note title" required />
             </Field>
             <Field className="flex-1">
               <FieldLabel htmlFor="note-body">Content</FieldLabel>
@@ -36,16 +56,19 @@ export function CreateNoteSheet() {
                 rows={12}
                 placeholder="Write your note here..."
                 className="resize-none"
+                required
               />
             </Field>
           </FieldGroup>
+          <SheetFooter className="px-0 py-0 gap-2">
+            <SheetClose asChild>
+              <Button type="button" variant="outline">Cancel</Button>
+            </SheetClose>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Saving…" : "Save note"}
+            </Button>
+          </SheetFooter>
         </form>
-        <SheetFooter className="px-6 py-4 border-t gap-2">
-          <SheetClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </SheetClose>
-          <Button type="submit">Save note</Button>
-        </SheetFooter>
       </SheetContent>
     </Sheet>
   );
