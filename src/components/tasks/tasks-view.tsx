@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
   CircleIcon,
@@ -109,7 +109,37 @@ interface TasksViewProps {
   scopedToEvent?: boolean;
 }
 
-export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
+export function TasksView({
+  tasks: initialTasks,
+  scopedToEvent = false,
+}: TasksViewProps) {
+  const [statusOverrides, setStatusOverrides] = useState<
+    Record<string, TaskStatus>
+  >({});
+
+  const tasks = useMemo(
+    () =>
+      initialTasks.map((t) => ({
+        ...t,
+        status: statusOverrides[t.id] ?? t.status,
+      })),
+    [initialTasks, statusOverrides],
+  );
+
+  const toggleDone = useCallback(
+    (task: Task) => {
+      setStatusOverrides((prev) => {
+        const current = prev[task.id] ?? task.status;
+        const next =
+          current === "done"
+            ? (initialTasks.find((t) => t.id === task.id)?.status ?? "todo")
+            : "done";
+        return { ...prev, [task.id]: next };
+      });
+    },
+    [initialTasks],
+  );
+
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
@@ -271,7 +301,7 @@ export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-8" />
+              <TableHead className="w-10 pl-4">Done</TableHead>
               <TableHead>Task</TableHead>
               {!scopedToEvent && (
                 <TableHead className="hidden sm:table-cell">Event</TableHead>
@@ -311,21 +341,52 @@ export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
               </TableRow>
             ) : (
               filtered.map((task) => {
+                const isDone = task.status === "done";
                 const status = STATUS_CONFIG[task.status];
                 const priority = PRIORITY_CONFIG[task.priority];
                 return (
-                  <TableRow key={task.id} className="cursor-pointer">
+                  <TableRow
+                    key={task.id}
+                    className={cn(
+                      "group transition-colors",
+                      isDone && "opacity-60",
+                    )}
+                  >
+                    {/* Complete toggle */}
                     <TableCell className="pl-4">
-                      <span className={cn("flex", status.iconClass)}>
-                        {status.icon}
-                      </span>
+                      <button
+                        type="button"
+                        onClick={() => toggleDone(task)}
+                        aria-label={
+                          isDone ? "Mark incomplete" : "Mark complete"
+                        }
+                        title={isDone ? "Mark incomplete" : "Mark complete"}
+                        className={cn(
+                          "flex items-center justify-center rounded-full transition-colors",
+                          "outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                          isDone
+                            ? "text-emerald-500 dark:text-emerald-400 hover:text-muted-foreground"
+                            : cn(
+                                "hover:text-emerald-500 dark:hover:text-emerald-400",
+                                status.iconClass,
+                              ),
+                        )}
+                      >
+                        {isDone ? (
+                          <CircleCheckIcon className="size-4" />
+                        ) : (
+                          <span className="flex opacity-60 group-hover:opacity-100 transition-opacity">
+                            {status.icon}
+                          </span>
+                        )}
+                      </button>
                     </TableCell>
+
                     <TableCell className="max-w-xs">
                       <p
                         className={cn(
                           "font-medium truncate",
-                          task.status === "done" &&
-                            "line-through text-muted-foreground",
+                          isDone && "line-through text-muted-foreground",
                         )}
                       >
                         {task.title}
@@ -336,17 +397,18 @@ export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
                         </p>
                       )}
                     </TableCell>
+
                     {!scopedToEvent && (
                       <TableCell className="hidden sm:table-cell">
                         <Link
                           href={`/events/${task.event_id}/tasks`}
-                          onClick={(e) => e.stopPropagation()}
                           className="text-xs text-muted-foreground hover:text-foreground transition-colors truncate max-w-36 block"
                         >
                           {task.event_title}
                         </Link>
                       </TableCell>
                     )}
+
                     <TableCell>
                       <Avatar size="sm">
                         <AvatarFallback>
@@ -354,6 +416,7 @@ export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
                         </AvatarFallback>
                       </Avatar>
                     </TableCell>
+
                     <TableCell className="hidden md:table-cell">
                       <span
                         className={cn(
@@ -365,6 +428,7 @@ export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
                         {priority.label}
                       </span>
                     </TableCell>
+
                     <TableCell className="text-right">
                       <span
                         className={cn(
@@ -377,6 +441,7 @@ export function TasksView({ tasks, scopedToEvent = false }: TasksViewProps) {
                         {task.due_date}
                       </span>
                     </TableCell>
+
                     <TableCell className="hidden lg:table-cell">
                       <Badge variant={status.badgeVariant}>
                         {status.label}
