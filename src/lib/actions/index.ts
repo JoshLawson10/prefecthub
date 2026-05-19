@@ -108,3 +108,25 @@ export async function logCorrespondence(
   console.log("[action] logCorrespondence", input);
   // TODO: insert into correspondence_logs table
 }
+
+export interface UploadDocumentInput {
+  eventId: string;
+  file: File;
+}
+
+export async function uploadDocument(
+  input: UploadDocumentInput,
+): Promise<void> {
+  console.log("[action] uploadDocument", {
+    eventId: input.eventId,
+    name: input.file.name,
+    size: input.file.size,
+    type: input.file.type,
+  });
+  // TODO: upload to Supabase Storage, then insert into documents table
+}
+
+export async function deleteDocument(documentId: string): Promise<void> {
+  console.log("[action] deleteDocument", { documentId });
+  // TODO: delete from Supabase Storage, then delete from documents table
+}

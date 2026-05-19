@@ -14,7 +14,7 @@ export default async function DocumentsPage({
     <div>
       <Header title="Documents" />
       <div className="mt-4">
-        <DocumentsView documents={documents} />
+        <DocumentsView documents={documents} eventId={id} />
       </div>
     </div>
   );
