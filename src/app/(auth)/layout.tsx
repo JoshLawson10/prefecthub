@@ -1,4 +1,18 @@
 import { TerminalIcon } from "lucide-react";
+import { getWorkspace } from "@/lib/data/workspace";
+import { getMembers } from "@/lib/data/members";
+import { getEvents } from "@/lib/data/events";
+
+const workspace = getWorkspace();
+const memberCount = getMembers().length;
+const upcomingEvents = getEvents().filter((e) => e.status === "upcoming");
+const totalRsvps = upcomingEvents.reduce((sum, e) => sum + e.rsvp_count, 0);
+
+const STATS = [
+  { value: String(memberCount), label: "Team members" },
+  { value: String(upcomingEvents.length), label: "Upcoming events" },
+  { value: String(totalRsvps), label: "RSVPs received" },
+];
 
 export default function AuthLayout({
   children,
@@ -33,7 +47,7 @@ export default function AuthLayout({
 
         <div className="relative flex items-center gap-2 text-sm font-medium opacity-60">
           <TerminalIcon className="size-4" />
-          Cumberland High School · 2026
+          {workspace.school} · {workspace.year}
         </div>
 
         <div className="relative space-y-4">
@@ -42,15 +56,11 @@ export default function AuthLayout({
           </p>
           <p className="text-sm leading-relaxed opacity-60">
             Events, tasks, correspondence, documents and notes — all in one
-            secure platform built for the Cumberland HS prefect team.
+            secure platform built for the {workspace.name} team.
           </p>
 
           <div className="flex gap-8 pt-4">
-            {[
-              { value: "18", label: "Team members" },
-              { value: "4", label: "Upcoming events" },
-              { value: "89", label: "RSVPs received" },
-            ].map((s) => (
+            {STATS.map((s) => (
               <div key={s.label}>
                 <p className="text-2xl font-semibold tabular-nums">{s.value}</p>
                 <p className="mt-0.5 text-xs opacity-50">{s.label}</p>
@@ -60,8 +70,8 @@ export default function AuthLayout({
         </div>
 
         <p className="relative text-xs opacity-40">
-          Built by Prefects, for Prefects. © 2026 Josh Lawson. All rights
-          reserved.
+          Built by Prefects, for Prefects. © {workspace.year} {workspace.school}
+          . All rights reserved.
         </p>
       </div>
     </div>

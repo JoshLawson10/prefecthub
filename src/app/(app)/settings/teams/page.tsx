@@ -21,109 +21,112 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   UserPlusIcon,
   MoreHorizontalIcon,
   ShieldIcon,
   UserIcon,
 } from "lucide-react";
+import { getMembers, getMembersByRole } from "@/lib/data/members";
+import { getWorkspace } from "@/lib/data/workspace";
+import type { Profile } from "@/types";
 
-const MEMBERS = [
-  {
-    id: "1",
-    name: "Josh Lawson",
-    email: "joshua.lawson13@education.nsw.gov.au",
-    role: "admin",
-    initials: "JL",
-    joined: "1 Feb 2026",
-  },
-  {
-    id: "2",
-    name: "Sophie Nguyen",
-    email: "sophie.nguyen@education.nsw.gov.au",
-    role: "admin",
-    initials: "SN",
-    joined: "1 Feb 2026",
-  },
-  {
-    id: "3",
-    name: "Alex Kim",
-    email: "alex.kim@education.nsw.gov.au",
-    role: "prefect",
-    initials: "AK",
-    joined: "3 Feb 2026",
-  },
-  {
-    id: "4",
-    name: "Mia Thompson",
-    email: "mia.thompson@education.nsw.gov.au",
-    role: "prefect",
-    initials: "MT",
-    joined: "3 Feb 2026",
-  },
-  {
-    id: "5",
-    name: "Ryan Patel",
-    email: "ryan.patel@education.nsw.gov.au",
-    role: "prefect",
-    initials: "RP",
-    joined: "3 Feb 2026",
-  },
-  {
-    id: "6",
-    name: "Emma Chen",
-    email: "emma.chen@education.nsw.gov.au",
-    role: "prefect",
-    initials: "EC",
-    joined: "5 Feb 2026",
-  },
-  {
-    id: "7",
-    name: "James Wu",
-    email: "james.wu@education.nsw.gov.au",
-    role: "prefect",
-    initials: "JW",
-    joined: "5 Feb 2026",
-  },
-];
+const ALL_MEMBERS = getMembers();
+const MEMBERS_BY_ROLE = getMembersByRole();
+const WORKSPACE = getWorkspace();
 
-const AVATAR_COLOURS = [
-  "bg-violet-500/15 text-violet-700 dark:text-violet-400",
-  "bg-pink-500/15 text-pink-700 dark:text-pink-400",
-  "bg-cyan-500/15 text-cyan-700 dark:text-cyan-400",
-  "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
-  "bg-amber-500/15 text-amber-700 dark:text-amber-400",
-  "bg-rose-500/15 text-rose-700 dark:text-rose-400",
-  "bg-blue-500/15 text-blue-700 dark:text-blue-400",
-];
+// TODO: derive from session once auth is wired up
+const CURRENT_USER = ALL_MEMBERS.find((m) => m.id === "1")!;
 
-function MemberAvatar({
-  initials,
-  index,
-}: {
-  initials: string;
-  index: number;
-}) {
+const ROLE_CONFIG: Record<
+  string,
+  { label: string; icon: React.ReactNode; badgeVariant: "secondary" | "outline" }
+> = {
+  admin:   { label: "Admin",   icon: <ShieldIcon className="size-3" />, badgeVariant: "secondary" },
+  prefect: { label: "Prefect", icon: <UserIcon   className="size-3" />, badgeVariant: "outline"   },
+};
+
+function getRoleConfig(role: string) {
+  return ROLE_CONFIG[role] ?? { label: role, icon: <UserIcon className="size-3" />, badgeVariant: "outline" as const };
+}
+
+function RoleBadge({ role }: { role: Profile["role"] }) {
+  const config = getRoleConfig(role);
   return (
-    <div
-      className={`size-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 ${AVATAR_COLOURS[index % AVATAR_COLOURS.length]}`}
-    >
-      {initials}
-    </div>
+    <Badge variant={config.badgeVariant} className="gap-1 text-xs">
+      {config.icon}
+      {config.label}
+    </Badge>
   );
 }
 
-function RoleBadge({ role }: { role: string }) {
-  return role === "admin" ? (
-    <Badge variant="secondary" className="gap-1 text-xs">
-      <ShieldIcon className="size-3" />
-      Admin
-    </Badge>
-  ) : (
-    <Badge variant="outline" className="gap-1 text-xs">
-      <UserIcon className="size-3" />
-      Prefect
-    </Badge>
+function MemberRow({
+  member,
+  isCurrentUser,
+  showManage,
+}: {
+  member: Profile;
+  isCurrentUser: boolean;
+  showManage: boolean;
+}) {
+  return (
+    <div>
+      <Separator className="mx-4" />
+      <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-3">
+          <Avatar>
+            <AvatarFallback>{member.initials}</AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="text-sm font-medium">
+              {member.full_name}
+              {isCurrentUser && (
+                <span className="ml-2 text-xs text-muted-foreground font-normal">
+                  (you)
+                </span>
+              )}
+            </p>
+            <p className="text-xs text-muted-foreground">{member.email}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <RoleBadge role={member.role} />
+          {showManage ? (
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon-sm">
+                  <MoreHorizontalIcon />
+                  <span className="sr-only">Options for {member.full_name}</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Manage {member.full_name}</DialogTitle>
+                  <DialogDescription>
+                    Change this member&apos;s role or remove them from the
+                    workspace.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex flex-col gap-2 py-2">
+                  <Button variant="outline" className="justify-start gap-2">
+                    <ShieldIcon className="size-4" />
+                    {member.role === "admin" ? "Demote to Prefect" : "Promote to Admin"}
+                  </Button>
+                  <Button variant="destructive" className="justify-start gap-2">
+                    Remove from workspace
+                  </Button>
+                </div>
+                <DialogFooter showCloseButton />
+              </DialogContent>
+            </Dialog>
+          ) : (
+            <div className="size-7" />
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -132,17 +135,23 @@ export default function TeamsPage() {
   const [sent, setSent] = useState(false);
 
   function handleInvite() {
-    if (!inviteEmail) return;
+    if (!inviteEmail.trim()) return;
     setSent(true);
     setInviteEmail("");
     setTimeout(() => setSent(false), 3000);
   }
 
-  const admins = MEMBERS.filter((m) => m.role === "admin");
-  const prefects = MEMBERS.filter((m) => m.role === "prefect");
+  const sections = Object.keys(MEMBERS_BY_ROLE);
+
+  const summaryParts = sections.map((role) => {
+    const count = MEMBERS_BY_ROLE[role].length;
+    const label = getRoleConfig(role).label.toLowerCase();
+    return `${count} ${label}${count !== 1 ? "s" : ""}`;
+  });
 
   return (
     <div className="flex flex-col gap-6">
+      {/* Invite */}
       <Card>
         <CardHeader>
           <CardTitle>Invite a member</CardTitle>
@@ -158,8 +167,9 @@ export default function TeamsPage() {
               placeholder="email@education.nsw.gov.au"
               value={inviteEmail}
               onChange={(e) => setInviteEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleInvite()}
             />
-            <Button onClick={handleInvite} disabled={!inviteEmail}>
+            <Button onClick={handleInvite} disabled={!inviteEmail.trim()}>
               <UserPlusIcon />
               {sent ? "Sent!" : "Invite"}
             </Button>
@@ -167,114 +177,39 @@ export default function TeamsPage() {
         </CardContent>
       </Card>
 
+      {/* Member list */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Team members</CardTitle>
-              <CardDescription className="mt-1">
-                {MEMBERS.length} members · {admins.length} admins ·{" "}
-                {prefects.length} prefects
-              </CardDescription>
-            </div>
-          </div>
+          <CardTitle>Team members</CardTitle>
+          <CardDescription className="mt-1">
+            {ALL_MEMBERS.length} members · {summaryParts.join(" · ")}
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="px-0 py-0">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5">
-              Admins
-            </p>
-            {admins.map((member, i) => (
-              <div key={member.id}>
-                <Separator className="mx-4" />
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <MemberAvatar initials={member.initials} index={i} />
-                    <div>
-                      <p className="text-sm font-medium">{member.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {member.email}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <RoleBadge role={member.role} />
-                    <Button variant="ghost" size="icon-sm">
-                      <MoreHorizontalIcon />
-                      <span className="sr-only">Options</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5 border-t border-border mt-1">
-              Prefects
-            </p>
-            {prefects.map((member, i) => (
-              <div key={member.id}>
-                <Separator className="mx-4" />
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-3">
-                    <MemberAvatar
-                      initials={member.initials}
-                      index={i + admins.length}
-                    />
-                    <div>
-                      <p className="text-sm font-medium">{member.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {member.email}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <RoleBadge role={member.role} />
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreHorizontalIcon />
-                          <span className="sr-only">
-                            Options for {member.name}
-                          </span>
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Manage {member.name}</DialogTitle>
-                          <DialogDescription>
-                            Change this member&apos;s role or remove them from
-                            the workspace.
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="flex flex-col gap-2 py-2">
-                          <Button
-                            variant="outline"
-                            className="justify-start gap-2"
-                          >
-                            <ShieldIcon className="size-4" />
-                            Promote to Admin
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            className="justify-start gap-2"
-                          >
-                            Remove from workspace
-                          </Button>
-                        </div>
-                        <DialogFooter showCloseButton />
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {sections.map((role, sectionIndex) => (
+            <div key={role}>
+              <p
+                className={`text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5 ${
+                  sectionIndex > 0 ? "border-t border-border mt-1" : ""
+                }`}
+              >
+                {getRoleConfig(role).label}s
+              </p>
+              {MEMBERS_BY_ROLE[role].map((member) => (
+                <MemberRow
+                  key={member.id}
+                  member={member}
+                  isCurrentUser={member.id === CURRENT_USER.id}
+                  showManage={member.id !== CURRENT_USER.id}
+                />
+              ))}
+            </div>
+          ))}
         </CardContent>
       </Card>
 
+      {/* Workspace info */}
       <Card>
         <CardHeader>
           <CardTitle>Workspace</CardTitle>
@@ -288,25 +223,25 @@ export default function TeamsPage() {
               <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
                 Workspace name
               </p>
-              <p>Cumberland HS Prefects 2026</p>
+              <p>{WORKSPACE.name}</p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
                 Created
               </p>
-              <p>1 February 2026</p>
+              <p>{WORKSPACE.created_at}</p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
                 Members
               </p>
-              <p>{MEMBERS.length} total</p>
+              <p>{ALL_MEMBERS.length} total</p>
             </div>
             <div>
               <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
                 Your role
               </p>
-              <p>Admin</p>
+              <p className="capitalize">{CURRENT_USER.role}</p>
             </div>
           </div>
         </CardContent>

@@ -60,8 +60,17 @@ export function getMember(id: string): Profile | undefined {
   return MEMBERS.find((m) => m.id === id);
 }
 
-export function getMembersByRole(role: string): Profile[] {
-  return MEMBERS.filter((m) => m.role === role);
+export function getMembersByRole(): Record<string, Profile[]> {
+  return MEMBERS.reduce(
+    (acc, member) => {
+      if (!acc[member.role]) {
+        acc[member.role] = [];
+      }
+      acc[member.role].push(member);
+      return acc;
+    },
+    {} as Record<string, Profile[]>,
+  );
 }
 
 export function totalMembers(): number {

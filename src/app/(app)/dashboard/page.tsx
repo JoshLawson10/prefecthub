@@ -18,13 +18,6 @@ import { getNotifications } from "@/lib/data/notifications";
 import { countMembersByType } from "@/lib/data/members";
 import { differenceInCalendarDays, parseISO } from "date-fns";
 
-const EVENT_COLOURS: Record<string, string> = {
-  "1": "#4A90D9",
-  "2": "#E8A838",
-  "3": "#3DAA6B",
-  "4": "#C0392B",
-};
-
 const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   task_overdue: "Overdue",
   task_assigned: "Assigned",
@@ -38,8 +31,6 @@ const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
 export default function DashboardPage() {
   const stats = getDashboardStats();
   const memberCounts = countMembersByType();
-  const adminCount = memberCounts["admin"] ?? 0;
-  const prefectCount = memberCounts["prefect"] ?? 0;
 
   const today = new Date();
 
@@ -56,7 +47,7 @@ export default function DashboardPage() {
             : `${daysUntil}d`;
       return {
         id: e.id,
-        icon: EVENT_COLOURS[e.id] ?? "#888",
+        icon: e.colour,
         title: e.title,
         description: [
           { label: e.date, icon: <CalendarIcon /> },
@@ -157,7 +148,9 @@ export default function DashboardPage() {
         <StatCard
           description="Team Members"
           title={stats.total_members}
-          footerDescription={`${adminCount} Admin${adminCount !== 1 ? "s" : ""} · ${prefectCount} Prefect${prefectCount !== 1 ? "s" : ""}`}
+          footerDescription={Object.entries(memberCounts)
+            .map(([role, count]) => `${count} ${role}${count !== 1 ? "s" : ""}`)
+            .join(" · ")}
         />
       </div>
 

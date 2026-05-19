@@ -174,3 +174,11 @@ export interface DeviceSession {
   last_active: string;
   current: boolean;
 }
+
+export interface Workspace {
+  name: string;
+  school: string;
+  year: number;
+  created_at: string;
+  created_at_sort: string;
+}

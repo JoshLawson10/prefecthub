@@ -30,8 +30,9 @@ export function InviteMemberDialog() {
         <DialogHeader>
           <DialogTitle>Invite a member</DialogTitle>
           <DialogDescription>
-            Send an invitation to a new prefect. They'll be added as a Prefect
-            by default — an Admin can promote them once they've joined.
+            Send an invitation to a new prefect. They&apos;ll be added as a
+            Prefect by default — an Admin can promote them once they&apos;ve
+            joined.
           </DialogDescription>
         </DialogHeader>
         <FieldGroup>

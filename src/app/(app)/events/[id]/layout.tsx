@@ -19,12 +19,12 @@ interface Props {
 }
 
 const tabs = [
-  { label: "Tasks",          href: "tasks"          },
+  { label: "Tasks", href: "tasks" },
   { label: "Correspondence", href: "correspondence" },
-  { label: "Documents",      href: "documents"      },
-  { label: "Notes",          href: "notes"          },
-  { label: "Timeline",       href: "timeline"       },
-  { label: "Team",           href: "team"           },
+  { label: "Documents", href: "documents" },
+  { label: "Notes", href: "notes" },
+  { label: "Timeline", href: "timeline" },
+  { label: "Team", href: "team" },
 ];
 
 export default async function EventLayout({ children, params }: Props) {
@@ -63,7 +63,9 @@ export default async function EventLayout({ children, params }: Props) {
           </div>
           <div className="flex items-center gap-1.5">
             <MapPinIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">{event.location}</span>
+            <span className="text-sm text-muted-foreground">
+              {event.location}
+            </span>
           </div>
           {event.max_capacity && (
             <div className="flex items-center gap-1.5">

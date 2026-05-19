@@ -63,15 +63,16 @@ interface NotificationsViewProps {
   initialNotifications: Notification[];
 }
 
-export function NotificationsView({ initialNotifications }: NotificationsViewProps) {
+export function NotificationsView({
+  initialNotifications,
+}: NotificationsViewProps) {
   const [notifications, setNotifications] = useState(initialNotifications);
-  const [selected, setSelected]           = useState<Notification | null>(null);
-  const [sheetOpen, setSheetOpen]         = useState(false);
+  const [selected, setSelected] = useState<Notification | null>(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   function openDetail(notif: Notification) {
-    // Mark read immediately when opened
     setNotifications((prev) =>
       prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n)),
     );
@@ -86,7 +87,6 @@ export function NotificationsView({ initialNotifications }: NotificationsViewPro
   return (
     <>
       <div className="flex flex-col gap-4 max-w-2xl">
-        {/* Toolbar */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {unreadCount > 0 && (
@@ -100,12 +100,13 @@ export function NotificationsView({ initialNotifications }: NotificationsViewPro
           )}
         </div>
 
-        {/* List */}
         <div className="flex flex-col rounded-xl border border-border overflow-hidden">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 gap-3">
               <BellOffIcon className="size-8 text-muted-foreground/30" />
-              <p className="text-sm text-muted-foreground">You're all caught up</p>
+              <p className="text-sm text-muted-foreground">
+                You&apos;re all caught up
+              </p>
             </div>
           ) : (
             notifications.map((notif, i) => {
@@ -119,18 +120,16 @@ export function NotificationsView({ initialNotifications }: NotificationsViewPro
                     className={cn(
                       "flex w-full items-start gap-4 px-5 py-4 text-left transition-colors",
                       !notif.read
-                        ? "bg-primary/[0.03] hover:bg-primary/[0.06]"
+                        ? "bg-primary/3 hover:bg-primary/6"
                         : "hover:bg-muted/40",
                     )}
                   >
-                    {/* Unread dot */}
                     <div className="mt-1 flex size-2 shrink-0 items-center justify-center">
                       {!notif.read && (
                         <span className="size-2 rounded-full bg-primary" />
                       )}
                     </div>
 
-                    {/* Type icon */}
                     <div
                       className={cn(
                         "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg",
@@ -140,7 +139,6 @@ export function NotificationsView({ initialNotifications }: NotificationsViewPro
                       <span className={config.iconColor}>{config.icon}</span>
                     </div>
 
-                    {/* Text */}
                     <div className="flex-1 min-w-0">
                       <p
                         className={cn(
@@ -160,7 +158,6 @@ export function NotificationsView({ initialNotifications }: NotificationsViewPro
                       )}
                     </div>
 
-                    {/* Right side — timestamp + chevron */}
                     <div className="flex shrink-0 flex-col items-end gap-2 mt-0.5">
                       <span className="text-xs text-muted-foreground tabular-nums">
                         {notif.timestamp}
@@ -175,7 +172,6 @@ export function NotificationsView({ initialNotifications }: NotificationsViewPro
         </div>
       </div>
 
-      {/* Detail sheet */}
       <NotificationDetailSheet
         notification={selected}
         open={sheetOpen}

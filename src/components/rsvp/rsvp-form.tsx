@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import {
-  CalendarIcon, ClockIcon, MapPinIcon, CheckCircleIcon,
-} from "lucide-react";
+import { CheckCircleIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Field, FieldGroup, FieldLabel, FieldDescription,
+  Field,
+  FieldGroup,
+  FieldLabel,
+  FieldDescription,
 } from "@/components/ui/field";
 
 interface RSVPFormProps {
@@ -22,7 +23,6 @@ export function RSVPForm({ currentCount, maxCapacity }: RSVPFormProps) {
 
   const isFull = maxCapacity !== null && currentCount >= maxCapacity;
   const spotsLeft = maxCapacity !== null ? maxCapacity - currentCount : null;
-  const fillPct = maxCapacity ? Math.round((currentCount / maxCapacity) * 100) : 0;
 
   if (submitted) {
     return (
@@ -31,9 +31,9 @@ export function RSVPForm({ currentCount, maxCapacity }: RSVPFormProps) {
           <CheckCircleIcon className="size-7 text-emerald-600 dark:text-emerald-400" />
         </div>
         <div>
-          <p className="text-lg font-semibold">You're on the list!</p>
+          <p className="text-lg font-semibold">You&aposre on the list!</p>
           <p className="mt-1 text-sm text-muted-foreground">
-            We'll send a confirmation to your email address.
+            We&apos;ll send a confirmation to your email address.
           </p>
         </div>
       </div>
@@ -42,18 +42,34 @@ export function RSVPForm({ currentCount, maxCapacity }: RSVPFormProps) {
 
   return (
     <form
-      onSubmit={(e) => { e.preventDefault(); setSubmitted(true); }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        setSubmitted(true);
+      }}
       className="flex flex-col gap-4"
     >
       <FieldGroup>
         <Field>
           <FieldLabel htmlFor="rsvp-name">Full name</FieldLabel>
-          <Input id="rsvp-name" name="name" placeholder="Your full name" required />
+          <Input
+            id="rsvp-name"
+            name="name"
+            placeholder="Your full name"
+            required
+          />
         </Field>
         <Field>
           <FieldLabel htmlFor="rsvp-email">Email address</FieldLabel>
-          <Input id="rsvp-email" name="email" type="email" placeholder="you@example.com" required />
-          <FieldDescription>We'll send your confirmation here.</FieldDescription>
+          <Input
+            id="rsvp-email"
+            name="email"
+            type="email"
+            placeholder="you@example.com"
+            required
+          />
+          <FieldDescription>
+            We&apos;ll send your confirmation here.
+          </FieldDescription>
         </Field>
         <Field>
           <FieldLabel htmlFor="rsvp-guests">Number of guests</FieldLabel>
@@ -71,9 +87,16 @@ export function RSVPForm({ currentCount, maxCapacity }: RSVPFormProps) {
         <Field>
           <FieldLabel htmlFor="rsvp-dietary">
             Dietary requirements{" "}
-            <span className="text-muted-foreground font-normal">(optional)</span>
+            <span className="text-muted-foreground font-normal">
+              (optional)
+            </span>
           </FieldLabel>
-          <Textarea id="rsvp-dietary" name="dietary_notes" rows={2} placeholder="e.g. vegetarian, nut allergy..." />
+          <Textarea
+            id="rsvp-dietary"
+            name="dietary_notes"
+            rows={2}
+            placeholder="e.g. vegetarian, nut allergy..."
+          />
         </Field>
       </FieldGroup>
 

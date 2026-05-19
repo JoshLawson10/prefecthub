@@ -18,14 +18,11 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetDescription,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { Notification, NotificationType } from "@/types";
-
-// ─── Type config ──────────────────────────────────────────────────────────────
 
 const TYPE_CONFIG: Record<
   NotificationType,
@@ -88,15 +85,11 @@ const TYPE_CONFIG: Record<
   },
 };
 
-// ─── Props ────────────────────────────────────────────────────────────────────
-
 interface NotificationDetailSheetProps {
   notification: Notification | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-// ─── Component ────────────────────────────────────────────────────────────────
 
 export function NotificationDetailSheet({
   notification,
@@ -113,11 +106,12 @@ export function NotificationDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex flex-col gap-0 p-0 sm:max-w-md">
-        {/* Header */}
+      <SheetContent
+        side="right"
+        className="flex flex-col gap-0 p-0 sm:max-w-md"
+      >
         <SheetHeader className="border-b px-6 py-5 gap-3">
           <div className="flex items-start gap-4">
-            {/* Type icon */}
             <div
               className={cn(
                 "mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl",
@@ -140,16 +134,13 @@ export function NotificationDetailSheet({
           </div>
         </SheetHeader>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-5 flex flex-col gap-5">
-          {/* Summary */}
           <p className="text-sm text-muted-foreground leading-relaxed">
             {notification.description}
           </p>
 
           <Separator />
 
-          {/* Detail paragraph */}
           {notification.detail && (
             <div className="flex flex-col gap-1.5">
               <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
@@ -159,9 +150,7 @@ export function NotificationDetailSheet({
             </div>
           )}
 
-          {/* Meta grid */}
           <div className="rounded-lg border border-border bg-muted/30 divide-y divide-border overflow-hidden">
-            {/* Received */}
             <div className="flex items-start gap-3 px-4 py-3">
               <CalendarIcon className="size-4 text-muted-foreground mt-0.5 shrink-0" />
               <div>
@@ -170,7 +159,6 @@ export function NotificationDetailSheet({
               </div>
             </div>
 
-            {/* Event */}
             {notification.event_title && (
               <div className="flex items-start gap-3 px-4 py-3">
                 <CalendarPlusIcon className="size-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -191,9 +179,13 @@ export function NotificationDetailSheet({
               </div>
             )}
 
-            {/* Type */}
             <div className="flex items-start gap-3 px-4 py-3">
-              <span className={cn("mt-0.5 shrink-0 [&>svg]:size-4", config.iconColor)}>
+              <span
+                className={cn(
+                  "mt-0.5 shrink-0 [&>svg]:size-4",
+                  config.iconColor,
+                )}
+              >
                 {config.icon}
               </span>
               <div>
@@ -204,7 +196,6 @@ export function NotificationDetailSheet({
           </div>
         </div>
 
-        {/* Footer — CTA */}
         {notification.action && (
           <div className="border-t px-6 py-4">
             <Button asChild className="w-full gap-2">
