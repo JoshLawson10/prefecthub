@@ -13,6 +13,8 @@ import {
 import { SearchIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewEventDialog } from "@/components/dashboard/new-event-dialog";
+import { getEvents } from "@/lib/data/events";
+import type { Event } from "@/types";
 
 const FILTERS = ["All", "Upcoming", "Ongoing", "Completed", "Cancelled"] as const;
 type Filter = (typeof FILTERS)[number];
@@ -25,40 +27,18 @@ const FILTER_STATUS_MAP: Record<Filter, EventStatus | null> = {
   Cancelled: "cancelled",
 };
 
-const events: EventCardData[] = [
-  {
-    id: "1",
-    title: "Prefect Afternoon Tea",
-    datetime: { dateLabel: "Fri 30 May", timeLabel: "3:00 PM - 5:00 PM" },
-    location: { label: "Hall B" },
-    status: "upcoming",
-    stats: { tasksCount: 12, rsvpsCount: 120 },
-  },
-  {
-    id: "2",
-    title: "Yr 12 Assembly",
-    datetime: { dateLabel: "Mon 26 May", timeLabel: "10:00 AM - 11:00 AM" },
-    location: { label: "Hall A" },
-    status: "ongoing",
-    stats: { tasksCount: 5, rsvpsCount: 200 },
-  },
-  {
-    id: "3",
-    title: "Yr 7 Orientation Day",
-    datetime: { dateLabel: "Wed 18 Jun", timeLabel: "9:00 AM - 2:00 PM" },
-    location: { label: "Quad" },
-    status: "completed",
-    stats: { tasksCount: 20, rsvpsCount: 300 },
-  },
-  {
-    id: "4",
-    title: "Farewell Ceremony",
-    datetime: { dateLabel: "Fri 20 Jun", timeLabel: "2:00 PM - 4:00 PM" },
-    location: { label: "Auditorium" },
-    status: "cancelled",
-    stats: { tasksCount: 0, rsvpsCount: 0 },
-  },
-];
+function toCardData(e: Event): EventCardData {
+  return {
+    id: e.id,
+    title: e.title,
+    datetime: { dateLabel: e.date, timeLabel: e.time },
+    location: { label: e.location },
+    status: e.status,
+    stats: { tasksCount: e.task_count, rsvpsCount: e.rsvp_count },
+  };
+}
+
+const ALL_EVENTS = getEvents().map(toCardData);
 
 export default function EventsPage() {
   const router = useRouter();
@@ -66,13 +46,9 @@ export default function EventsPage() {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
-    let result = events;
-
+    let result = ALL_EVENTS;
     const statusFilter = FILTER_STATUS_MAP[filter];
-    if (statusFilter) {
-      result = result.filter((e) => e.status === statusFilter);
-    }
-
+    if (statusFilter) result = result.filter((e) => e.status === statusFilter);
     if (search.trim()) {
       const q = search.toLowerCase();
       result = result.filter(
@@ -81,16 +57,12 @@ export default function EventsPage() {
           e.location.label.toLowerCase().includes(q),
       );
     }
-
     return result;
   }, [filter, search]);
 
   return (
     <div>
-      <Header
-        title="Events"
-        actions={<NewEventDialog />}
-      />
+      <Header title="Events" actions={<NewEventDialog />} />
       <Separator className="my-4" />
 
       <div className="flex items-center gap-3 flex-wrap">
