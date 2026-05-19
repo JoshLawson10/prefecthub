@@ -1,4 +1,4 @@
-import type { TaskPriority, TaskStatus, EventRole } from "@/types";
+import type { TaskPriority, TaskStatus, EventRole, LogType } from "@/types";
 
 export interface CreateEventInput {
   title: string;
@@ -91,4 +91,20 @@ export interface CreateNoteInput {
 export async function createNote(input: CreateNoteInput): Promise<void> {
   console.log("[action] createNote", input);
   // TODO: insert into notes table
+}
+
+export interface LogCorrespondenceInput {
+  eventId: string;
+  type: LogType;
+  subject: string;
+  body: string;
+  contactName: string;
+  contactEmail: string | null;
+}
+
+export async function logCorrespondence(
+  input: LogCorrespondenceInput,
+): Promise<void> {
+  console.log("[action] logCorrespondence", input);
+  // TODO: insert into correspondence_logs table
 }

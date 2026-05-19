@@ -13,7 +13,7 @@ export default async function CorrespondencePage({
 
   return (
     <div>
-      <Header title="Correspondence" actions={<LogCorrespondenceDialog />} />
+      <Header title="Correspondence" actions={<LogCorrespondenceDialog eventId={id} />} />
       <div className="mt-4">
         <CorrespondenceView logs={logs} />
       </div>
