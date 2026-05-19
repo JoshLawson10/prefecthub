@@ -37,7 +37,7 @@ export interface Event {
   description: string | null;
   date: string;
   time: string;
-  dateSort: string; // yyyy-MM-dd for sorting
+  dateSort: string;
   location: string;
   status: EventStatus;
   max_capacity: number | null;
@@ -58,7 +58,7 @@ export interface Task {
   priority: TaskPriority;
   status: TaskStatus;
   due_date: string | null;
-  due_date_sort: string | null; // yyyy-MM-dd
+  due_date_sort: string | null;
   event_title: string;
 }
 
@@ -125,14 +125,27 @@ export interface TimelineEntry {
   event_id: string;
 }
 
+/** Primary action a notification can surface (shown as a CTA in the detail sheet). */
+export interface NotificationAction {
+  label: string;
+  href: string;
+}
+
 export interface Notification {
   id: string;
   type: NotificationType;
   title: string;
   description: string;
+  /** Full-sentence detail shown in the sheet body. */
+  detail?: string;
   timestamp: string;
+  /** ISO datetime used to render a precise "received" line in the detail sheet. */
+  received_at?: string;
   read: boolean;
   event_id?: string;
+  event_title?: string;
+  /** Optional CTA surfaced in the detail sheet. */
+  action?: NotificationAction;
 }
 
 export interface DashboardStats {
