@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { UserPlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +24,31 @@ import {
 } from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { getMembers } from "@/lib/data/members";
+import { assignTeamMember } from "@/lib/actions";
+import type { EventRole } from "@/types";
 
 const MEMBERS = getMembers();
 
-export function AssignMemberDialog() {
+interface AssignMemberDialogProps {
+  eventId: string;
+}
+
+export function AssignMemberDialog({ eventId }: AssignMemberDialogProps) {
+  const [open,      setOpen]      = useState(false);
+  const [memberId,  setMemberId]  = useState("");
+  const [role,      setRole]      = useState<EventRole | "">("");
+  const [loading,   setLoading]   = useState(false);
+
+  async function handleSubmit() {
+    if (!memberId || !role) return;
+    setLoading(true);
+    await assignTeamMember({ eventId, memberId, role: role as EventRole });
+    setLoading(false);
+    setOpen(false);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <UserPlusIcon /> Assign member
@@ -37,14 +57,12 @@ export function AssignMemberDialog() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Assign member</DialogTitle>
-          <DialogDescription>
-            Add a prefect to this event&apos;s team.
-          </DialogDescription>
+          <DialogDescription>Add a prefect to this event&apos;s team.</DialogDescription>
         </DialogHeader>
         <FieldGroup>
           <Field>
-            <FieldLabel htmlFor="assign-member">Team member</FieldLabel>
-            <Select name="assign_member">
+            <FieldLabel>Team member</FieldLabel>
+            <Select value={memberId} onValueChange={setMemberId}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a member..." />
               </SelectTrigger>
@@ -52,17 +70,15 @@ export function AssignMemberDialog() {
                 <SelectGroup>
                   <SelectLabel>Team members</SelectLabel>
                   {MEMBERS.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.full_name}
-                    </SelectItem>
+                    <SelectItem key={m.id} value={m.id}>{m.full_name}</SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
             </Select>
           </Field>
           <Field>
-            <FieldLabel htmlFor="assign-role">Event role</FieldLabel>
-            <Select name="assign_role">
+            <FieldLabel>Event role</FieldLabel>
+            <Select value={role} onValueChange={(v) => setRole(v as EventRole)}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a role..." />
               </SelectTrigger>
@@ -78,10 +94,10 @@ export function AssignMemberDialog() {
         </FieldGroup>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
-          <Button>
-            <UserPlusIcon /> Assign
+          <Button onClick={handleSubmit} disabled={!memberId || !role || loading}>
+            <UserPlusIcon /> {loading ? "Assigning…" : "Assign"}
           </Button>
         </DialogFooter>
       </DialogContent>

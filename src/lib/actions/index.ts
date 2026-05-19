@@ -1,4 +1,4 @@
-import type { TaskPriority, TaskStatus } from "@/types";
+import type { TaskPriority, TaskStatus, EventRole } from "@/types";
 
 export interface CreateEventInput {
   title: string;
@@ -45,4 +45,39 @@ export async function updateTaskStatus(
 ): Promise<void> {
   console.log("[action] updateTaskStatus", input);
   // TODO: update tasks.status where id = taskId
+}
+
+export interface AssignTeamMemberInput {
+  eventId: string;
+  memberId: string;
+  role: EventRole;
+}
+
+export async function assignTeamMember(
+  input: AssignTeamMemberInput,
+): Promise<void> {
+  console.log("[action] assignTeamMember", input);
+  // TODO: insert into event_members table
+}
+
+export interface UpdateMemberRoleInput {
+  memberId: string;
+  newRole: "admin" | "prefect";
+}
+
+export async function updateMemberRole(
+  input: UpdateMemberRoleInput,
+): Promise<void> {
+  console.log("[action] updateMemberRole", input);
+  // TODO: update profiles.role where id = memberId
+}
+
+export async function removeMember(memberId: string): Promise<void> {
+  console.log("[action] removeMember", { memberId });
+  // TODO: delete from workspace_members where member_id = memberId
+}
+
+export async function inviteMember(email: string): Promise<void> {
+  console.log("[action] inviteMember", { email });
+  // TODO: send invite email via Supabase auth / email provider
 }
