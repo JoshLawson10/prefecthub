@@ -5,7 +5,7 @@ import { ArchiveRestoreIcon, SearchIcon, ArchiveIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/ui/header";
 import { Separator } from "@/components/ui/separator";
-import { EventCard } from "@/components/events/event-card";
+import { EventCard, EventCardData } from "@/components/events/event-card";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -22,9 +22,21 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { getArchivedEvents } from "@/lib/data/archive";
+import { getArchivedEvents } from "@/lib/data/events";
+import type { Event } from "@/types";
 
-const ARCHIVED_EVENTS = getArchivedEvents();
+function toCardData(e: Event): EventCardData {
+  return {
+    id: e.id,
+    title: e.title,
+    datetime: { dateLabel: e.date, timeLabel: e.time },
+    location: { label: e.location },
+    status: e.status,
+    stats: { tasksCount: e.task_count, rsvpsCount: e.rsvp_count },
+  };
+}
+
+const ARCHIVED = getArchivedEvents().map(toCardData);
 
 function RestoreDialog({ eventTitle }: { eventTitle: string }) {
   return (
@@ -66,9 +78,9 @@ export default function ArchivePage() {
   const [search, setSearch] = useState("");
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return ARCHIVED_EVENTS;
+    if (!search.trim()) return ARCHIVED;
     const q = search.toLowerCase();
-    return ARCHIVED_EVENTS.filter(
+    return ARCHIVED.filter(
       (e) =>
         e.title.toLowerCase().includes(q) ||
         e.location.label.toLowerCase().includes(q),
@@ -92,16 +104,14 @@ export default function ArchivePage() {
           </InputGroupAddon>
         </InputGroup>
         <p className="text-sm text-muted-foreground">
-          {ARCHIVED_EVENTS.length} archived events
+          {ARCHIVED.length} archived events
         </p>
       </div>
 
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <ArchiveIcon className="size-8 text-muted-foreground/30" />
-          <p className="text-sm text-muted-foreground">
-            No archived events found
-          </p>
+          <p className="text-sm text-muted-foreground">No archived events found</p>
           <Button variant="ghost" size="sm" onClick={() => setSearch("")}>
             Clear search
           </Button>
