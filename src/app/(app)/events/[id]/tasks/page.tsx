@@ -13,7 +13,7 @@ export default async function EventTasksPage({
 
   return (
     <div>
-      <Header title="Tasks" actions={<CreateTaskDialog />} />
+      <Header title="Tasks" actions={<CreateTaskDialog eventId={id} />} />
       <div className="mt-4">
         <TasksView tasks={tasks} scopedToEvent />
       </div>

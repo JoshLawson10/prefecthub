@@ -34,19 +34,42 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { getMembers } from "@/lib/data/members";
+import { createTask } from "@/lib/actions";
+import type { TaskPriority } from "@/types";
 
 const MEMBERS = getMembers();
 
 interface CreateTaskDialogProps {
+  eventId: string;
   trigger?: React.ReactNode;
 }
 
-export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
+export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
+  const [open, setOpen] = useState(false);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [dateOpen, setDateOpen] = useState(false);
+  const [assigneeId, setAssigneeId] = useState<string>("");
+  const [priority, setPriority] = useState<string>("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    setLoading(true);
+    await createTask({
+      eventId,
+      title:       data.get("title") as string,
+      description: (data.get("description") as string) || null,
+      assigneeId:  assigneeId || null,
+      priority:    (priority as TaskPriority) || "medium",
+      dueDate:     dueDate ?? null,
+    });
+    setLoading(false);
+    setOpen(false);
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button>
@@ -55,7 +78,7 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
         )}
       </DialogTrigger>
       <DialogContent>
-        <form className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>Add task</DialogTitle>
             <DialogDescription>
@@ -70,15 +93,14 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
                 id="task-title"
                 name="title"
                 placeholder="What needs to be done?"
+                required
               />
             </Field>
 
             <Field>
               <FieldLabel htmlFor="task-desc">
                 Description{" "}
-                <span className="text-muted-foreground font-normal">
-                  (optional)
-                </span>
+                <span className="text-muted-foreground font-normal">(optional)</span>
               </FieldLabel>
               <Textarea id="task-desc" name="description" rows={2} />
             </Field>
@@ -86,7 +108,7 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
             <div className="grid grid-cols-2 gap-3">
               <Field>
                 <FieldLabel htmlFor="task-assignee">Assignee</FieldLabel>
-                <Select name="assignee">
+                <Select value={assigneeId} onValueChange={setAssigneeId}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Unassigned" />
                   </SelectTrigger>
@@ -105,7 +127,7 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
 
               <Field>
                 <FieldLabel htmlFor="task-priority">Priority</FieldLabel>
-                <Select name="priority">
+                <Select value={priority} onValueChange={setPriority}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select priority" />
                   </SelectTrigger>
@@ -126,6 +148,7 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
               <Popover open={dateOpen} onOpenChange={setDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
+                    type="button"
                     variant="outline"
                     className={cn(
                       "w-full justify-start font-normal",
@@ -152,9 +175,11 @@ export function CreateTaskDialog({ trigger }: CreateTaskDialogProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Create task</Button>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Creating…" : "Create task"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
