@@ -15,7 +15,6 @@ import {
   parseISO,
 } from "date-fns";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DayCell } from "./day-cell";
@@ -62,6 +61,7 @@ export function CalendarView() {
   return (
     <div className="flex gap-6 h-full min-h-0">
       <div className="flex flex-col flex-1 min-w-0">
+        {/* Month navigation */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold tracking-tight">
             {format(currentMonth, "MMMM yyyy")}
@@ -96,6 +96,7 @@ export function CalendarView() {
           </div>
         </div>
 
+        {/* Weekday headers */}
         <div className="grid grid-cols-7 border-b border-border">
           {WEEKDAYS.map((d) => (
             <div
@@ -107,6 +108,7 @@ export function CalendarView() {
           ))}
         </div>
 
+        {/* Day grid */}
         <div className="grid grid-cols-7 flex-1 border-l border-border overflow-hidden rounded-b-xl ring-1 ring-border/60">
           {gridDays.map((day) => {
             const key = format(day, "yyyy-MM-dd");
@@ -124,6 +126,7 @@ export function CalendarView() {
         </div>
       </div>
 
+      {/* Sidebar */}
       <div className="w-56 shrink-0 flex flex-col gap-4">
         <Card>
           <CardContent className="pt-4">
@@ -148,11 +151,8 @@ export function CalendarView() {
                 className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 w-full text-left hover:bg-muted/50 transition-colors group"
               >
                 <span
-                  className={cn(
-                    "size-2 rounded-full shrink-0 ring-1 ring-inset ring-current/20",
-                    item.text_class,
-                  )}
-                  style={{ background: "currentColor" }}
+                  className="size-2 rounded-full shrink-0"
+                  style={{ backgroundColor: item.colour ?? "#888" }}
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1">

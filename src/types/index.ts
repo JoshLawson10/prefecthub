@@ -40,6 +40,8 @@ export interface Event {
   dateSort: string;
   location: string;
   status: EventStatus;
+  /** Hex colour used to visually identify the event, e.g. "#4A90D9" */
+  colour: string;
   max_capacity: number | null;
   rsvp_slug: string | null;
   rsvp_count: number;
@@ -125,7 +127,6 @@ export interface TimelineEntry {
   event_id: string;
 }
 
-/** Primary action a notification can surface (shown as a CTA in the detail sheet). */
 export interface NotificationAction {
   label: string;
   href: string;
@@ -136,15 +137,12 @@ export interface Notification {
   type: NotificationType;
   title: string;
   description: string;
-  /** Full-sentence detail shown in the sheet body. */
   detail?: string;
   timestamp: string;
-  /** ISO datetime used to render a precise "received" line in the detail sheet. */
   received_at?: string;
   read: boolean;
   event_id?: string;
   event_title?: string;
-  /** Optional CTA surfaced in the detail sheet. */
   action?: NotificationAction;
 }
 
@@ -163,6 +161,8 @@ export interface CalendarItem {
   title: string;
   date: string;
   location?: string;
+  /** Hex colour — only present for event-type items, derived from Event.colour */
+  colour?: string;
   color_class: string;
   text_class: string;
 }

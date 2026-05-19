@@ -59,3 +59,21 @@ export function getMembers(): Profile[] {
 export function getMember(id: string): Profile | undefined {
   return MEMBERS.find((m) => m.id === id);
 }
+
+export function getMembersByRole(role: string): Profile[] {
+  return MEMBERS.filter((m) => m.role === role);
+}
+
+export function totalMembers(): number {
+  return MEMBERS.length;
+}
+
+export function countMembersByType(): Record<string, number> {
+  return MEMBERS.reduce(
+    (acc, member) => {
+      acc[member.role] = (acc[member.role] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+}

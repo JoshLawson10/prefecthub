@@ -1,142 +1,131 @@
-import { StatCard } from "@/components/dashboard/stat-card";
-import { Header } from "@/components/ui/header";
-import { Separator } from "@/components/ui/separator";
-import { Table } from "@/components/ui/info-table";
-import { NewEventDialog } from "@/components/dashboard/new-event-dialog";
 import {
   CalendarIcon,
-  ClockIcon,
   MapPinIcon,
   UsersIcon,
   MailIcon,
   CheckSquareIcon,
   UsersRoundIcon,
+  AlertCircleIcon,
 } from "lucide-react";
+import { StatCard } from "@/components/dashboard/stat-card";
+import { Header } from "@/components/ui/header";
+import { Separator } from "@/components/ui/separator";
+import { Table } from "@/components/ui/info-table";
+import { NewEventDialog } from "@/components/dashboard/new-event-dialog";
+import { getEvents, getDashboardStats } from "@/lib/data/events";
+import { getTasks } from "@/lib/data/tasks";
+import { getNotifications } from "@/lib/data/notifications";
+import { countMembersByType } from "@/lib/data/members";
+import { differenceInCalendarDays, parseISO } from "date-fns";
 
-const events = [
-  {
-    id: "1",
-    icon: "#4A90D9",
-    title: "Prefect Afternoon Tea",
-    description: [
-      { label: "Fri 30 May", icon: <CalendarIcon /> },
-      { label: "Hall B", icon: <MapPinIcon /> },
-      { label: "~150 attendees", icon: <UsersIcon /> },
-    ],
-    badgeContent: "17d",
-    href: "/events/1",
-  },
-  {
-    id: "2",
-    icon: "#E8A838",
-    title: "Yr 12 Assembly",
-    description: [
-      { label: "Mon 26 May", icon: <CalendarIcon /> },
-      { label: "Hall A", icon: <MapPinIcon /> },
-    ],
-    badgeContent: "13d",
-    href: "/events/2",
-  },
-  {
-    id: "3",
-    icon: "#3DAA6B",
-    title: "Yr 7 Orientation Day",
-    description: [
-      { label: "Wed 18 Jun", icon: <CalendarIcon /> },
-      { label: "Quad", icon: <MapPinIcon /> },
-    ],
-    badgeContent: "36d",
-    href: "/events/3",
-  },
-  {
-    id: "4",
-    icon: "#C0392B",
-    title: "Farewell Ceremony",
-    description: [
-      { label: "Fri 20 Jun", icon: <CalendarIcon /> },
-      { label: "2:00 PM", icon: <ClockIcon /> },
-      { label: "Auditorium", icon: <MapPinIcon /> },
-    ],
-    badgeContent: "38d",
-    href: "/events/4",
-  },
-];
+const EVENT_COLOURS: Record<string, string> = {
+  "1": "#4A90D9",
+  "2": "#E8A838",
+  "3": "#3DAA6B",
+  "4": "#C0392B",
+};
 
-const tasks = [
-  {
-    id: 1,
-    title: "Book catering for PAT",
-    description: [{ label: "Prefect Afternoon Tea" }, { label: "Josh L." }],
-    badgeContent: "3d late",
-    badgeVariant: "destructive" as const,
-    href: "/events/1/tasks",
-  },
-  {
-    id: 2,
-    title: "Confirm guest speakers for Assembly",
-    description: [{ label: "Yr 12 Assembly" }, { label: "Emily R." }],
-    badgeContent: "Due today",
-    badgeVariant: "destructive" as const,
-    href: "/events/2/tasks",
-  },
-  {
-    id: 3,
-    title: "Organise seating for Orientation Day",
-    description: [{ label: "Yr 7 Orientation Day" }, { label: "Liam K." }],
-    badgeContent: "Due in 5d",
-    badgeVariant: "default" as const,
-    href: "/events/3/tasks",
-  },
-  {
-    id: 4,
-    title: "Print programs for Farewell Ceremony",
-    description: [{ label: "Farewell Ceremony" }, { label: "Sophia M." }],
-    badgeContent: "Due in 7d",
-    badgeVariant: "default" as const,
-    href: "/events/4/tasks",
-  },
-];
+const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
+  task_overdue: "Overdue",
+  task_assigned: "Assigned",
+  task_completed: "Done",
+  rsvp: "RSVP",
+  event_created: "Event",
+  correspondence: "Email",
+  member_added: "Member",
+};
 
-const activity = [
-  {
-    id: 1,
-    icon: <MailIcon />,
-    title: "Email logged — PAT catering budget approval",
-    description: [
-      { label: "Prefect Afternoon Tea" },
-      { label: "Josh Lawson" },
-      { label: "12 May" },
-    ],
-    badgeContent: "Email",
-    badgeVariant: "secondary" as const,
-  },
-  {
-    id: 2,
-    icon: <CheckSquareIcon />,
-    title: "Task completed — Draft P&C funding letter",
-    description: [
-      { label: "Prefect Afternoon Tea" },
-      { label: "Josh Lawson" },
-      { label: "11 May" },
-    ],
-    badgeContent: "Done",
-    badgeVariant: "outline" as const,
-  },
-  {
-    id: 3,
-    icon: <UsersRoundIcon />,
-    title: "Meeting logged — Weekly prefect check-in",
-    description: [
-      { label: "General" },
-      { label: "Sophie Nguyen" },
-      { label: "9 May" },
-    ],
-    badgeContent: "Meeting",
-    badgeVariant: "secondary" as const,
-  },
-];
+export default function DashboardPage() {
+  const stats = getDashboardStats();
+  const memberCounts = countMembersByType();
+  const adminCount = memberCounts["admin"] ?? 0;
+  const prefectCount = memberCounts["prefect"] ?? 0;
 
-export default async function DashboardPage() {
+  const today = new Date();
+
+  const upcomingEvents = getEvents()
+    .filter((e) => e.status === "upcoming")
+    .slice(0, 4)
+    .map((e) => {
+      const daysUntil = differenceInCalendarDays(parseISO(e.dateSort), today);
+      const daysLabel =
+        daysUntil === 0
+          ? "Today"
+          : daysUntil === 1
+            ? "Tomorrow"
+            : `${daysUntil}d`;
+      return {
+        id: e.id,
+        icon: EVENT_COLOURS[e.id] ?? "#888",
+        title: e.title,
+        description: [
+          { label: e.date, icon: <CalendarIcon /> },
+          { label: e.location, icon: <MapPinIcon /> },
+          ...(e.max_capacity
+            ? [{ label: `~${e.max_capacity} cap`, icon: <UsersIcon /> }]
+            : []),
+        ],
+        badgeContent: daysLabel,
+        href: `/events/${e.id}`,
+      };
+    });
+
+  const openTasks = getTasks()
+    .filter((t) => t.status !== "done")
+    .sort((a, b) => {
+      const aOver = a.status === "overdue" ? 0 : 1;
+      const bOver = b.status === "overdue" ? 0 : 1;
+      if (aOver !== bOver) return aOver - bOver;
+      return (a.due_date_sort ?? "").localeCompare(b.due_date_sort ?? "");
+    })
+    .slice(0, 4)
+    .map((t) => ({
+      id: t.id,
+      icon:
+        t.status === "overdue" ? (
+          <AlertCircleIcon className="text-destructive" />
+        ) : (
+          <CheckSquareIcon className="text-muted-foreground" />
+        ),
+      title: t.title,
+      description: [
+        { label: t.event_title },
+        ...(t.assignee_name ? [{ label: t.assignee_name }] : []),
+      ],
+      badgeContent:
+        t.status === "overdue"
+          ? `${differenceInCalendarDays(today, parseISO(t.due_date_sort!))}d late`
+          : (t.due_date ?? "No date"),
+      badgeVariant: (t.status === "overdue" ? "destructive" : "secondary") as
+        | "destructive"
+        | "secondary",
+      href: `/events/${t.event_id}/tasks`,
+    }));
+
+  const recentActivity = getNotifications()
+    .slice(0, 5)
+    .map((n) => ({
+      id: n.id,
+      icon:
+        n.type === "correspondence" || n.type === "rsvp" ? (
+          <MailIcon />
+        ) : n.type === "task_completed" ? (
+          <CheckSquareIcon />
+        ) : n.type === "member_added" ? (
+          <UsersRoundIcon />
+        ) : (
+          <AlertCircleIcon />
+        ),
+      title: n.description,
+      description: [
+        ...(n.event_title ? [{ label: n.event_title }] : []),
+        { label: n.timestamp },
+      ],
+      badgeContent: NOTIFICATION_TYPE_LABELS[n.type] ?? n.type,
+      badgeVariant: "secondary" as const,
+      href: n.action?.href,
+    }));
+
   return (
     <div>
       <Header title="Dashboard" actions={<NewEventDialog />} />
@@ -145,24 +134,30 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-4 gap-4">
         <StatCard
           description="Upcoming Events"
-          title="4"
-          footerDescription="Next: PAT, Fri 30 May"
+          title={stats.upcoming_events}
+          footerDescription={
+            upcomingEvents[0]
+              ? `Next: ${upcomingEvents[0].title}`
+              : "No upcoming events"
+          }
         />
         <StatCard
           description="Open Tasks"
-          title="11"
+          title={stats.open_tasks}
           footerDescription="Across all events"
         />
         <StatCard
           description="Overdue"
-          title="3"
-          variant="destructive"
-          footerDescription="Needs attention"
+          title={stats.overdue_tasks}
+          variant={stats.overdue_tasks > 0 ? "destructive" : "default"}
+          footerDescription={
+            stats.overdue_tasks > 0 ? "Needs attention" : "All up to date"
+          }
         />
         <StatCard
           description="Team Members"
-          title="18"
-          footerDescription="2 Admins · 16 Prefects"
+          title={stats.total_members}
+          footerDescription={`${adminCount} Admin${adminCount !== 1 ? "s" : ""} · ${prefectCount} Prefect${prefectCount !== 1 ? "s" : ""}`}
         />
       </div>
 
@@ -170,14 +165,14 @@ export default async function DashboardPage() {
         <Table
           className="flex-1"
           title="Upcoming Events"
-          items={events}
+          items={upcomingEvents}
           maxItems={4}
           viewAllPath="/events"
         />
         <Table
           className="flex-1"
           title="Open Tasks"
-          items={tasks}
+          items={openTasks}
           maxItems={4}
           viewAllPath="/tasks"
         />
@@ -186,7 +181,7 @@ export default async function DashboardPage() {
       <div className="mt-6">
         <Table
           title="Recent Activity"
-          items={activity}
+          items={recentActivity}
           maxItems={5}
           viewAllPath="/notifications"
         />
