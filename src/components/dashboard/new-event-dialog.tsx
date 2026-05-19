@@ -31,23 +31,48 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { createEvent } from "@/lib/actions";
 
 export function NewEventDialog() {
+  const [open, setOpen] = useState(false);
   const [collectRsvps, setCollectRsvps] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [dateOpen, setDateOpen] = useState(false);
   const [startTime, setStartTime] = useState("10:30");
   const [endTime, setEndTime] = useState("12:30");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!date) return;
+
+    const data = new FormData(e.currentTarget);
+    setLoading(true);
+    await createEvent({
+      title:        data.get("event-title") as string,
+      description:  (data.get("event-description") as string) || null,
+      date,
+      startTime,
+      endTime,
+      location:     data.get("event-location") as string,
+      collectRsvps,
+      maxCapacity:  collectRsvps
+        ? Number(data.get("max-rsvps")) || null
+        : null,
+    });
+    setLoading(false);
+    setOpen(false);
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
           <PlusIcon /> New event
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <form className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>New Event</DialogTitle>
             <DialogDescription>
@@ -57,7 +82,7 @@ export function NewEventDialog() {
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="event-title">Event title</FieldLabel>
-              <Input id="event-title" name="event-title" />
+              <Input id="event-title" name="event-title" required />
             </Field>
             <Field>
               <FieldLabel htmlFor="event-description">
@@ -71,6 +96,7 @@ export function NewEventDialog() {
               <Popover open={dateOpen} onOpenChange={setDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
+                    type="button"
                     variant="outline"
                     className={cn(
                       "w-full justify-start font-normal",
@@ -96,18 +122,14 @@ export function NewEventDialog() {
                     <CardFooter className="border-t bg-card">
                       <FieldGroup>
                         <Field>
-                          <FieldLabel htmlFor="time-from">
-                            Start Time
-                          </FieldLabel>
+                          <FieldLabel htmlFor="time-from">Start Time</FieldLabel>
                           <InputGroup>
                             <InputGroupInput
                               id="time-from"
                               type="time"
                               step="1"
                               value={startTime}
-                              onChange={(e) =>
-                                setStartTime(e.target.value.slice(0, 5))
-                              }
+                              onChange={(e) => setStartTime(e.target.value.slice(0, 5))}
                               className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                             />
                             <InputGroupAddon>
@@ -123,9 +145,7 @@ export function NewEventDialog() {
                               type="time"
                               step="1"
                               value={endTime}
-                              onChange={(e) =>
-                                setEndTime(e.target.value.slice(0, 5))
-                              }
+                              onChange={(e) => setEndTime(e.target.value.slice(0, 5))}
                               className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                             />
                             <InputGroupAddon>
@@ -141,7 +161,7 @@ export function NewEventDialog() {
             </Field>
             <Field>
               <FieldLabel htmlFor="event-location">Location</FieldLabel>
-              <Input id="event-location" name="event-location" />
+              <Input id="event-location" name="event-location" required />
             </Field>
             <Field>
               <div className="flex items-center gap-2 cursor-pointer">
@@ -170,9 +190,11 @@ export function NewEventDialog() {
           </FieldGroup>
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>
-            <Button type="submit">Save changes</Button>
+            <Button type="submit" disabled={!date || loading}>
+              {loading ? "Creating…" : "Create event"}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
