@@ -143,3 +143,33 @@ export async function submitRsvp(input: SubmitRsvpInput): Promise<void> {
   console.log("[action] submitRsvp", input);
   // TODO: insert into rsvps table
 }
+
+export interface UpdateProfileInput {
+  memberId: string;
+  fullName: string;
+  email: string;
+}
+
+export async function updateProfile(input: UpdateProfileInput): Promise<void> {
+  console.log("[action] updateProfile", input);
+  // TODO: update profiles table
+}
+
+export interface UploadAvatarInput {
+  memberId: string;
+  file: File;
+}
+
+export async function uploadAvatar(input: UploadAvatarInput): Promise<void> {
+  console.log("[action] uploadAvatar", {
+    memberId: input.memberId,
+    name: input.file.name,
+    size: input.file.size,
+  });
+  // TODO: upload to Supabase Storage avatars bucket, update profiles.avatar_url
+}
+
+export async function deleteAccount(memberId: string): Promise<void> {
+  console.log("[action] deleteAccount", { memberId });
+  // TODO: delete user from Supabase auth + profiles table
+}
