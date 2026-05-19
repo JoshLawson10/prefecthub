@@ -11,6 +11,8 @@ import {
   ArrowUpIcon,
   ArrowRightIcon,
   ArrowDownIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +34,8 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import type { Task, TaskStatus, TaskPriority } from "@/types";
+
+const PAGE_SIZE = 10;
 
 const STATUS_CONFIG: Record<
   TaskStatus,
@@ -106,50 +110,39 @@ type PriorityFilter = TaskPriority | "all";
 
 interface TasksViewProps {
   tasks: Task[];
+  /** When true, hides the Event column (used on per-event pages) */
   scopedToEvent?: boolean;
 }
 
-export function TasksView({
-  tasks: initialTasks,
-  scopedToEvent = false,
-}: TasksViewProps) {
-  const [statusOverrides, setStatusOverrides] = useState<
-    Record<string, TaskStatus>
-  >({});
-
-  const tasks = useMemo(
-    () =>
-      initialTasks.map((t) => ({
-        ...t,
-        status: statusOverrides[t.id] ?? t.status,
-      })),
-    [initialTasks, statusOverrides],
-  );
-
-  const toggleDone = useCallback(
-    (task: Task) => {
-      setStatusOverrides((prev) => {
-        const current = prev[task.id] ?? task.status;
-        const next =
-          current === "done"
-            ? (initialTasks.find((t) => t.id === task.id)?.status ?? "todo")
-            : "done";
-        return { ...prev, [task.id]: next };
-      });
-    },
-    [initialTasks],
-  );
-
+export function TasksView({ tasks: initialTasks, scopedToEvent = false }: TasksViewProps) {
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, TaskStatus>>({});
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [priorityFilter, setPriorityFilter] = useState<PriorityFilter>("all");
+  const [page, setPage] = useState(1);
+
+  const tasks = useMemo(
+    () => initialTasks.map((t) => ({ ...t, status: statusOverrides[t.id] ?? t.status })),
+    [initialTasks, statusOverrides],
+  );
+
+  const toggleDone = useCallback((task: Task) => {
+    setStatusOverrides((prev) => {
+      const current = prev[task.id] ?? task.status;
+      const next =
+        current === "done"
+          ? (initialTasks.find((t) => t.id === task.id)?.status ?? "todo")
+          : "done";
+      return { ...prev, [task.id]: next };
+    });
+  }, [initialTasks]);
 
   const counts = useMemo(
     () => ({
-      overdue: tasks.filter((t) => t.status === "overdue").length,
+      overdue:     tasks.filter((t) => t.status === "overdue").length,
       in_progress: tasks.filter((t) => t.status === "in_progress").length,
-      todo: tasks.filter((t) => t.status === "todo").length,
-      done: tasks.filter((t) => t.status === "done").length,
+      todo:        tasks.filter((t) => t.status === "todo").length,
+      done:        tasks.filter((t) => t.status === "done").length,
     }),
     [tasks],
   );
@@ -165,10 +158,8 @@ export function TasksView({
           (t.assignee_name ?? "").toLowerCase().includes(q),
       );
     }
-    if (statusFilter !== "all")
-      result = result.filter((t) => t.status === statusFilter);
-    if (priorityFilter !== "all")
-      result = result.filter((t) => t.priority === priorityFilter);
+    if (statusFilter !== "all") result = result.filter((t) => t.status === statusFilter);
+    if (priorityFilter !== "all") result = result.filter((t) => t.priority === priorityFilter);
     return [...result].sort((a, b) => {
       const s = STATUS_SORT[a.status] - STATUS_SORT[b.status];
       if (s !== 0) return s;
@@ -178,23 +169,29 @@ export function TasksView({
     });
   }, [tasks, search, statusFilter, priorityFilter]);
 
-  const STATUS_FILTERS: {
-    value: StatusFilter;
-    label: string;
-    count?: number;
-  }[] = [
-    { value: "all", label: "All" },
-    { value: "overdue", label: "Overdue", count: counts.overdue },
+  // Reset to page 1 whenever filters change
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paginated = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  function handleFilterChange(fn: () => void) {
+    fn();
+    setPage(1);
+  }
+
+  const STATUS_FILTERS: { value: StatusFilter; label: string; count?: number }[] = [
+    { value: "all",         label: "All"         },
+    { value: "overdue",     label: "Overdue",     count: counts.overdue     },
     { value: "in_progress", label: "In progress", count: counts.in_progress },
-    { value: "todo", label: "To do", count: counts.todo },
-    { value: "done", label: "Done", count: counts.done },
+    { value: "todo",        label: "To do",       count: counts.todo        },
+    { value: "done",        label: "Done",        count: counts.done        },
   ];
 
   const PRIORITY_FILTERS: { value: PriorityFilter; label: string }[] = [
-    { value: "all", label: "All priorities" },
-    { value: "high", label: "High" },
-    { value: "medium", label: "Medium" },
-    { value: "low", label: "Low" },
+    { value: "all",    label: "All priorities" },
+    { value: "high",   label: "High"           },
+    { value: "medium", label: "Medium"         },
+    { value: "low",    label: "Low"            },
   ];
 
   return (
@@ -205,7 +202,7 @@ export function TasksView({
           <InputGroupInput
             placeholder="Search tasks..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleFilterChange(() => setSearch(e.target.value))}
           />
           <InputGroupAddon align="inline-end">
             <SearchIcon />
@@ -218,7 +215,7 @@ export function TasksView({
               key={f.value}
               variant={statusFilter === f.value ? "default" : "outline"}
               size="sm"
-              onClick={() => setStatusFilter(f.value)}
+              onClick={() => handleFilterChange(() => setStatusFilter(f.value))}
               className="gap-1.5"
             >
               {f.label}
@@ -246,7 +243,7 @@ export function TasksView({
               key={f.value}
               variant={priorityFilter === f.value ? "default" : "outline"}
               size="sm"
-              onClick={() => setPriorityFilter(f.value)}
+              onClick={() => handleFilterChange(() => setPriorityFilter(f.value))}
             >
               {f.label}
             </Button>
@@ -258,37 +255,16 @@ export function TasksView({
       <div className="grid grid-cols-4 gap-3">
         {(
           [
-            {
-              label: "Overdue",
-              value: counts.overdue,
-              className: "text-destructive",
-            },
-            {
-              label: "In progress",
-              value: counts.in_progress,
-              className: "text-primary",
-            },
-            {
-              label: "To do",
-              value: counts.todo,
-              className: "text-foreground",
-            },
-            {
-              label: "Done",
-              value: counts.done,
-              className: "text-muted-foreground",
-            },
+            { label: "Overdue",     value: counts.overdue,     className: "text-destructive"      },
+            { label: "In progress", value: counts.in_progress, className: "text-primary"          },
+            { label: "To do",       value: counts.todo,        className: "text-foreground"       },
+            { label: "Done",        value: counts.done,        className: "text-muted-foreground" },
           ] as const
         ).map((s) => (
           <Card key={s.label} size="sm">
             <CardContent className="pt-3 pb-3">
               <p className="text-xs text-muted-foreground">{s.label}</p>
-              <p
-                className={cn(
-                  "text-2xl font-semibold tabular-nums mt-0.5",
-                  s.className,
-                )}
-              >
+              <p className={cn("text-2xl font-semibold tabular-nums mt-0.5", s.className)}>
                 {s.value}
               </p>
             </CardContent>
@@ -307,24 +283,18 @@ export function TasksView({
                 <TableHead className="hidden sm:table-cell">Event</TableHead>
               )}
               <TableHead className="w-10">Assignee</TableHead>
-              <TableHead className="hidden md:table-cell w-28">
-                Priority
-              </TableHead>
+              <TableHead className="hidden md:table-cell w-28">Priority</TableHead>
               <TableHead className="w-20 text-right">Due</TableHead>
-              <TableHead className="hidden lg:table-cell w-28">
-                Status
-              </TableHead>
+              <TableHead className="hidden lg:table-cell w-28">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 ? (
+            {paginated.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={scopedToEvent ? 6 : 7}>
                   <div className="flex flex-col items-center justify-center py-12 gap-3">
                     <CircleCheckIcon className="size-8 text-muted-foreground/30" />
-                    <p className="text-sm text-muted-foreground">
-                      No tasks match your filters
-                    </p>
+                    <p className="text-sm text-muted-foreground">No tasks match your filters</p>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -332,6 +302,7 @@ export function TasksView({
                         setSearch("");
                         setStatusFilter("all");
                         setPriorityFilter("all");
+                        setPage(1);
                       }}
                     >
                       Clear filters
@@ -340,61 +311,42 @@ export function TasksView({
                 </TableCell>
               </TableRow>
             ) : (
-              filtered.map((task) => {
+              paginated.map((task) => {
                 const isDone = task.status === "done";
                 const status = STATUS_CONFIG[task.status];
                 const priority = PRIORITY_CONFIG[task.priority];
                 return (
                   <TableRow
                     key={task.id}
-                    className={cn(
-                      "group transition-colors",
-                      isDone && "opacity-60",
-                    )}
+                    className={cn("group transition-colors", isDone && "opacity-60")}
                   >
-                    {/* Complete toggle */}
                     <TableCell className="pl-4">
                       <button
                         type="button"
                         onClick={() => toggleDone(task)}
-                        aria-label={
-                          isDone ? "Mark incomplete" : "Mark complete"
-                        }
+                        aria-label={isDone ? "Mark incomplete" : "Mark complete"}
                         title={isDone ? "Mark incomplete" : "Mark complete"}
                         className={cn(
                           "flex items-center justify-center rounded-full transition-colors",
                           "outline-none focus-visible:ring-2 focus-visible:ring-primary",
                           isDone
                             ? "text-emerald-500 dark:text-emerald-400 hover:text-muted-foreground"
-                            : cn(
-                                "hover:text-emerald-500 dark:hover:text-emerald-400",
-                                status.iconClass,
-                              ),
+                            : cn("hover:text-emerald-500 dark:hover:text-emerald-400", status.iconClass),
                         )}
                       >
-                        {isDone ? (
-                          <CircleCheckIcon className="size-4" />
-                        ) : (
-                          <span className="flex opacity-60 group-hover:opacity-100 transition-opacity">
-                            {status.icon}
-                          </span>
-                        )}
+                        {isDone
+                          ? <CircleCheckIcon className="size-4" />
+                          : <span className="flex opacity-60 group-hover:opacity-100 transition-opacity">{status.icon}</span>
+                        }
                       </button>
                     </TableCell>
 
                     <TableCell className="max-w-xs">
-                      <p
-                        className={cn(
-                          "font-medium truncate",
-                          isDone && "line-through text-muted-foreground",
-                        )}
-                      >
+                      <p className={cn("font-medium truncate", isDone && "line-through text-muted-foreground")}>
                         {task.title}
                       </p>
                       {task.description && (
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {task.description}
-                        </p>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">{task.description}</p>
                       )}
                     </TableCell>
 
@@ -411,19 +363,12 @@ export function TasksView({
 
                     <TableCell>
                       <Avatar size="sm">
-                        <AvatarFallback>
-                          {task.assignee_initials ?? "?"}
-                        </AvatarFallback>
+                        <AvatarFallback>{task.assignee_initials ?? "?"}</AvatarFallback>
                       </Avatar>
                     </TableCell>
 
                     <TableCell className="hidden md:table-cell">
-                      <span
-                        className={cn(
-                          "flex items-center gap-1.5 text-xs font-medium",
-                          priority.className,
-                        )}
-                      >
+                      <span className={cn("flex items-center gap-1.5 text-xs font-medium", priority.className)}>
                         {priority.icon}
                         {priority.label}
                       </span>
@@ -433,9 +378,7 @@ export function TasksView({
                       <span
                         className={cn(
                           "text-xs font-medium tabular-nums",
-                          task.status === "overdue"
-                            ? "text-destructive"
-                            : "text-muted-foreground",
+                          task.status === "overdue" ? "text-destructive" : "text-muted-foreground",
                         )}
                       >
                         {task.due_date}
@@ -443,9 +386,7 @@ export function TasksView({
                     </TableCell>
 
                     <TableCell className="hidden lg:table-cell">
-                      <Badge variant={status.badgeVariant}>
-                        {status.label}
-                      </Badge>
+                      <Badge variant={status.badgeVariant}>{status.label}</Badge>
                     </TableCell>
                   </TableRow>
                 );
@@ -453,11 +394,54 @@ export function TasksView({
             )}
           </TableBody>
         </Table>
+
+        {/* Pagination footer — only shown when there's more than one page */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between border-t border-border px-4 py-3">
+            <p className="text-xs text-muted-foreground">
+              {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, filtered.length)} of {filtered.length} tasks
+            </p>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={safePage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeftIcon className="size-3.5" />
+              </Button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <Button
+                  key={p}
+                  variant={p === safePage ? "default" : "outline"}
+                  size="icon-sm"
+                  onClick={() => setPage(p)}
+                  aria-label={`Page ${p}`}
+                  aria-current={p === safePage ? "page" : undefined}
+                >
+                  {p}
+                </Button>
+              ))}
+
+              <Button
+                variant="outline"
+                size="icon-sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safePage === totalPages}
+                aria-label="Next page"
+              >
+                <ChevronRightIcon className="size-3.5" />
+              </Button>
+            </div>
+          </div>
+        )}
       </Card>
 
-      {filtered.length > 0 && (
+      {filtered.length > 0 && totalPages === 1 && (
         <p className="text-xs text-muted-foreground text-right">
-          Showing {filtered.length} of {tasks.length} tasks
+          {filtered.length} of {tasks.length} tasks
         </p>
       )}
     </div>
