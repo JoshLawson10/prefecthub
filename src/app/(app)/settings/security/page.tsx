@@ -15,23 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CheckIcon, MonitorSmartphoneIcon } from "lucide-react";
-
-const SESSIONS = [
-  {
-    id: "s1",
-    device: "MacBook Pro — Chrome",
-    location: "Sydney, NSW",
-    lastActive: "Now",
-    current: true,
-  },
-  {
-    id: "s2",
-    device: "iPhone 15 — Safari",
-    location: "Sydney, NSW",
-    lastActive: "2 hours ago",
-    current: false,
-  },
-];
+import { getDeviceSessions } from "@/lib/data/settings";
 
 export default function SecurityPage() {
   const [pwSaved, setPwSaved] = useState(false);
@@ -105,7 +89,7 @@ export default function SecurityPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-0 py-0">
-          {SESSIONS.map((session, i) => (
+          {getDeviceSessions().map((session, i) => (
             <div key={session.id}>
               {i > 0 && <Separator />}
               <div className="flex items-center justify-between px-4 py-3.5">
@@ -123,7 +107,7 @@ export default function SecurityPage() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {session.location} · Last active {session.lastActive}
+                      {session.location} · Last active {session.last_active}
                     </p>
                   </div>
                 </div>

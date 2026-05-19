@@ -166,3 +166,11 @@ export interface CalendarItem {
   color_class: string;
   text_class: string;
 }
+
+export interface DeviceSession {
+  id: string;
+  device: string;
+  location: string;
+  last_active: string;
+  current: boolean;
+}
