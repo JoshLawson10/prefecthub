@@ -15,24 +15,33 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { inviteMember } from "@/lib/actions";
 
 export function InviteMemberDialog() {
-  const [email, setEmail] = useState("");
+  const [open,    setOpen]    = useState(false);
+  const [email,   setEmail]   = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleInvite() {
+    if (!email.trim()) return;
+    setLoading(true);
+    await inviteMember(email.trim());
+    setLoading(false);
+    setEmail("");
+    setOpen(false);
+  }
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <UserPlusIcon /> Invite member
-        </Button>
+        <Button><UserPlusIcon /> Invite member</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite a member</DialogTitle>
           <DialogDescription>
             Send an invitation to a new prefect. They&apos;ll be added as a
-            Prefect by default — an Admin can promote them once they&apos;ve
-            joined.
+            Prefect by default — an Admin can promote them once they&apos;ve joined.
           </DialogDescription>
         </DialogHeader>
         <FieldGroup>
@@ -44,15 +53,16 @@ export function InviteMemberDialog() {
               placeholder="name@education.nsw.gov.au"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleInvite()}
             />
           </Field>
         </FieldGroup>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">Cancel</Button>
           </DialogClose>
-          <Button disabled={!email.trim()}>
-            <UserPlusIcon /> Send invite
+          <Button onClick={handleInvite} disabled={!email.trim() || loading}>
+            <UserPlusIcon /> {loading ? "Sending…" : "Send invite"}
           </Button>
         </DialogFooter>
       </DialogContent>

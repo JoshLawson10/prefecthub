@@ -13,7 +13,7 @@ export default async function TeamPage({
 
   return (
     <div>
-      <Header title="Team" actions={<AssignMemberDialog />} />
+      <Header title="Team" actions={<AssignMemberDialog eventId={id} />} />
       <div className="mt-4">
         <TeamView members={members} />
       </div>
