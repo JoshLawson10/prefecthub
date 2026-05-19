@@ -23,6 +23,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { getArchivedEvents } from "@/lib/data/events";
+import { restoreEvent } from "@/lib/actions";
 import type { Event } from "@/types";
 
 function toCardData(e: Event): EventCardData {
@@ -38,9 +39,25 @@ function toCardData(e: Event): EventCardData {
 
 const ARCHIVED = getArchivedEvents().map(toCardData);
 
-function RestoreDialog({ eventTitle }: { eventTitle: string }) {
+function RestoreDialog({
+  eventId,
+  eventTitle,
+}: {
+  eventId: string;
+  eventTitle: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function handleRestore() {
+    setLoading(true);
+    await restoreEvent(eventId);
+    setLoading(false);
+    setOpen(false);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
           variant="outline"
@@ -62,10 +79,12 @@ function RestoreDialog({ eventTitle }: { eventTitle: string }) {
         </DialogHeader>
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
           </DialogClose>
-          <Button>
-            <ArchiveRestoreIcon /> Restore event
+          <Button onClick={handleRestore} disabled={loading}>
+            <ArchiveRestoreIcon /> {loading ? "Restoring…" : "Restore event"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -111,7 +130,9 @@ export default function ArchivePage() {
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <ArchiveIcon className="size-8 text-muted-foreground/30" />
-          <p className="text-sm text-muted-foreground">No archived events found</p>
+          <p className="text-sm text-muted-foreground">
+            No archived events found
+          </p>
           <Button variant="ghost" size="sm" onClick={() => setSearch("")}>
             Clear search
           </Button>
@@ -125,7 +146,10 @@ export default function ArchivePage() {
                 onClick={() => router.push(`/events/${event.id}`)}
               />
               <div className="absolute bottom-3 right-12">
-                <RestoreDialog eventTitle={event.title} />
+                <RestoreDialog
+                  eventId={String(event.id)}
+                  eventTitle={event.title}
+                />
               </div>
             </div>
           ))}
