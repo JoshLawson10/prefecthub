@@ -1,4 +1,7 @@
+"use server";
+
 import type { TaskPriority, TaskStatus, EventRole, LogType } from "@/types";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export interface CreateEventInput {
   title: string;
@@ -78,8 +81,14 @@ export async function removeMember(memberId: string): Promise<void> {
 }
 
 export async function inviteMember(email: string): Promise<void> {
-  console.log("[action] inviteMember", { email });
-  // TODO: send invite email via Supabase auth / email provider
+  const supabase = createAdminClient();
+  const { error } = await supabase.auth.admin.inviteUserByEmail(email, {
+    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/api/auth/callback`,
+  });
+
+  if (error) {
+    throw new Error(error.message);
+  }
 }
 
 export interface CreateNoteInput {
