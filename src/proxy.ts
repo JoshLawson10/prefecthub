@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -25,6 +25,7 @@ export async function middleware(request: NextRequest) {
     },
   );
 
+  // IMPORTANT: do not add logic between createServerClient and getUser()
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -48,6 +49,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Already authenticated — redirect away from auth pages
   if (user && (pathname === "/login" || pathname === "/signup")) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
