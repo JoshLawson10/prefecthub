@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
+import { completeOnboarding } from "@/lib/actions";
 
 import { Button } from "@/components/ui/button";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
@@ -12,8 +13,12 @@ import { Input } from "@/components/ui/input";
 export default function SetupPage() {
   const router = useRouter();
   const supabase = createClient();
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
 
@@ -34,21 +39,39 @@ export default function SetupPage() {
   }, [supabase.auth]);
 
   async function handleSubmit() {
-    setLoading(true);
+    setSubmitting(true);
     setError(null);
 
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
-
-    setLoading(false);
-
-    if (error) {
-      setError(error.message);
+    if (!firstName.trim() || !lastName.trim()) {
+      setError("Please enter your first and last name");
+      setSubmitting(false);
       return;
     }
 
-    router.push("/dashboard");
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters");
+      setSubmitting(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError("Passwords don't match");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      await completeOnboarding({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        password,
+      });
+
+      router.push("/dashboard");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+      setSubmitting(false);
+    }
   }
 
   if (sessionError) {
@@ -75,10 +98,10 @@ export default function SetupPage() {
     <div className="flex min-h-svh items-center justify-center p-6">
       <div className="w-full max-w-sm space-y-6">
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold">Create your password</h1>
+          <h1 className="text-2xl font-bold">Create your account</h1>
 
           <p className="text-sm text-muted-foreground">
-            Finish setting up your account.
+            Finish setting up your PrefectHub profile.
           </p>
         </div>
 
@@ -90,13 +113,58 @@ export default function SetupPage() {
 
         <FieldGroup>
           <Field>
+            <FieldLabel htmlFor="firstName">First Name</FieldLabel>
+
+            <Input
+              id="firstName"
+              type="text"
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              disabled={submitting}
+            />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="lastName">Last Name</FieldLabel>
+
+            <Input
+              id="lastName"
+              type="text"
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              disabled={submitting}
+            />
+          </Field>
+
+          <Field>
             <FieldLabel htmlFor="password">Password</FieldLabel>
 
             <Input
               id="password"
               type="password"
+              placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={submitting}
+            />
+
+            <p className="mt-1 text-xs text-muted-foreground">
+              At least 8 characters
+            </p>
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="confirmPassword">Confirm Password</FieldLabel>
+
+            <Input
+              id="confirmPassword"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              disabled={submitting}
             />
           </Field>
 
@@ -104,9 +172,15 @@ export default function SetupPage() {
             <Button
               className="w-full"
               onClick={handleSubmit}
-              disabled={loading || password.length < 8}
+              disabled={
+                submitting ||
+                !firstName.trim() ||
+                !lastName.trim() ||
+                password.length < 8 ||
+                password !== confirmPassword
+              }
             >
-              {loading ? "Saving..." : "Create account"}
+              {submitting ? "Creating account..." : "Create account"}
             </Button>
           </Field>
         </FieldGroup>
