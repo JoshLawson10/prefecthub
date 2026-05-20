@@ -16,7 +16,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { ChevronsUpDownIcon } from "lucide-react";
+import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react";
+import { logout } from "@/lib/actions/auth";
 
 type NavFooterItem = {
   title: string;
@@ -35,11 +36,7 @@ type NavFooterProps = {
 
 function getInitials(name: string): string {
   const words = name.trim().split(/\s+/);
-
-  if (words.length === 1) {
-    return words[0][0].toUpperCase();
-  }
-
+  if (words.length === 1) return words[0][0].toUpperCase();
   return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
@@ -61,12 +58,10 @@ export function NavFooter({ user, items }: NavFooterProps) {
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
-
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{user.name}</span>
                 <span className="truncate text-xs">{user.email}</span>
               </div>
-
               <ChevronsUpDownIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -85,7 +80,6 @@ export function NavFooter({ user, items }: NavFooterProps) {
                     {getInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
-
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">{user.name}</span>
                   <span className="truncate text-xs">{user.email}</span>
@@ -93,22 +87,43 @@ export function NavFooter({ user, items }: NavFooterProps) {
               </div>
             </DropdownMenuLabel>
 
-            {items.map((group, groupIndex) => (
-              <div key={groupIndex}>
-                <DropdownMenuSeparator />
+            {/* Nav item groups (Settings, Notifications, etc.) */}
+            {items.map((group, groupIndex) => {
+              // Filter out the logout item — rendered separately below
+              const filtered = group.filter(
+                (i) => i.title.toLowerCase() !== "log out",
+              );
+              if (filtered.length === 0) return null;
+              return (
+                <div key={groupIndex}>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuGroup>
+                    {filtered.map((item) => (
+                      <DropdownMenuItem key={item.title} asChild>
+                        <a href={item.url}>
+                          {item.icon}
+                          <span>{item.title}</span>
+                        </a>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuGroup>
+                </div>
+              );
+            })}
 
-                <DropdownMenuGroup>
-                  {group.map((item) => (
-                    <DropdownMenuItem key={item.title} asChild>
-                      <a href={item.url}>
-                        {item.icon}
-                        <span>{item.title}</span>
-                      </a>
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuGroup>
-              </div>
-            ))}
+            {/* Logout — form POST to server action */}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <form action={logout} className="w-full">
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-2 text-sm"
+                >
+                  <LogOutIcon className="size-4" />
+                  Log out
+                </button>
+              </form>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
