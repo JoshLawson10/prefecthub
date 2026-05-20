@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -11,14 +12,37 @@ import {
   FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { login, loginWithGoogle } from "@/lib/actions/auth";
+import { login } from "@/lib/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"form">) {
-  const searchParams = useSearchParams();
-  const error        = searchParams.get("error");
+  const searchParams    = useSearchParams();
+  const error           = searchParams.get("error");
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleError,   setGoogleError]   = useState<string | null>(null);
+
+  async function handleGoogleLogin() {
+    setGoogleLoading(true);
+    setGoogleError(null);
+
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setGoogleError(error.message);
+      setGoogleLoading(false);
+    }
+    // On success, Supabase redirects the browser to Google — no further
+    // client code runs until the callback returns.
+  }
 
   return (
     <form
@@ -34,10 +58,11 @@ export function LoginForm({
           </p>
         </div>
 
-        {/* Server-side error message */}
-        {error && (
+        {(error || googleError) && (
           <div className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3">
-            <p className="text-sm text-destructive">{decodeURIComponent(error)}</p>
+            <p className="text-sm text-destructive">
+              {googleError ?? decodeURIComponent(error!)}
+            </p>
           </div>
         )}
 
@@ -84,10 +109,11 @@ export function LoginForm({
 
         <Field>
           <Button
-            variant="outline"
             type="button"
+            variant="outline"
             className="w-full"
-            formAction={loginWithGoogle}
+            disabled={googleLoading}
+            onClick={handleGoogleLogin}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="size-4">
               <path
@@ -95,7 +121,7 @@ export function LoginForm({
                 fill="currentColor"
               />
             </svg>
-            Continue with Google
+            {googleLoading ? "Redirecting…" : "Continue with Google"}
           </Button>
 
           <FieldDescription className="text-center">
