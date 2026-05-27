@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -33,6 +33,7 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtectedRoute =
+    pathname.startsWith("/onboard") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/events") ||
     pathname.startsWith("/tasks") ||
@@ -49,7 +50,6 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Already authenticated — redirect away from auth pages
   if (user && (pathname === "/login" || pathname === "/signup")) {
     const dashboardUrl = request.nextUrl.clone();
     dashboardUrl.pathname = "/dashboard";
