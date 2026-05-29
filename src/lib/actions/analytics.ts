@@ -1,4 +1,4 @@
-import type { UserProductivity } from "@/types/database";
+import type { UserProductivity } from "@/lib/schemas";
 
 export async function getTaskCompletionRate(dateRange: {
   start: Date;

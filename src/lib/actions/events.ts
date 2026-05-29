@@ -1,4 +1,4 @@
-import { Event } from "@/types/database";
+import { Event } from "@/lib/schemas";
 
 export async function createEvent(
   data: Omit<Event, "id" | "created_at" | "updated_at">,

@@ -1,4 +1,4 @@
-import type { Notification, Pagination } from "@/types/database";
+import type { Notification, Pagination } from "@/lib/schemas";
 
 export async function getUserNotifications(
   pagination?: Pagination,

@@ -1,4 +1,4 @@
-import type { Document } from "@/types/database";
+import type { Document } from "@/lib/schemas";
 
 export async function uploadDocument(
   eventId: string,

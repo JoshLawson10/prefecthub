@@ -1,4 +1,4 @@
-import { EventRole } from "@/types/database";
+import { EventRole } from "@/lib/schemas";
 
 export async function addEventMember(
   eventId: string,

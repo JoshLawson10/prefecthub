@@ -1,4 +1,4 @@
-import type { Task, TaskStatus } from "@/types/database";
+import type { Task, TaskStatus } from "@/lib/schemas";
 
 export async function createTask(
   data: Omit<Task, "id" | "created_at" | "updated_at">,

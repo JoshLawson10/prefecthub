@@ -1,4 +1,4 @@
-import { Workspace } from "@/types/database";
+import { Workspace } from "@/lib/schemas";
 
 export async function getWorkspace(
   workspaceId: string,

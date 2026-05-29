@@ -1,4 +1,4 @@
-import { User, UserRole, Invitation } from "@/types/database";
+import { User, UserRole, Invitation } from "@/lib/schemas";
 
 export async function updateUserProfile(
   userId: string,

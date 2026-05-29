@@ -1,4 +1,4 @@
-import { User, UserRole } from "@/types/database";
+import { User, UserRole } from "@/lib/schemas";
 
 export async function getCurrentUser(): Promise<User | null> {
   return null;

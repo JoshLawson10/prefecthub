@@ -1,4 +1,4 @@
-import { Workspace } from "@/types/database";
+import { Workspace } from "@/lib/schemas";
 
 export async function createWorkspace(
   data: Omit<Workspace, "id" | "created_at" | "updated_at">,

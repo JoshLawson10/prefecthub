@@ -1,4 +1,4 @@
-import type { RSVP } from "@/types/database";
+import type { RSVP } from "@/lib/schemas";
 
 export async function createRSVP(
   data: Omit<RSVP, "id" | "created_at">,

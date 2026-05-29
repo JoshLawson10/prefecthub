@@ -1,4 +1,4 @@
-import { Event, EventStats, Filters, Pagination } from "@/types/database";
+import { Event, EventStats, Filters, Pagination } from "@/lib/schemas";
 
 export async function getEvent(eventId: string): Promise<Event | null> {
   return null;

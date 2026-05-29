@@ -1,4 +1,4 @@
-import type { Task, Filters, TaskStatus, TaskStats } from "@/types/database";
+import type { Task, Filters, TaskStatus, TaskStats } from "@/lib/schemas";
 
 export async function getTask(taskId: string): Promise<Task | null> {
   return null;

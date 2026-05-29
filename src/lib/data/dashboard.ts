@@ -1,4 +1,4 @@
-import type { DashboardStats, Activity, Task } from "@/types/database";
+import type { DashboardStats, Activity, Task } from "@/lib/schemas";
 
 export async function getDashboardStats(): Promise<DashboardStats | null> {
   return null;

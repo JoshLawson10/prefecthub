@@ -1,4 +1,4 @@
-import type { CorrespondenceLog } from "@/types/database";
+import type { CorrespondenceLog } from "@/lib/schemas";
 
 export async function getCorrespondence(
   logId: string,

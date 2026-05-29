@@ -1,4 +1,4 @@
-import type { RSVP, RSVPStats } from "@/types/database";
+import type { RSVP, RSVPStats } from "@/lib/schemas";
 
 export async function getRSVP(rsvpId: string): Promise<RSVP | null> {
   return null;

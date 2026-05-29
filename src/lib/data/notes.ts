@@ -1,4 +1,4 @@
-import type { Note } from "@/types/database";
+import type { Note } from "@/lib/schemas";
 
 export async function getNote(noteId: string): Promise<Note | null> {
   return null;

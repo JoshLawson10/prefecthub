@@ -4,7 +4,7 @@ import type {
   Task,
   Note,
   CorrespondenceLog,
-} from "@/types/database";
+} from "@/lib/schemas";
 
 export async function globalSearch(
   query: string,

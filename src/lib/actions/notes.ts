@@ -1,4 +1,4 @@
-import type { Note } from "@/types/database";
+import type { Note } from "@/lib/schemas";
 
 export async function createNote(
   data: Omit<Note, "id" | "created_at" | "updated_at">,
