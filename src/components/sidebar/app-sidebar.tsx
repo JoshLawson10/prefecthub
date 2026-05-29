@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavFooter } from "@/components/sidebar/nav-footer";
@@ -26,77 +27,72 @@ import {
   LogOutIcon,
 } from "lucide-react";
 
-const data = {
-  user: {
-    name: "Josh Lawson",
-    email: "joshua.lawson13@education.nsw.gov.au",
-    avatar: "/avatars/shadcn.jpg",
+const NAV_MAIN = [
+  { title: "Dashboard", url: "/dashboard", icon: <LayoutDashboardIcon /> },
+  {
+    title: "Events",
+    url: "/events",
+    icon: <CalendarCheckIcon />,
+    items: [
+      { title: "Prefect Afternoon Tea", url: "/events/1" },
+      { title: "Yr 12 Assembly", url: "/events/2" },
+      { title: "Yr 7 Orientation Day", url: "/events/3" },
+      { title: "Farewell Ceremony", url: "/events/4" },
+    ],
   },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: <LayoutDashboardIcon />,
-    },
-    {
-      title: "Events",
-      url: "/events",
-      icon: <CalendarCheckIcon />,
-      items: [
-        { title: "Prefect Afternoon Tea", url: "/events/1" },
-        { title: "Yr 12 Assembly",        url: "/events/2" },
-        { title: "Yr 7 Orientation Day",  url: "/events/3" },
-        { title: "Farewell Ceremony",     url: "/events/4" },
-      ],
-    },
-    {
-      title: "Tasks",
-      url: "/tasks",
-      icon: <CheckSquareIcon />,
-    },
-    {
-      title: "Calendar",
-      url: "/calendar",
-      icon: <CalendarDaysIcon />,
-    },
-    {
-      title: "Members",
-      url: "/members",
-      icon: <UsersIcon />,
-    },
-    {
-      title: "Archive",
-      url: "/archive",
-      icon: <ArchiveIcon />,
-    },
+  { title: "Tasks", url: "/tasks", icon: <CheckSquareIcon /> },
+  { title: "Calendar", url: "/calendar", icon: <CalendarDaysIcon /> },
+  { title: "Members", url: "/members", icon: <UsersIcon /> },
+  { title: "Archive", url: "/archive", icon: <ArchiveIcon /> },
+];
+
+const NAV_FOOTER = [
+  [
+    { title: "Settings", url: "/settings", icon: <SettingsIcon /> },
+    { title: "Notifications", url: "/notifications", icon: <BellIcon /> },
   ],
-  navFooter: [
-    [
-      {
-        title: "Settings",
-        url: "/settings",
-        icon: <SettingsIcon />,
-      },
-      {
-        title: "Notifications",
-        url: "/notifications",
-        icon: <BellIcon />,
-      },
-    ],
-    [
-      {
-        title: "Log out",
-        url: "/logout",
-        icon: <LogOutIcon />,
-      },
-    ],
-  ],
+  [{ title: "Log out", url: "/logout", icon: <LogOutIcon /> }],
+];
+
+type UserProfile = {
+  name: string;
+  email: string;
+  avatar: string;
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
+  const supabase = createClient();
+  const [user, setUser] = React.useState<UserProfile>({
+    name: "",
+    email: "",
+    avatar: "",
+  });
 
-  const navMainWithActive = data.navMain.map((item) => ({
+  React.useEffect(() => {
+    async function loadProfile() {
+      const {
+        data: { user: authUser },
+      } = await supabase.auth.getUser();
+      if (!authUser) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, avatar_url")
+        .eq("id", authUser.id)
+        .single();
+
+      setUser({
+        name: profile?.full_name ?? authUser.email ?? "",
+        email: authUser.email ?? "",
+        avatar: profile?.avatar_url ?? "",
+      });
+    }
+
+    loadProfile();
+  }, [supabase]);
+
+  const navMainWithActive = NAV_MAIN.map((item) => ({
     ...item,
     isActive: pathname === item.url || pathname.startsWith(item.url + "/"),
   }));
@@ -126,7 +122,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navMainWithActive} />
       </SidebarContent>
       <SidebarFooter>
-        <NavFooter user={data.user} items={data.navFooter} />
+        <NavFooter user={user} items={NAV_FOOTER} />
       </SidebarFooter>
     </Sidebar>
   );
