@@ -1,22 +1,25 @@
-"use server";
+import type { CorrespondenceLog } from "@/types/database";
 
-import type { LogType } from "@/types";
-
-export interface LogCorrespondenceInput {
-  eventId: string;
-  type: LogType;
-  subject: string;
-  body: string;
-  contactName: string;
-  contactEmail: string | null;
+export async function createCorrespondence(
+  data: Omit<CorrespondenceLog, "id" | "created_at">,
+): Promise<CorrespondenceLog | null> {
+  return null;
 }
 
-export async function logCorrespondence(input: LogCorrespondenceInput): Promise<void> {
-  console.log("[action] logCorrespondence", input);
-  // TODO: insert into correspondence_logs table
+export async function updateCorrespondence(
+  logId: string,
+  data: Partial<CorrespondenceLog>,
+): Promise<CorrespondenceLog | null> {
+  return null;
 }
 
-export async function deleteCorrespondenceLog(id: string): Promise<void> {
-  console.log("[action] deleteCorrespondenceLog", { id });
-  // TODO: delete from correspondence_logs where id = id
+export async function deleteCorrespondence(logId: string): Promise<null> {
+  return null;
+}
+
+export async function emailCorrespondence(
+  logId: string,
+  recipientEmail: string,
+): Promise<null> {
+  return null;
 }

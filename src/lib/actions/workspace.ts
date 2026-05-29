@@ -1,28 +1,19 @@
-import { createClient } from "@/lib/supabase/client";
-
-const supabase = createClient();
+import { Workspace } from "@/types/database";
 
 export async function createWorkspace(
-  name: string,
-  school: string,
-  year: number,
+  data: Omit<Workspace, "id" | "created_at" | "updated_at">,
   userId: string,
-) {
-  const { data, error } = await supabase
-    .from("workspaces")
-    .insert([{ name, school, year, created_by: userId }])
-    .select()
-    .single();
+): Promise<Workspace> {
+  return null;
+}
 
-  if (error) throw error;
+export async function updateWorkspace(
+  workspaceId: string,
+  data: Partial<Workspace>,
+): Promise<Workspace> {
+  return null;
+}
 
-  await supabase.from("workspace_members").insert([
-    {
-      workspace_id: data.id,
-      profile_id: userId,
-      workspace_role: "admin",
-    },
-  ]);
-
-  return data;
+export async function deleteWorkspace(workspaceId: string): Promise<void> {
+  return null;
 }

@@ -1,14 +1,30 @@
-"use server";
+import type { RSVP } from "@/types/database";
 
-export interface SubmitRsvpInput {
-  eventId: string;
-  name: string;
-  email: string;
-  guestCount: number;
-  dietaryNotes: string | null;
+export async function createRSVP(
+  data: Omit<RSVP, "id" | "created_at">,
+): Promise<RSVP | null> {
+  return null;
 }
 
-export async function submitRsvp(input: SubmitRsvpInput): Promise<void> {
-  console.log("[action] submitRsvp", input);
-  // TODO: insert into rsvps table
+export async function updateRSVP(
+  rsvpId: string,
+  data: Partial<RSVP>,
+): Promise<RSVP | null> {
+  return null;
+}
+
+export async function deleteRSVP(rsvpId: string): Promise<null> {
+  return null;
+}
+
+export async function sendRSVPReminder(eventId: string): Promise<null> {
+  return null;
+}
+
+export async function exportRSVPToCSV(eventId: string): Promise<string | null> {
+  return null;
+}
+
+export async function checkInAttendee(rsvpId: string): Promise<null> {
+  return null;
 }
