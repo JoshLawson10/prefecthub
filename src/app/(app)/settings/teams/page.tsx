@@ -2,60 +2,93 @@
 
 import { useState } from "react";
 import {
-  Card, CardHeader, CardTitle, CardDescription, CardContent,
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-  DialogDescription, DialogFooter, DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { UserPlusIcon, MoreHorizontalIcon, ShieldIcon, UserIcon } from "lucide-react";
+import {
+  UserPlusIcon,
+  MoreHorizontalIcon,
+  ShieldIcon,
+  UserIcon,
+} from "lucide-react";
 import { getMembers, getMembersByRole } from "@/lib/data/members";
 import { getWorkspace } from "@/lib/data/workspace";
 import { inviteMember, updateMemberRole, removeMember } from "@/lib/actions";
 import type { Profile } from "@/types";
 
-const ALL_MEMBERS    = getMembers();
+const ALL_MEMBERS = getMembers();
 const MEMBERS_BY_ROLE = getMembersByRole();
-const WORKSPACE      = getWorkspace();
+const WORKSPACE = getWorkspace();
 
 // TODO: derive from session once auth is wired up
 const CURRENT_USER = ALL_MEMBERS.find((m) => m.id === "1")!;
 
 const ROLE_CONFIG: Record<
   string,
-  { label: string; icon: React.ReactNode; badgeVariant: "secondary" | "outline" }
+  {
+    label: string;
+    icon: React.ReactNode;
+    badgeVariant: "secondary" | "outline";
+  }
 > = {
-  admin:   { label: "Admin",   icon: <ShieldIcon className="size-3" />, badgeVariant: "secondary" },
-  prefect: { label: "Prefect", icon: <UserIcon   className="size-3" />, badgeVariant: "outline"   },
+  admin: {
+    label: "Admin",
+    icon: <ShieldIcon className="size-3" />,
+    badgeVariant: "secondary",
+  },
+  prefect: {
+    label: "Prefect",
+    icon: <UserIcon className="size-3" />,
+    badgeVariant: "outline",
+  },
 };
 
 function getRoleConfig(role: string) {
-  return ROLE_CONFIG[role] ?? { label: role, icon: <UserIcon className="size-3" />, badgeVariant: "outline" as const };
+  return (
+    ROLE_CONFIG[role] ?? {
+      label: role,
+      icon: <UserIcon className="size-3" />,
+      badgeVariant: "outline" as const,
+    }
+  );
 }
 
 function RoleBadge({ role }: { role: Profile["role"] }) {
   const config = getRoleConfig(role);
   return (
     <Badge variant={config.badgeVariant} className="gap-1 text-xs">
-      {config.icon}{config.label}
+      {config.icon}
+      {config.label}
     </Badge>
   );
 }
 
 function ManageDialog({ member }: { member: Profile }) {
-  const [open,    setOpen]    = useState(false);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleRoleChange() {
     setLoading(true);
     await updateMemberRole({
       memberId: member.id,
-      newRole:  member.role === "admin" ? "prefect" : "admin",
+      newRole: member.role === "admin" ? "prefect" : "admin",
     });
     setLoading(false);
     setOpen(false);
@@ -108,18 +141,28 @@ function ManageDialog({ member }: { member: Profile }) {
   );
 }
 
-function MemberRow({ member, isCurrentUser }: { member: Profile; isCurrentUser: boolean }) {
+function MemberRow({
+  member,
+  isCurrentUser,
+}: {
+  member: Profile;
+  isCurrentUser: boolean;
+}) {
   return (
     <div>
       <Separator className="mx-4" />
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-3">
-          <Avatar><AvatarFallback>{member.initials}</AvatarFallback></Avatar>
+          <Avatar>
+            <AvatarFallback>{member.initials}</AvatarFallback>
+          </Avatar>
           <div>
             <p className="text-sm font-medium">
               {member.full_name}
               {isCurrentUser && (
-                <span className="ml-2 text-xs text-muted-foreground font-normal">(you)</span>
+                <span className="ml-2 text-xs text-muted-foreground font-normal">
+                  (you)
+                </span>
               )}
             </p>
             <p className="text-xs text-muted-foreground">{member.email}</p>
@@ -127,10 +170,11 @@ function MemberRow({ member, isCurrentUser }: { member: Profile; isCurrentUser: 
         </div>
         <div className="flex items-center gap-3">
           <RoleBadge role={member.role} />
-          {isCurrentUser
-            ? <div className="size-7" />
-            : <ManageDialog member={member} />
-          }
+          {isCurrentUser ? (
+            <div className="size-7" />
+          ) : (
+            <ManageDialog member={member} />
+          )}
         </div>
       </div>
     </div>
@@ -139,8 +183,8 @@ function MemberRow({ member, isCurrentUser }: { member: Profile; isCurrentUser: 
 
 export default function TeamsPage() {
   const [inviteEmail, setInviteEmail] = useState("");
-  const [sent,        setSent]        = useState(false);
-  const [loading,     setLoading]     = useState(false);
+  const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleInvite() {
     if (!inviteEmail.trim()) return;
@@ -179,7 +223,10 @@ export default function TeamsPage() {
               onChange={(e) => setInviteEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleInvite()}
             />
-            <Button onClick={handleInvite} disabled={!inviteEmail.trim() || loading}>
+            <Button
+              onClick={handleInvite}
+              disabled={!inviteEmail.trim() || loading}
+            >
               <UserPlusIcon />
               {sent ? "Sent!" : loading ? "Sending…" : "Invite"}
             </Button>
@@ -197,7 +244,9 @@ export default function TeamsPage() {
         <CardContent className="px-0 py-0">
           {sections.map((role, sectionIndex) => (
             <div key={role}>
-              <p className={`text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5 ${sectionIndex > 0 ? "border-t border-border mt-1" : ""}`}>
+              <p
+                className={`text-xs font-semibold uppercase tracking-widest text-muted-foreground px-4 py-2.5 ${sectionIndex > 0 ? "border-t border-border mt-1" : ""}`}
+              >
                 {getRoleConfig(role).label}s
               </p>
               {MEMBERS_BY_ROLE[role].map((member) => (
@@ -215,24 +264,34 @@ export default function TeamsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Workspace</CardTitle>
-          <CardDescription>Details about this Prefect Hub workspace.</CardDescription>
+          <CardDescription>
+            Details about this Prefect Hub workspace.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Workspace name</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Workspace name
+              </p>
               <p>{WORKSPACE.name}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Created</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Created
+              </p>
               <p>{WORKSPACE.created_at}</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Members</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Members
+              </p>
               <p>{ALL_MEMBERS.length} total</p>
             </div>
             <div>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">Your role</p>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest mb-1">
+                Your role
+              </p>
               <p className="capitalize">{CURRENT_USER.role}</p>
             </div>
           </div>

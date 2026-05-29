@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavFooter } from "@/components/sidebar/nav-footer";
@@ -27,32 +26,9 @@ import {
   LogOutIcon,
 } from "lucide-react";
 
-const NAV_MAIN = [
-  { title: "Dashboard", url: "/dashboard", icon: <LayoutDashboardIcon /> },
-  {
-    title: "Events",
-    url: "/events",
-    icon: <CalendarCheckIcon />,
-    items: [
-      { title: "Prefect Afternoon Tea", url: "/events/1" },
-      { title: "Yr 12 Assembly", url: "/events/2" },
-      { title: "Yr 7 Orientation Day", url: "/events/3" },
-      { title: "Farewell Ceremony", url: "/events/4" },
-    ],
-  },
-  { title: "Tasks", url: "/tasks", icon: <CheckSquareIcon /> },
-  { title: "Calendar", url: "/calendar", icon: <CalendarDaysIcon /> },
-  { title: "Members", url: "/members", icon: <UsersIcon /> },
-  { title: "Archive", url: "/archive", icon: <ArchiveIcon /> },
-];
-
-const NAV_FOOTER = [
-  [
-    { title: "Settings", url: "/settings", icon: <SettingsIcon /> },
-    { title: "Notifications", url: "/notifications", icon: <BellIcon /> },
-  ],
-  [{ title: "Log out", url: "/logout", icon: <LogOutIcon /> }],
-];
+import { getCurrentUser } from "@/lib/data/user";
+import { getUserWorkspace } from "@/lib/data/workspace";
+import { getEvents } from "@/lib/data/events";
 
 type UserProfile = {
   name: string;
@@ -62,35 +38,70 @@ type UserProfile = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
-  const supabase = createClient();
   const [user, setUser] = React.useState<UserProfile>({
     name: "",
     email: "",
     avatar: "",
   });
+  const [sidebarEvents, setSidebarEvents] = React.useState<
+    { title: string; url: string }[]
+  >([]);
+  const [workspaceData, setWorkspaceData] = React.useState({
+    name: "",
+    year: 0,
+  });
 
   React.useEffect(() => {
-    async function loadProfile() {
-      const {
-        data: { user: authUser },
-      } = await supabase.auth.getUser();
-      if (!authUser) return;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, avatar_url")
-        .eq("id", authUser.id)
-        .single();
+    async function fetchData() {
+      const userData = await getCurrentUser();
 
       setUser({
-        name: profile?.full_name ?? authUser.email ?? "",
-        email: authUser.email ?? "",
-        avatar: profile?.avatar_url ?? "",
+        name: userData?.name ?? "",
+        email: userData?.email ?? "",
+        avatar: userData?.avatar ?? "",
       });
+
+      const workspaceData = await getUserWorkspace(userData?.id ?? "");
+
+      setWorkspaceData({
+        name: workspaceData?.name ?? "",
+        year: workspaceData?.year ?? 0,
+      });
+
+      const eventsData = await getEvents(workspaceData?.id);
+
+      setSidebarEvents(
+        eventsData.map((e) => ({
+          title: e.title,
+          url: `/events/${e.id}`,
+        })),
+      );
     }
 
-    loadProfile();
-  }, [supabase]);
+    fetchData();
+  }, []);
+
+  const NAV_MAIN = [
+    { title: "Dashboard", url: "/dashboard", icon: <LayoutDashboardIcon /> },
+    {
+      title: "Events",
+      url: "/events",
+      icon: <CalendarCheckIcon />,
+      items: sidebarEvents,
+    },
+    { title: "Tasks", url: "/tasks", icon: <CheckSquareIcon /> },
+    { title: "Calendar", url: "/calendar", icon: <CalendarDaysIcon /> },
+    { title: "Members", url: "/members", icon: <UsersIcon /> },
+    { title: "Archive", url: "/archive", icon: <ArchiveIcon /> },
+  ];
+
+  const NAV_FOOTER = [
+    [
+      { title: "Settings", url: "/settings", icon: <SettingsIcon /> },
+      { title: "Notifications", url: "/notifications", icon: <BellIcon /> },
+    ],
+    [{ title: "Log out", url: "/logout", icon: <LogOutIcon /> }],
+  ];
 
   const navMainWithActive = NAV_MAIN.map((item) => ({
     ...item,
@@ -111,7 +122,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   Prefect Hub
                 </span>
                 <span className="truncate text-muted-foreground text-xs">
-                  Cumberland HS · 2026
+                  {workspaceData.name} · {workspaceData.year}
                 </span>
               </div>
             </div>

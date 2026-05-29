@@ -1,4 +1,7 @@
 import type { Event, DashboardStats } from "@/types";
+import { createClient } from "@/lib/supabase/client";
+
+const supabase = createClient();
 
 const EVENTS: Event[] = [
   {
@@ -135,8 +138,62 @@ const ARCHIVED_EVENTS: Event[] = [
   },
 ];
 
-export function getEvents(): Event[] {
-  return [...EVENTS].sort((a, b) => a.dateSort.localeCompare(b.dateSort));
+export async function getEvents(workspaceId: string): Promise<Event[]> {
+  const { data, error } = await supabase
+    .from("events")
+    .select(
+      `
+      id, title, description, date_start, date_end, location, status,
+      colour, max_capacity, rsvp_slug, created_by,
+      rsvps(count), tasks(count)
+    `,
+    )
+    .eq("workspace_id", workspaceId)
+    .order("date_start", { ascending: true });
+
+  if (error) throw error;
+
+  return (
+    data?.map((e) => {
+      const start = e.date_start ? new Date(e.date_start) : null;
+      const end = e.date_end ? new Date(e.date_end) : null;
+
+      const date = start
+        ? start
+            .toLocaleDateString("en-GB", {
+              weekday: "short",
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            })
+            .replace(/,/g, "")
+        : null;
+
+      const time =
+        start && end
+          ? `${start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })} - ${end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" })}`
+          : null;
+
+      const dateSort = e.date_start ? e.date_start.slice(0, 10) : null;
+
+      return {
+        id: e.id,
+        title: e.title,
+        description: e.description,
+        date,
+        time,
+        dateSort,
+        location: e.location,
+        status: e.status,
+        colour: e.colour,
+        max_capacity: e.max_capacity,
+        rsvp_slug: e.rsvp_slug,
+        created_by: e.created_by,
+        rsvp_count: e.rsvps?.[0]?.count ?? 0,
+        task_count: e.tasks?.[0]?.count ?? 0,
+      } as Event;
+    }) ?? []
+  );
 }
 
 export function getEvent(id: string): Event | undefined {

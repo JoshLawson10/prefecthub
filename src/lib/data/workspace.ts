@@ -1,13 +1,51 @@
-import { Workspace } from "@/types";
+import { createClient } from "@/lib/supabase/client";
 
-const WORKSPACE: Workspace = {
-  name: "Cumberland HS Prefects 2026",
-  school: "Cumberland High School",
-  year: 2026,
-  created_at: "1 February 2026",
-  created_at_sort: "2026-02-01",
-};
+const supabase = createClient();
 
-export function getWorkspace(): Workspace {
-  return { ...WORKSPACE };
+export async function getWorkspace(workspaceId: string) {
+  const { data, error } = await supabase
+    .from("workspaces")
+    .select("*")
+    .eq("id", workspaceId)
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getUserWorkspace(userId: string) {
+  const { data, error } = await supabase
+    .from("workspace_members")
+    .select("*")
+    .eq("profile_id", userId)
+    .single();
+
+  if (error) throw error;
+
+  return data?.workspace_id ?? null;
+}
+
+export async function createWorkspace(
+  name: string,
+  school: string,
+  year: number,
+  userId: string,
+) {
+  const { data, error } = await supabase
+    .from("workspaces")
+    .insert([{ name, school, year, created_by: userId }])
+    .select()
+    .single();
+
+  if (error) throw error;
+
+  await supabase.from("workspace_members").insert([
+    {
+      workspace_id: data.id,
+      profile_id: userId,
+      workspace_role: "admin",
+    },
+  ]);
+
+  return data;
 }

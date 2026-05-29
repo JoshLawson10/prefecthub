@@ -1,3 +1,7 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
 import {
   CalendarIcon,
   MapPinIcon,
@@ -17,6 +21,8 @@ import { getTasks } from "@/lib/data/tasks";
 import { getNotifications } from "@/lib/data/notifications";
 import { countMembersByType } from "@/lib/data/members";
 import { differenceInCalendarDays, parseISO } from "date-fns";
+import { getCurrentUser } from "@/lib/data/user";
+import { getUserWorkspace } from "@/lib/data/workspace";
 
 const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   task_overdue: "Overdue",
@@ -29,12 +35,32 @@ const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
 };
 
 export default function DashboardPage() {
+  const [userID, setUserID] = useState("");
+  const [events, setEvents] = useState<any[]>([]);
   const stats = getDashboardStats();
   const memberCounts = countMembersByType();
 
   const today = new Date();
 
-  const upcomingEvents = getEvents()
+  useEffect(() => {
+    async function fetchUser() {
+      const user = await getCurrentUser();
+      setUserID(user?.id ?? "");
+    }
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    async function fetchEvents() {
+      if (!userID) return;
+      const ws = await getUserWorkspace(userID);
+      const ev = await getEvents(ws);
+      setEvents(ev);
+    }
+    fetchEvents();
+  }, [userID]);
+
+  const upcomingEvents = events
     .filter((e) => e.status === "upcoming")
     .slice(0, 4)
     .map((e) => {
