@@ -14,9 +14,9 @@ function hexToCalendarClasses(_hex: string) {
   return { color_class: "", text_class: "" };
 }
 
-export function getCalendarItems(): CalendarItem[] {
-  const events = getEvents();
-  const tasks = getTasks();
+export async function getCalendarItems(): Promise<CalendarItem[]> {
+  const events = await getEvents();
+  const tasks = await getTasks();
 
   const eventItems: CalendarItem[] = events.map((e) => ({
     id: e.id,
@@ -29,12 +29,12 @@ export function getCalendarItems(): CalendarItem[] {
   }));
 
   const taskItems: CalendarItem[] = tasks
-    .filter((t) => t.due_date_sort && t.status !== "done")
+    .filter((t) => t.due_date && t.status !== "done")
     .map((t) => ({
       id: `task-${t.id}`,
       type: "task-due",
       title: t.title,
-      date: t.due_date_sort!,
+      date: t.due_date!,
       color_class: "bg-muted",
       text_class: "text-muted-foreground",
     }));
