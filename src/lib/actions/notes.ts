@@ -1,22 +1,44 @@
-import type { Note } from "@/lib/schemas";
+"use server";
 
-export async function createNote(
-  data: Omit<Note, "id" | "created_at" | "updated_at">,
-): Promise<Note | null> {
-  return null;
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/data/users";
+
+export interface CreateNoteInput {
+  eventId: string;
+  title: string;
+  body: string;
+}
+
+export async function createNote(input: CreateNoteInput): Promise<void> {
+  const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
+  const { error } = await supabase.from("notes").insert({
+    event_id: input.eventId,
+    title: input.title,
+    body: input.body,
+    author_id: currentUser.id,
+    workspace_id: currentUser.workspace_id,
+  });
+  if (error) throw new Error(error.message);
 }
 
 export async function updateNote(
-  noteId: string,
-  data: Partial<Note>,
-): Promise<Note | null> {
-  return null;
+  id: string,
+  title: string,
+  body: string,
+): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("notes")
+    .update({ title, body, updated_at: new Date().toISOString() })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
 }
 
-export async function deleteNote(noteId: string): Promise<null> {
-  return null;
-}
-
-export async function pinNote(noteId: string): Promise<null> {
-  return null;
+export async function deleteNote(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase.from("notes").delete().eq("id", id);
+  if (error) throw new Error(error.message);
 }

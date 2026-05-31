@@ -1,25 +1,43 @@
-import type { CorrespondenceLog } from "@/lib/schemas";
+"use server";
 
-export async function createCorrespondence(
-  data: Omit<CorrespondenceLog, "id" | "created_at">,
-): Promise<CorrespondenceLog | null> {
-  return null;
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/data/users";
+import type { LogType } from "@/types";
+
+export interface LogCorrespondenceInput {
+  eventId: string;
+  type: LogType;
+  subject: string;
+  body: string;
+  contactName: string;
+  contactEmail: string | null;
 }
 
-export async function updateCorrespondence(
-  logId: string,
-  data: Partial<CorrespondenceLog>,
-): Promise<CorrespondenceLog | null> {
-  return null;
+export async function logCorrespondence(
+  input: LogCorrespondenceInput,
+): Promise<void> {
+  const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
+  const { error } = await supabase.from("correspondence_logs").insert({
+    event_id: input.eventId,
+    type: input.type,
+    subject: input.subject,
+    body: input.body,
+    contact_name: input.contactName,
+    contact_email: input.contactEmail,
+    logged_by: currentUser.id,
+    workspace_id: currentUser.workspace_id,
+  });
+  if (error) throw new Error(error.message);
 }
 
-export async function deleteCorrespondence(logId: string): Promise<null> {
-  return null;
-}
-
-export async function emailCorrespondence(
-  logId: string,
-  recipientEmail: string,
-): Promise<null> {
-  return null;
+export async function deleteCorrespondenceLog(id: string): Promise<void> {
+  const supabase = await createClient();
+  const { error } = await supabase
+    .from("correspondence_logs")
+    .delete()
+    .eq("id", id);
+  if (error) throw new Error(error.message);
 }

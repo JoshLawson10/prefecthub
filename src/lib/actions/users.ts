@@ -47,7 +47,7 @@ export async function updateUserAvatar(
     data: { publicUrl },
   } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
-  const { data: user, error: updateError } = await supabase
+  const { error: updateError } = await supabase
     .from("users")
     .update({ avatar_url: publicUrl })
     .eq("id", userId)

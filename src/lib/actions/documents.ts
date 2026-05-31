@@ -1,38 +1,72 @@
-import type { Document } from "@/lib/schemas";
+"use server";
+
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/data/users";
+
+const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
+
+export interface UploadDocumentInput {
+  eventId: string;
+  file: File;
+}
 
 export async function uploadDocument(
-  eventId: string,
-  file: File,
-  name?: string,
-): Promise<Document | null> {
-  return null;
+  input: UploadDocumentInput,
+): Promise<void> {
+  if (input.file.size > MAX_BYTES) {
+    throw new Error(`${input.file.name} exceeds the 10 MB limit.`);
+  }
+
+  const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
+  const storagePath = `${input.eventId}/${Date.now()}-${input.file.name}`;
+  const buffer = await input.file.arrayBuffer();
+
+  const { error: uploadError } = await supabase.storage
+    .from("documents")
+    .upload(storagePath, buffer, {
+      contentType: input.file.type,
+      upsert: false,
+    });
+  if (uploadError) throw new Error(uploadError.message);
+
+  const { error: dbError } = await supabase.from("documents").insert({
+    event_id: input.eventId,
+    name: input.file.name,
+    storage_path: storagePath,
+    mime_type: input.file.type,
+    size_bytes: input.file.size,
+    uploaded_by: currentUser.id,
+    workspace_id: currentUser.workspace_id,
+  });
+
+  if (dbError) {
+    await supabase.storage.from("documents").remove([storagePath]);
+    throw new Error(dbError.message);
+  }
 }
 
-export async function deleteDocument(documentId: string): Promise<null> {
-  return null;
-}
+export async function deleteDocument(documentId: string): Promise<void> {
+  const supabase = await createClient();
 
-export async function updateDocumentName(
-  documentId: string,
-  name: string,
-): Promise<Document | null> {
-  return null;
-}
+  const { data: doc, error: fetchError } = await supabase
+    .from("documents")
+    .select("storage_path")
+    .eq("id", documentId)
+    .single();
 
-export async function batchUploadDocuments(
-  eventId: string,
-  files: File[],
-): Promise<Document[] | null> {
-  return null;
-}
+  if (fetchError || !doc) throw new Error("Document not found");
 
-export async function downloadDocument(documentId: string): Promise<null> {
-  return null;
-}
+  const { error: storageError } = await supabase.storage
+    .from("documents")
+    .remove([doc.storage_path]);
+  if (storageError) throw new Error(storageError.message);
 
-export async function moveDocument(
-  documentId: string,
-  newEventId: string,
-): Promise<Document | null> {
-  return null;
+  const { error: dbError } = await supabase
+    .from("documents")
+    .delete()
+    .eq("id", documentId);
+  if (dbError) throw new Error(dbError.message);
 }
