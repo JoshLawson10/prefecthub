@@ -7,6 +7,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   const {
     data: { user: authUser },
   } = await supabase.auth.getUser();
+
   if (!authUser) return null;
 
   const { data, error } = await supabase
@@ -15,7 +16,37 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     .eq("id", authUser.id)
     .single();
 
-  if (error) return null;
+  if (error || !data) {
+    const fullName =
+      authUser.user_metadata?.full_name || authUser.email?.split("@")[0];
+    const initials = fullName
+      .split(" ")
+      .map((n: string) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+
+    const { data: newProfile, error: insertError } = await supabase
+      .from("users")
+      .insert({
+        id: authUser.id,
+        email: authUser.email,
+        full_name: fullName,
+        initials,
+        role: "member",
+        workspace_id: null,
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error("Failed to create user profile:", insertError);
+      return null;
+    }
+
+    return newProfile;
+  }
+
   return data;
 });
 
