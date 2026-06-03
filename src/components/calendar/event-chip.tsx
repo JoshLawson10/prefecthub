@@ -1,4 +1,4 @@
-import type { CalendarItem } from "@/types";
+import type { CalendarItem } from "@/lib/schemas";
 import { cn } from "@/lib/utils";
 import { CheckSquareIcon } from "lucide-react";
 
@@ -22,7 +22,10 @@ export function EventChip({ item }: { item: CalendarItem }) {
       {item.type === "task-due" ? (
         <CheckSquareIcon className="size-2.5 shrink-0 opacity-60" />
       ) : (
-        <span className="size-1.5 rounded-full shrink-0 opacity-70" style={{ backgroundColor: item.colour }} />
+        <span
+          className="size-1.5 rounded-full shrink-0 opacity-70"
+          style={{ backgroundColor: item.colour }}
+        />
       )}
       <span className="truncate leading-tight">{item.title}</span>
     </div>

@@ -19,19 +19,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { DayCell } from "./day-cell";
 import { AgendaPanel } from "./agenda-panel";
-import { getCalendarItems } from "@/lib/data/calendar";
-import type { CalendarItem } from "@/types";
+import type { CalendarItem } from "@/lib/schemas";
 
 export type { CalendarItem };
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
-export function CalendarView() {
+export function CalendarView({ items }: { items: CalendarItem[] }) {
   const today = useMemo(() => new Date(), []);
   const [currentMonth, setCurrentMonth] = useState(new Date(2026, 4, 1));
   const [selectedDay, setSelectedDay] = useState<Date>(today);
-
-  const items = useMemo(() => getCalendarItems(), []);
 
   const gridDays = useMemo(() => {
     const start = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 1 });

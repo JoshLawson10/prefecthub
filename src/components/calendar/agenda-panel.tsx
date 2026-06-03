@@ -1,10 +1,16 @@
 import { format } from "date-fns";
-import type { CalendarItem } from "@/types";
+import type { CalendarItem } from "@/lib/schemas";
 import { MapPinIcon, CheckSquareIcon, CalendarDaysIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 
-export function AgendaPanel({ day, items }: { day: Date; items: CalendarItem[] }) {
+export function AgendaPanel({
+  day,
+  items,
+}: {
+  day: Date;
+  items: CalendarItem[];
+}) {
   const events = items.filter((i) => i.type === "event");
   const tasks = items.filter((i) => i.type === "task-due");
 
@@ -12,7 +18,9 @@ export function AgendaPanel({ day, items }: { day: Date; items: CalendarItem[] }
     <div className="flex flex-col gap-3">
       <div>
         <p className="text-sm font-semibold">{format(day, "EEEE")}</p>
-        <p className="text-xs text-muted-foreground mt-0.5">{format(day, "d MMMM yyyy")}</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          {format(day, "d MMMM yyyy")}
+        </p>
       </div>
 
       <Separator />
@@ -26,7 +34,9 @@ export function AgendaPanel({ day, items }: { day: Date; items: CalendarItem[] }
         <div className="flex flex-col gap-3">
           {events.length > 0 && (
             <div className="flex flex-col gap-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Events</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Events
+              </p>
               {events.map((item) => (
                 <div
                   key={item.id}
@@ -36,19 +46,28 @@ export function AgendaPanel({ day, items }: { day: Date; items: CalendarItem[] }
                   )}
                   style={
                     item.colour
-                      ? { backgroundColor: `${item.colour}22`, borderLeft: `3px solid ${item.colour}` }
+                      ? {
+                          backgroundColor: `${item.colour}22`,
+                          borderLeft: `3px solid ${item.colour}`,
+                        }
                       : undefined
                   }
                 >
                   <p
-                    className={cn("text-xs font-semibold", !item.colour && item.text_class)}
+                    className={cn(
+                      "text-xs font-semibold",
+                      !item.colour && item.text_class,
+                    )}
                     style={item.colour ? { color: item.colour } : undefined}
                   >
                     {item.title}
                   </p>
                   {item.location && (
                     <p
-                      className={cn("text-[11px] flex items-center gap-1 opacity-75", !item.colour && item.text_class)}
+                      className={cn(
+                        "text-[11px] flex items-center gap-1 opacity-75",
+                        !item.colour && item.text_class,
+                      )}
                       style={item.colour ? { color: item.colour } : undefined}
                     >
                       <MapPinIcon className="size-2.5" />
@@ -62,7 +81,9 @@ export function AgendaPanel({ day, items }: { day: Date; items: CalendarItem[] }
 
           {tasks.length > 0 && (
             <div className="flex flex-col gap-1.5">
-              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Tasks Due</p>
+              <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Tasks Due
+              </p>
               {tasks.map((item) => (
                 <div
                   key={item.id}
