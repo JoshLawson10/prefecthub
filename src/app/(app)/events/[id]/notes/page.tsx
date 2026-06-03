@@ -1,7 +1,7 @@
 import { Header } from "@/components/ui/header";
 import { NotesView } from "@/components/notes/notes-view";
 import { CreateNoteSheet } from "@/components/notes/create-note-sheet";
-import { getNotesByEvent } from "@/lib/data/notes";
+import { getEventNotes } from "@/lib/data/notes";
 
 export default async function NotesPage({
   params,
@@ -9,7 +9,7 @@ export default async function NotesPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const notes = getNotesByEvent(id);
+  const notes = await getEventNotes(id);
 
   return (
     <div>

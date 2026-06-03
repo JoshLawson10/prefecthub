@@ -1,17 +1,12 @@
 import { notFound } from "next/navigation";
-import {
-  Calendar1Icon,
-  ClockIcon,
-  MapPinIcon,
-  TicketIcon,
-  UsersIcon,
-} from "lucide-react";
+import { Calendar1Icon, ClockIcon, MapPinIcon, UsersIcon } from "lucide-react";
 import { EventBreadcrumbs } from "@/components/events/event-breadcrumbs";
 import { EventTabs } from "@/components/events/event-tabs";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { getEvent } from "@/lib/data/events";
 import { EVENT_STATUS_BADGE } from "@/components/events/event-card";
+import { formatEventDate, formatEventTime } from "@/lib/utils/format";
 
 interface Props {
   children: React.ReactNode;
@@ -23,13 +18,12 @@ const tabs = [
   { label: "Correspondence", href: "correspondence" },
   { label: "Documents", href: "documents" },
   { label: "Notes", href: "notes" },
-  { label: "Timeline", href: "timeline" },
   { label: "Team", href: "team" },
 ];
 
 export default async function EventLayout({ children, params }: Props) {
   const { id } = await params;
-  const event = getEvent(id);
+  const event = await getEvent(id);
 
   if (!event) notFound();
 
@@ -55,11 +49,15 @@ export default async function EventLayout({ children, params }: Props) {
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           <div className="flex items-center gap-1.5">
             <Calendar1Icon className="size-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">{event.date}</span>
+            <span className="text-sm text-muted-foreground">
+              {formatEventDate(event)}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <ClockIcon className="size-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">{event.time}</span>
+            <span className="text-sm text-muted-foreground">
+              {formatEventTime(event)}
+            </span>
           </div>
           <div className="flex items-center gap-1.5">
             <MapPinIcon className="size-4 text-muted-foreground" />
@@ -75,19 +73,10 @@ export default async function EventLayout({ children, params }: Props) {
               </span>
             </div>
           )}
-          {event.rsvp_count > 0 && (
-            <div className="flex items-center gap-1.5">
-              <TicketIcon className="size-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">
-                {event.rsvp_count} RSVPs
-              </span>
-            </div>
-          )}
         </div>
       </div>
 
       <EventTabs tabs={tabs} basePath={`/events/${id}`} className="px-4" />
-
       <main className="flex-1 overflow-y-auto p-6">{children}</main>
     </div>
   );
