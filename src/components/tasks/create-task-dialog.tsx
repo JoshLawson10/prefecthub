@@ -33,22 +33,24 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { getMembers } from "@/lib/data/members";
-import { createTask } from "@/lib/actions";
-import type { TaskPriority } from "@/types";
-
-const MEMBERS = getMembers();
+import { createTask } from "@/lib/actions/tasks";
+import type { TaskPriority, User } from "@/lib/schemas";
 
 interface CreateTaskDialogProps {
   eventId: string;
+  workspaceMembers: User[];
   trigger?: React.ReactNode;
 }
 
-export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
+export function CreateTaskDialog({
+  eventId,
+  workspaceMembers,
+  trigger,
+}: CreateTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [dateOpen, setDateOpen] = useState(false);
-  const [assigneeId, setAssigneeId] = useState<string>("");
+  const [assigneeId, setAssigneeId] = useState("");
   const [priority, setPriority] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
@@ -58,13 +60,16 @@ export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
     setLoading(true);
     await createTask({
       eventId,
-      title:       data.get("title") as string,
+      title: data.get("title") as string,
       description: (data.get("description") as string) || null,
-      assigneeId:  assigneeId || null,
-      priority:    (priority as TaskPriority) || "medium",
-      dueDate:     dueDate ?? null,
+      assigneeId: assigneeId || null,
+      priority: (priority as TaskPriority) || "medium",
+      dueDate: dueDate ?? null,
     });
     setLoading(false);
+    setDueDate(undefined);
+    setAssigneeId("");
+    setPriority("");
     setOpen(false);
   }
 
@@ -100,14 +105,16 @@ export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
             <Field>
               <FieldLabel htmlFor="task-desc">
                 Description{" "}
-                <span className="text-muted-foreground font-normal">(optional)</span>
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
               </FieldLabel>
               <Textarea id="task-desc" name="description" rows={2} />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
               <Field>
-                <FieldLabel htmlFor="task-assignee">Assignee</FieldLabel>
+                <FieldLabel>Assignee</FieldLabel>
                 <Select value={assigneeId} onValueChange={setAssigneeId}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Unassigned" />
@@ -115,7 +122,7 @@ export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Team members</SelectLabel>
-                      {MEMBERS.map((m) => (
+                      {workspaceMembers.map((m) => (
                         <SelectItem key={m.id} value={m.id}>
                           {m.full_name}
                         </SelectItem>
@@ -126,7 +133,7 @@ export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="task-priority">Priority</FieldLabel>
+                <FieldLabel>Priority</FieldLabel>
                 <Select value={priority} onValueChange={setPriority}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select priority" />
@@ -175,7 +182,9 @@ export function CreateTaskDialog({ eventId, trigger }: CreateTaskDialogProps) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
             </DialogClose>
             <Button type="submit" disabled={loading}>
               {loading ? "Creating…" : "Create task"}

@@ -3,8 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import { TasksView } from "@/components/tasks/tasks-view";
 import { getTasks } from "@/lib/data/tasks";
 
-export default function TasksPage() {
-  const tasks = getTasks();
+export default async function TasksPage() {
+  const tasks = await getTasks();
 
   return (
     <div>
