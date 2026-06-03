@@ -38,8 +38,8 @@ export const EVENT_STATUS_BADGE: Record<
   EventStatus,
   "default" | "secondary" | "outline" | "destructive"
 > = {
-  upcoming:  "secondary",
-  ongoing:   "default",
+  upcoming: "secondary",
+  ongoing: "default",
   completed: "outline",
   cancelled: "destructive",
 };
@@ -90,7 +90,10 @@ export function EventCard({ event, onClick }: EventCardProps) {
         <Button
           variant="outline"
           size="icon"
-          onClick={(e) => { e.stopPropagation(); onClick?.(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.();
+          }}
         >
           <ChevronRightIcon />
         </Button>
