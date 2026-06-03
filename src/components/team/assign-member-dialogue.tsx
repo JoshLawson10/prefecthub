@@ -23,27 +23,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { getMembers } from "@/lib/data/members";
-import { assignTeamMember } from "@/lib/actions";
-import type { EventRole } from "@/types";
-
-const MEMBERS = getMembers();
+import { assignTeamMember } from "@/lib/actions/team";
+import type { EventRole, User } from "@/lib/schemas";
 
 interface AssignMemberDialogProps {
   eventId: string;
+  workspaceMembers: User[];
 }
 
-export function AssignMemberDialog({ eventId }: AssignMemberDialogProps) {
-  const [open,      setOpen]      = useState(false);
-  const [memberId,  setMemberId]  = useState("");
-  const [role,      setRole]      = useState<EventRole | "">("");
-  const [loading,   setLoading]   = useState(false);
+export function AssignMemberDialog({
+  eventId,
+  workspaceMembers,
+}: AssignMemberDialogProps) {
+  const [open, setOpen] = useState(false);
+  const [memberId, setMemberId] = useState("");
+  const [role, setRole] = useState<EventRole | "">("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
     if (!memberId || !role) return;
     setLoading(true);
     await assignTeamMember({ eventId, memberId, role: role as EventRole });
     setLoading(false);
+    setMemberId("");
+    setRole("");
     setOpen(false);
   }
 
@@ -57,7 +60,9 @@ export function AssignMemberDialog({ eventId }: AssignMemberDialogProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Assign member</DialogTitle>
-          <DialogDescription>Add a prefect to this event&apos;s team.</DialogDescription>
+          <DialogDescription>
+            Add a prefect to this event&apos;s team.
+          </DialogDescription>
         </DialogHeader>
         <FieldGroup>
           <Field>
@@ -68,9 +73,11 @@ export function AssignMemberDialog({ eventId }: AssignMemberDialogProps) {
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Team members</SelectLabel>
-                  {MEMBERS.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>{m.full_name}</SelectItem>
+                  <SelectLabel>Workspace members</SelectLabel>
+                  {workspaceMembers.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.full_name}
+                    </SelectItem>
                   ))}
                 </SelectGroup>
               </SelectContent>
@@ -94,9 +101,14 @@ export function AssignMemberDialog({ eventId }: AssignMemberDialogProps) {
         </FieldGroup>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
           </DialogClose>
-          <Button onClick={handleSubmit} disabled={!memberId || !role || loading}>
+          <Button
+            onClick={handleSubmit}
+            disabled={!memberId || !role || loading}
+          >
             <UserPlusIcon /> {loading ? "Assigning…" : "Assign"}
           </Button>
         </DialogFooter>
