@@ -13,10 +13,10 @@ import {
 type StatCardVariant = "default" | "destructive" | "warning" | "success";
 
 const TITLE_CLASSES: Record<StatCardVariant, string> = {
-  default:     "",
+  default: "",
   destructive: "text-destructive",
-  warning:     "text-amber-500 dark:text-amber-400",
-  success:     "text-emerald-600 dark:text-emerald-400",
+  warning: "text-amber-500 dark:text-amber-400",
+  success: "text-emerald-600 dark:text-emerald-400",
 };
 
 interface StatCardProps {

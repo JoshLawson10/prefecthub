@@ -1,28 +1,9 @@
-"use client";
-
-import { useState, useEffect } from "react";
-
-import {
-  CalendarIcon,
-  MapPinIcon,
-  UsersIcon,
-  MailIcon,
-  CheckSquareIcon,
-  UsersRoundIcon,
-  AlertCircleIcon,
-} from "lucide-react";
-import { StatCard } from "@/components/dashboard/stat-card";
-import { Header } from "@/components/ui/header";
-import { Separator } from "@/components/ui/separator";
-import { Table } from "@/components/ui/info-table";
-import { NewEventDialog } from "@/components/dashboard/new-event-dialog";
-import { getEvents, getDashboardStats } from "@/lib/data/events";
-import { getTasks } from "@/lib/data/tasks";
-import { getNotifications } from "@/lib/data/notifications";
-import { countMembersByType } from "@/lib/data/members";
+import { getDashboardStats, getRecentActivity } from "@/lib/data/dashboard";
+import { getUpcomingEvents } from "@/lib/data/events";
+import { getUserTasks } from "@/lib/data/tasks";
+import { formatEventDate, formatShortDate } from "@/lib/utils/format";
 import { differenceInCalendarDays, parseISO } from "date-fns";
-import { getCurrentUser } from "@/lib/data/user";
-import { getUserWorkspace } from "@/lib/data/workspace";
+import { DashboardClient } from "@/components/dashboard/dashboard-client";
 
 const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   task_overdue: "Overdue",
@@ -34,177 +15,97 @@ const NOTIFICATION_TYPE_LABELS: Record<string, string> = {
   member_added: "Member",
 };
 
-export default function DashboardPage() {
-  const [userID, setUserID] = useState("");
-  const [events, setEvents] = useState<any[]>([]);
-  const stats = getDashboardStats();
-  const memberCounts = countMembersByType();
-
+export default async function DashboardPage() {
   const today = new Date();
 
-  useEffect(() => {
-    async function fetchUser() {
-      const user = await getCurrentUser();
-      setUserID(user?.id ?? "");
-    }
-    fetchUser();
-  }, []);
+  const [stats, upcomingRaw, tasks, activity] = await Promise.all([
+    getDashboardStats(),
+    getUpcomingEvents(4),
+    getUserTasks(),
+    getRecentActivity(5),
+  ]);
 
-  useEffect(() => {
-    async function fetchEvents() {
-      if (!userID) return;
-      const ws = await getUserWorkspace(userID);
-      const ev = await getEvents(ws);
-      setEvents(ev);
-    }
-    fetchEvents();
-  }, [userID]);
+  const openTasksCount = stats.totalTasks - stats.completedTasks;
 
-  const upcomingEvents = events
-    .filter((e) => e.status === "upcoming")
-    .slice(0, 4)
-    .map((e) => {
-      const daysUntil = differenceInCalendarDays(parseISO(e.dateSort), today);
-      const daysLabel =
-        daysUntil === 0
-          ? "Today"
-          : daysUntil === 1
-            ? "Tomorrow"
-            : `${daysUntil}d`;
-      return {
-        id: e.id,
-        icon: e.colour,
-        title: e.title,
-        description: [
-          { label: e.date, icon: <CalendarIcon /> },
-          { label: e.location, icon: <MapPinIcon /> },
-          ...(e.max_capacity
-            ? [{ label: `~${e.max_capacity} cap`, icon: <UsersIcon /> }]
-            : []),
-        ],
-        badgeContent: daysLabel,
-        href: `/events/${e.id}`,
-      };
-    });
+  const upcomingEvents = upcomingRaw.map((e) => ({
+    id: e.id,
+    title: e.title,
+    description: [
+      { label: formatEventDate(e), icon: "calendar" },
+      { label: e.location, icon: "map-pin" },
+    ],
+    badgeContent:
+      differenceInCalendarDays(new Date(e.date_start), today) === 0
+        ? "Today"
+        : differenceInCalendarDays(new Date(e.date_start), today) === 1
+          ? "Tomorrow"
+          : `${differenceInCalendarDays(new Date(e.date_start), today)}d`,
+    href: `/events/${e.id}`,
+  }));
 
-  const openTasks = getTasks()
+  const openTasksData = tasks
     .filter((t) => t.status !== "done")
     .sort((a, b) => {
-      const aOver = a.status === "overdue" ? 0 : 1;
-      const bOver = b.status === "overdue" ? 0 : 1;
-      if (aOver !== bOver) return aOver - bOver;
-      return (a.due_date_sort ?? "").localeCompare(b.due_date_sort ?? "");
+      if (a.status === "overdue" && b.status !== "overdue") return -1;
+      if (b.status === "overdue" && a.status !== "overdue") return 1;
+      if (a.due_date && b.due_date) {
+        return String(a.due_date).localeCompare(String(b.due_date));
+      }
+      return 0;
     })
     .slice(0, 4)
     .map((t) => ({
       id: t.id,
-      icon:
-        t.status === "overdue" ? (
-          <AlertCircleIcon className="text-destructive" />
-        ) : (
-          <CheckSquareIcon className="text-muted-foreground" />
-        ),
+      status: t.status,
       title: t.title,
       description: [
-        { label: t.event_title },
-        ...(t.assignee_name ? [{ label: t.assignee_name }] : []),
+        {
+          label:
+            (t as unknown as { event: { title: string } }).event?.title ??
+            "No event",
+        },
       ],
       badgeContent:
-        t.status === "overdue"
-          ? `${differenceInCalendarDays(today, parseISO(t.due_date_sort!))}d late`
-          : (t.due_date ?? "No date"),
+        t.status === "overdue" && t.due_date
+          ? `${differenceInCalendarDays(today, parseISO(String(t.due_date)))}d late`
+          : t.due_date
+            ? formatShortDate(t.due_date)
+            : "No date",
       badgeVariant: (t.status === "overdue" ? "destructive" : "secondary") as
         | "destructive"
         | "secondary",
       href: `/events/${t.event_id}/tasks`,
     }));
 
-  const recentActivity = getNotifications()
-    .slice(0, 5)
-    .map((n) => ({
-      id: n.id,
-      icon:
-        n.type === "correspondence" || n.type === "rsvp" ? (
-          <MailIcon />
-        ) : n.type === "task_completed" ? (
-          <CheckSquareIcon />
-        ) : n.type === "member_added" ? (
-          <UsersRoundIcon />
-        ) : (
-          <AlertCircleIcon />
-        ),
-      title: n.description,
-      description: [
-        ...(n.event_title ? [{ label: n.event_title }] : []),
-        { label: n.timestamp },
-      ],
-      badgeContent: NOTIFICATION_TYPE_LABELS[n.type] ?? n.type,
-      badgeVariant: "secondary" as const,
-      href: n.action?.href,
-    }));
+  const recentActivity = activity.map((a) => ({
+    id: a.id,
+    title: a.title,
+    description: [{ label: a.description }],
+    badgeContent: NOTIFICATION_TYPE_LABELS[a.type] ?? a.type,
+    badgeVariant: "secondary" as const,
+  }));
+
+  const memberSummaryParts = [
+    `${stats.totalMembers} total`,
+    `${stats.activeMembers} active`,
+  ];
 
   return (
-    <div>
-      <Header title="Dashboard" actions={<NewEventDialog />} />
-      <Separator className="my-4" />
-
-      <div className="grid grid-cols-4 gap-4">
-        <StatCard
-          description="Upcoming Events"
-          title={stats.upcoming_events}
-          footerDescription={
-            upcomingEvents[0]
-              ? `Next: ${upcomingEvents[0].title}`
-              : "No upcoming events"
-          }
-        />
-        <StatCard
-          description="Open Tasks"
-          title={stats.open_tasks}
-          footerDescription="Across all events"
-        />
-        <StatCard
-          description="Overdue"
-          title={stats.overdue_tasks}
-          variant={stats.overdue_tasks > 0 ? "destructive" : "default"}
-          footerDescription={
-            stats.overdue_tasks > 0 ? "Needs attention" : "All up to date"
-          }
-        />
-        <StatCard
-          description="Team Members"
-          title={stats.total_members}
-          footerDescription={Object.entries(memberCounts)
-            .map(([role, count]) => `${count} ${role}${count !== 1 ? "s" : ""}`)
-            .join(" · ")}
-        />
-      </div>
-
-      <div className="mt-6 flex gap-4">
-        <Table
-          className="flex-1"
-          title="Upcoming Events"
-          items={upcomingEvents}
-          maxItems={4}
-          viewAllPath="/events"
-        />
-        <Table
-          className="flex-1"
-          title="Open Tasks"
-          items={openTasks}
-          maxItems={4}
-          viewAllPath="/tasks"
-        />
-      </div>
-
-      <div className="mt-6">
-        <Table
-          title="Recent Activity"
-          items={recentActivity}
-          maxItems={5}
-          viewAllPath="/notifications"
-        />
-      </div>
-    </div>
+    <DashboardClient
+      stats={{
+        upcomingEvents: stats.upcomingEvents,
+        openTasksCount,
+        completedTasks: stats.completedTasks,
+        totalTasks: stats.totalTasks,
+        overdueTasks: stats.overdueTasks,
+        totalMembers: stats.totalMembers,
+        activeMembers: stats.activeMembers,
+      }}
+      upcomingEvents={upcomingEvents}
+      openTasks={openTasksData}
+      recentActivity={recentActivity}
+      memberSummaryParts={memberSummaryParts}
+      nextEventTitle={upcomingEvents[0]?.title}
+    />
   );
 }

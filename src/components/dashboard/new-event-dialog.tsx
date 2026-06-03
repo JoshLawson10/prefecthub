@@ -31,7 +31,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { createEvent } from "@/lib/actions";
+import { createEvent } from "@/lib/actions/events";
 
 export function NewEventDialog() {
   const [open, setOpen] = useState(false);
@@ -49,16 +49,14 @@ export function NewEventDialog() {
     const data = new FormData(e.currentTarget);
     setLoading(true);
     await createEvent({
-      title:        data.get("event-title") as string,
-      description:  (data.get("event-description") as string) || null,
+      title: data.get("event-title") as string,
+      description: (data.get("event-description") as string) || null,
       date,
       startTime,
       endTime,
-      location:     data.get("event-location") as string,
+      location: data.get("event-location") as string,
       collectRsvps,
-      maxCapacity:  collectRsvps
-        ? Number(data.get("max-rsvps")) || null
-        : null,
+      maxCapacity: collectRsvps ? Number(data.get("max-rsvps")) || null : null,
     });
     setLoading(false);
     setOpen(false);
@@ -122,14 +120,18 @@ export function NewEventDialog() {
                     <CardFooter className="border-t bg-card">
                       <FieldGroup>
                         <Field>
-                          <FieldLabel htmlFor="time-from">Start Time</FieldLabel>
+                          <FieldLabel htmlFor="time-from">
+                            Start Time
+                          </FieldLabel>
                           <InputGroup>
                             <InputGroupInput
                               id="time-from"
                               type="time"
                               step="1"
                               value={startTime}
-                              onChange={(e) => setStartTime(e.target.value.slice(0, 5))}
+                              onChange={(e) =>
+                                setStartTime(e.target.value.slice(0, 5))
+                              }
                               className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                             />
                             <InputGroupAddon>
@@ -145,7 +147,9 @@ export function NewEventDialog() {
                               type="time"
                               step="1"
                               value={endTime}
-                              onChange={(e) => setEndTime(e.target.value.slice(0, 5))}
+                              onChange={(e) =>
+                                setEndTime(e.target.value.slice(0, 5))
+                              }
                               className="appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                             />
                             <InputGroupAddon>
@@ -190,7 +194,9 @@ export function NewEventDialog() {
           </FieldGroup>
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
             </DialogClose>
             <Button type="submit" disabled={!date || loading}>
               {loading ? "Creating…" : "Create event"}
