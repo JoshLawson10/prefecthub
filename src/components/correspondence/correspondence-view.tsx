@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   SearchIcon,
   MailIcon,
@@ -26,7 +26,9 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
-import type { CorrespondenceLog, LogType } from "@/types";
+import type { CorrespondenceLog, LogType, User } from "@/lib/schemas";
+import { getUser } from "@/lib/data/users";
+import { formatCorrespondenceDate } from "@/lib/utils/format"; // Import the new function
 
 const LOG_TYPE_CONFIG: Record<
   LogType,
@@ -68,6 +70,25 @@ interface CorrespondenceViewProps {
 export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [userMap, setUserMap] = useState<Map<string, User>>(new Map());
+
+  // Fetch all unique user data once when logs change
+  useEffect(() => {
+    const uniqueUserIds = [...new Set(logs.map((log) => log.logged_by))];
+
+    const fetchUsers = async () => {
+      const newUserMap = new Map<string, User>();
+      for (const userId of uniqueUserIds) {
+        const user = await getUser(userId);
+        if (user) {
+          newUserMap.set(userId, user);
+        }
+      }
+      setUserMap(newUserMap);
+    };
+
+    fetchUsers();
+  }, [logs]);
 
   const filtered = useMemo(() => {
     let result = logs;
@@ -79,7 +100,7 @@ export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
         (l) =>
           l.subject.toLowerCase().includes(q) ||
           l.contact_name.toLowerCase().includes(q) ||
-          l.logged_by_name.toLowerCase().includes(q),
+          l.logged_by.toLowerCase().includes(q),
       );
     }
     return result;
@@ -142,6 +163,7 @@ export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
             ) : (
               filtered.map((log) => {
                 const config = LOG_TYPE_CONFIG[log.type];
+                const user = userMap.get(log.logged_by);
                 return (
                   <TableRow key={log.id} className="cursor-pointer">
                     <TableCell>
@@ -166,14 +188,12 @@ export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
                     </TableCell>
                     <TableCell>
                       <Avatar size="sm">
-                        <AvatarFallback>
-                          {log.logged_by_initials}
-                        </AvatarFallback>
+                        <AvatarFallback>{user?.initials ?? "?"}</AvatarFallback>
                       </Avatar>
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="text-xs text-muted-foreground tabular-nums">
-                        {log.date}
+                        {formatCorrespondenceDate(log.created_at)}
                       </span>
                     </TableCell>
                   </TableRow>

@@ -4,20 +4,24 @@ import { useState } from "react";
 import { PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  Sheet, SheetContent, SheetHeader,
-  SheetTitle, SheetFooter, SheetClose,
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+  SheetClose,
 } from "@/components/ui/sheet";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { createNote } from "@/lib/actions";
+import { createNote } from "@/lib/actions/notes";
 
 interface CreateNoteSheetProps {
   eventId: string;
 }
 
 export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
-  const [open,    setOpen]    = useState(false);
+  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -27,7 +31,7 @@ export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
     await createNote({
       eventId,
       title: data.get("title") as string,
-      body:  data.get("body")  as string,
+      body: data.get("body") as string,
     });
     setLoading(false);
     setOpen(false);
@@ -38,15 +42,26 @@ export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
       <Button onClick={() => setOpen(true)}>
         <PlusIcon /> New note
       </Button>
-      <SheetContent side="right" className="flex flex-col w-full sm:max-w-lg p-0">
+      <SheetContent
+        side="right"
+        className="flex flex-col w-full sm:max-w-lg p-0"
+      >
         <SheetHeader className="px-6 pt-6 pb-4 border-b">
           <SheetTitle>New note</SheetTitle>
         </SheetHeader>
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-4"
+        >
           <FieldGroup>
             <Field>
               <FieldLabel htmlFor="note-title">Title</FieldLabel>
-              <Input id="note-title" name="title" placeholder="Note title" required />
+              <Input
+                id="note-title"
+                name="title"
+                placeholder="Note title"
+                required
+              />
             </Field>
             <Field className="flex-1">
               <FieldLabel htmlFor="note-body">Content</FieldLabel>
@@ -62,7 +77,9 @@ export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
           </FieldGroup>
           <SheetFooter className="px-0 py-0 gap-2">
             <SheetClose asChild>
-              <Button type="button" variant="outline">Cancel</Button>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
             </SheetClose>
             <Button type="submit" disabled={loading}>
               {loading ? "Saving…" : "Save note"}

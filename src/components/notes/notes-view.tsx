@@ -11,7 +11,7 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import type { EventNote } from "@/types";
+import type { EventNote } from "@/lib/schemas";
 
 interface NotesViewProps {
   notes: EventNote[];
