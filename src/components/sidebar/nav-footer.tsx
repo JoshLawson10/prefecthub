@@ -16,14 +16,13 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react";
+import {
+  ChevronsUpDownIcon,
+  LogOutIcon,
+  SettingsIcon,
+  BellIcon,
+} from "lucide-react";
 import { logout } from "@/lib/actions/auth";
-
-type NavFooterItem = {
-  title: string;
-  url: string;
-  icon: React.ReactNode;
-};
 
 type NavFooterProps = {
   user: {
@@ -31,7 +30,6 @@ type NavFooterProps = {
     email: string;
     avatar: string;
   };
-  items: NavFooterItem[][];
 };
 
 function getInitials(name: string): string {
@@ -41,7 +39,7 @@ function getInitials(name: string): string {
   return (words[0][0] + words[words.length - 1][0]).toUpperCase();
 }
 
-export function NavFooter({ user, items }: NavFooterProps) {
+export function NavFooter({ user }: NavFooterProps) {
   const { isMobile } = useSidebar();
 
   return (
@@ -88,31 +86,22 @@ export function NavFooter({ user, items }: NavFooterProps) {
               </div>
             </DropdownMenuLabel>
 
-            {/* Nav item groups (Settings, Notifications, etc.) */}
-            {items.map((group, groupIndex) => {
-              // Filter out the logout item — rendered separately below
-              const filtered = group.filter(
-                (i) => i.title.toLowerCase() !== "log out",
-              );
-              if (filtered.length === 0) return null;
-              return (
-                <div key={groupIndex}>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    {filtered.map((item) => (
-                      <DropdownMenuItem key={item.title} asChild>
-                        <a href={item.url}>
-                          {item.icon}
-                          <span>{item.title}</span>
-                        </a>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </div>
-              );
-            })}
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <a href="/settings">
+                  <SettingsIcon className="size-4" />
+                  <span>Settings</span>
+                </a>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <a href="/notifications">
+                  <BellIcon className="size-4" />
+                  <span>Notifications</span>
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
 
-            {/* Logout — form POST to server action */}
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <form action={logout} className="w-full">

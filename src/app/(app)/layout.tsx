@@ -1,10 +1,37 @@
 import { AppSidebar } from "@/components/sidebar/app-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { getCurrentUser } from "@/lib/data/users";
+import { getWorkspace } from "@/lib/data/workspaces";
 
-export default function AppLayout({ children }: { children: React.ReactNode }) {
+export default async function AppLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await getCurrentUser();
+
+  let workspace = null;
+  if (user?.workspace_id) {
+    workspace = await getWorkspace(user.workspace_id);
+  }
+
+  const userProfile = {
+    name: user?.full_name ?? "",
+    email: user?.email ?? "",
+    avatar: user?.avatar_url ?? "",
+  };
+
+  const workspaceData = {
+    name: workspace?.name ?? "",
+    year: workspace?.year ?? 0,
+  };
+
+  console.log("User Profile:", userProfile);
+  console.log("Workspace Data:", workspaceData);
+
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar user={userProfile} workspace={workspaceData} />
       <SidebarInset>
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>

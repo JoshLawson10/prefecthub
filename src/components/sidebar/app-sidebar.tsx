@@ -1,8 +1,3 @@
-"use client";
-
-import * as React from "react";
-import { usePathname } from "next/navigation";
-
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavFooter } from "@/components/sidebar/nav-footer";
 import {
@@ -21,65 +16,32 @@ import {
   UsersIcon,
   ArchiveIcon,
   TerminalIcon,
-  SettingsIcon,
-  BellIcon,
-  LogOutIcon,
 } from "lucide-react";
-
-import { getCurrentUser } from "@/lib/data/user";
-import { getUserWorkspace } from "@/lib/data/workspace";
 import { getEvents } from "@/lib/data/events";
 
-type UserProfile = {
-  name: string;
-  email: string;
-  avatar: string;
-};
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+  user: {
+    name: string;
+    email: string;
+    avatar: string;
+  };
+  workspace: {
+    name: string;
+    year: number;
+  };
+}
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const pathname = usePathname();
-  const [user, setUser] = React.useState<UserProfile>({
-    name: "",
-    email: "",
-    avatar: "",
-  });
-  const [sidebarEvents, setSidebarEvents] = React.useState<
-    { title: string; url: string }[]
-  >([]);
-  const [workspaceData, setWorkspaceData] = React.useState({
-    name: "",
-    year: 0,
-  });
+export async function AppSidebar({
+  user,
+  workspace,
+  ...props
+}: AppSidebarProps) {
+  const events = await getEvents();
 
-  React.useEffect(() => {
-    async function fetchData() {
-      const userData = await getCurrentUser();
-
-      setUser({
-        name: userData?.name ?? "",
-        email: userData?.email ?? "",
-        avatar: userData?.avatar ?? "",
-      });
-
-      const workspaceData = await getUserWorkspace(userData?.id ?? "");
-
-      setWorkspaceData({
-        name: workspaceData?.name ?? "",
-        year: workspaceData?.year ?? 0,
-      });
-
-      const eventsData = await getEvents(workspaceData?.id);
-
-      setSidebarEvents(
-        eventsData.map((e) => ({
-          title: e.title,
-          url: `/events/${e.id}`,
-        })),
-      );
-    }
-
-    fetchData();
-  }, []);
+  const sidebarEvents = events.slice(0, 10).map((e) => ({
+    title: e.title,
+    url: `/events/${e.id}`,
+  }));
 
   const NAV_MAIN = [
     { title: "Dashboard", url: "/dashboard", icon: <LayoutDashboardIcon /> },
@@ -95,19 +57,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Archive", url: "/archive", icon: <ArchiveIcon /> },
   ];
 
-  const NAV_FOOTER = [
-    [
-      { title: "Settings", url: "/settings", icon: <SettingsIcon /> },
-      { title: "Notifications", url: "/notifications", icon: <BellIcon /> },
-    ],
-    [{ title: "Log out", url: "/logout", icon: <LogOutIcon /> }],
-  ];
-
-  const navMainWithActive = NAV_MAIN.map((item) => ({
-    ...item,
-    isActive: pathname === item.url || pathname.startsWith(item.url + "/"),
-  }));
-
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
@@ -122,7 +71,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   Prefect Hub
                 </span>
                 <span className="truncate text-muted-foreground text-xs">
-                  {workspaceData.name} · {workspaceData.year}
+                  {workspace.name} · {workspace.year}
                 </span>
               </div>
             </div>
@@ -130,10 +79,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={navMainWithActive} />
+        <NavMain items={NAV_MAIN} />
       </SidebarContent>
       <SidebarFooter>
-        <NavFooter user={user} items={NAV_FOOTER} />
+        <NavFooter user={user} />
       </SidebarFooter>
     </Sidebar>
   );
