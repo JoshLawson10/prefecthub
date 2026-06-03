@@ -13,11 +13,15 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   return (
     <form
       className={cn("flex flex-col gap-6", className)}
-      action={login}
+      action={async (formData: FormData) => {
+        formData.append("redirectTo", redirectTo);
+        await login(formData);
+      }}
       {...props}
     >
       <FieldGroup>
@@ -31,7 +35,7 @@ export function LoginForm({
         {error && (
           <div className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3">
             <p className="text-sm text-destructive">
-              {decodeURIComponent(error!)}
+              {decodeURIComponent(error)}
             </p>
           </div>
         )}
@@ -53,7 +57,7 @@ export function LoginForm({
           <div className="flex items-center">
             <FieldLabel htmlFor="password">Password</FieldLabel>
             <a
-              href="#"
+              href="/forgot-password"
               className="ml-auto text-sm underline-offset-4 hover:underline"
             >
               Forgot your password?

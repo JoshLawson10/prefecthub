@@ -1,17 +1,9 @@
 import { TerminalIcon } from "lucide-react";
-import { getWorkspace } from "@/lib/data/workspace";
-import { getMembers } from "@/lib/data/members";
-import { getEvents } from "@/lib/data/events";
-
-const workspace = getWorkspace();
-const memberCount = getMembers().length;
-const upcomingEvents = getEvents().filter((e) => e.status === "upcoming");
-const totalRsvps = upcomingEvents.reduce((sum, e) => sum + e.rsvp_count, 0);
 
 const STATS = [
-  { value: String(memberCount), label: "Team members" },
-  { value: String(upcomingEvents.length), label: "Upcoming events" },
-  { value: String(totalRsvps), label: "RSVPs received" },
+  { value: String(9), label: "Team members" },
+  { value: String(5), label: "Upcoming events" },
+  { value: String(23), label: "RSVPs received" },
 ];
 
 export default function AuthLayout({
@@ -47,7 +39,7 @@ export default function AuthLayout({
 
         <div className="relative flex items-center gap-2 text-sm font-medium opacity-60">
           <TerminalIcon className="size-4" />
-          {workspace.school} · {workspace.year}
+          Cumberland HS · 2026
         </div>
 
         <div className="relative space-y-4">
@@ -56,7 +48,7 @@ export default function AuthLayout({
           </p>
           <p className="text-sm leading-relaxed opacity-60">
             Events, tasks, correspondence, documents and notes — all in one
-            secure platform built for the {workspace.name} team.
+            secure platform built for the Cumberland HS team.
           </p>
 
           <div className="flex gap-8 pt-4">
@@ -70,8 +62,8 @@ export default function AuthLayout({
         </div>
 
         <p className="relative text-xs opacity-40">
-          Built by Prefects, for Prefects. © {workspace.year} {workspace.school}
-          . All rights reserved.
+          Built by Prefects, for Prefects. © 2026 Cumberland HS. All rights
+          reserved.
         </p>
       </div>
     </div>
