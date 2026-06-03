@@ -33,7 +33,6 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const isProtectedRoute =
-    pathname.startsWith("/onboard") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/events") ||
     pathname.startsWith("/tasks") ||
