@@ -13,12 +13,16 @@ export const getCurrentWorkspace = cache(
 
 export const getWorkspace = cache(
   async (workspaceId: string): Promise<Workspace | null> => {
+    if (!workspaceId) {
+      return null;
+    }
+
     const supabase = await createClient();
     const { data, error } = await supabase
       .from("workspaces")
       .select("*")
       .eq("id", workspaceId)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching workspace:", error);
