@@ -15,11 +15,11 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { inviteMember } from "@/lib/actions";
+import { inviteMember } from "@/lib/actions/members";
 
 export function InviteMemberDialog() {
-  const [open,    setOpen]    = useState(false);
-  const [email,   setEmail]   = useState("");
+  const [open, setOpen] = useState(false);
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function handleInvite() {
@@ -34,14 +34,17 @@ export function InviteMemberDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button><UserPlusIcon /> Invite member</Button>
+        <Button>
+          <UserPlusIcon /> Invite member
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Invite a member</DialogTitle>
           <DialogDescription>
             Send an invitation to a new prefect. They&apos;ll be added as a
-            Prefect by default — an Admin can promote them once they&apos;ve joined.
+            Prefect by default — an Admin can promote them once they&apos;ve
+            joined.
           </DialogDescription>
         </DialogHeader>
         <FieldGroup>
@@ -59,7 +62,9 @@ export function InviteMemberDialog() {
         </FieldGroup>
         <DialogFooter>
           <DialogClose asChild>
-            <Button type="button" variant="outline">Cancel</Button>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
           </DialogClose>
           <Button onClick={handleInvite} disabled={!email.trim() || loading}>
             <UserPlusIcon /> {loading ? "Sending…" : "Send invite"}
