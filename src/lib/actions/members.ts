@@ -2,7 +2,9 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentUser } from "../data/users";
+import { getCurrentUser } from "@/lib//data/users";
+import { getWorkspace } from "@/lib/data/workspaces";
+import { getInvitationEmailTemplate } from "@/lib/emails/invitation";
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 
@@ -77,6 +79,11 @@ export async function inviteMember(email: string) {
     await supabase.from("invitations").delete().eq("id", existingInvitation.id);
   }
 
+  const workspace = await getWorkspace(currentUser.workspace_id);
+  if (!workspace) {
+    throw new Error("Workspace not found");
+  }
+
   const token = randomBytes(32).toString("hex");
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
@@ -103,7 +110,8 @@ export async function inviteMember(email: string) {
     email,
     token,
     currentUser.full_name,
-    currentUser.workspace_id,
+    workspace.name,
+    "Prefect",
   );
 
   revalidatePath("/members");
@@ -115,62 +123,44 @@ async function sendInvitationEmail(
   email: string,
   token: string,
   inviterName: string,
-  workspaceId: string,
+  workspaceName: string,
+  role: string,
 ) {
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/onboard?token=${token}`;
+  const expiresIn = 7;
 
-  // Use Resend or your email provider
-  // For now, just log it
-  console.log(`Invitation email to ${email}: ${inviteUrl}`);
+  if (process.env.NODE_ENV === "development") {
+    console.log(`\n Invitation email to: ${email}`);
+    console.log(`Invite link: ${inviteUrl}\n`);
+    return;
+  }
+
+  const emailHTML = getInvitationEmailTemplate({
+    inviterName,
+    workspaceName,
+    role,
+    inviteUrl,
+    expiresIn,
+  });
+
+  console.log(`\nInvitation email to: ${email}`);
+  console.log(`Invite link: ${inviteUrl}`);
+  console.log(`Email content:\n${emailHTML}\n`);
 
   // Example with Resend (uncomment when you have API key):
   /*
-  await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      from: 'Prefect Hub <noreply@prefecthub.com>',
-      to: email,
-      subject: `You've been invited to join Prefect Hub`,
-      html: `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <title>Invitation to Prefect Hub</title>
-          </head>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-            <div style="text-align: center; margin-bottom: 30px;">
-              <h1 style="color: #2563eb;">Prefect Hub</h1>
-            </div>
-            
-            <h2>You've been invited!</h2>
-            
-            <p><strong>${inviterName}</strong> has invited you to join their prefect team on Prefect Hub.</p>
-            
-            <div style="text-align: center; margin: 30px 0;">
-              <a href="${inviteUrl}" style="display: inline-block; background-color: #2563eb; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">
-                Accept Invitation
-              </a>
-            </div>
-            
-            <p>Or copy and paste this link into your browser:</p>
-            <p style="background-color: #f3f4f6; padding: 10px; border-radius: 4px; word-break: break-all;">${inviteUrl}</p>
-            
-            <p>This invitation will expire in 7 days.</p>
-            
-            <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
-            
-            <p style="color: #6b7280; font-size: 12px;">
-              If you didn't expect this invitation, you can safely ignore this email.
-            </p>
-          </body>
-        </html>
-      `,
-    }),
+  const { Resend } = await import('resend');
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  
+  const { data, error } = await resend.emails.send({
+    from: 'PrefectHub <noreply@prefecthub.com>',
+    to: [email],
+    subject: `You're invited to join ${workspaceName} on PrefectHub`,
+    html: emailHtml,
   });
+  
+  if (error) {
+    console.error('Failed to send email:', error);
+  }
   */
 }
