@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { NotificationDetailSheet } from "@/components/notifications/notification-detail-sheet";
-import type { Notification, NotificationType } from "@/types";
+import type { Notification, NotificationType } from "@/lib/schemas";
 
 const TYPE_CONFIG: Record<
   NotificationType,

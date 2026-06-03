@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import type { Notification, NotificationType } from "@/types";
+import type { Notification, NotificationType } from "@/lib/schemas";
 
 const TYPE_CONFIG: Record<
   NotificationType,
