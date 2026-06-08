@@ -6,6 +6,7 @@ import {
   UpdateWorkspaceSchema,
   type Workspace,
 } from "@/lib/schemas";
+import { getCurrentUser } from "@/lib/data/users";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -61,6 +62,15 @@ export async function updateWorkspace(
 
 export async function deleteWorkspace(workspaceId: string): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+
+  if (!currentUser) throw new Error("Not authenticated");
+  if (currentUser.workspace_id !== workspaceId) {
+    throw new Error("You do not have permission to delete this workspace");
+  }
+  if (currentUser.role !== "admin") {
+    throw new Error("Only admins can delete a workspace");
+  }
 
   const { error } = await supabase
     .from("workspaces")
