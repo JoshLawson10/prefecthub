@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CheckIcon, UploadIcon, Trash2Icon } from "lucide-react";
-import { updateProfile, uploadAvatar, deleteAccount } from "@/lib/actions";
+import { updateProfile, uploadAvatar, deleteAccount } from "@/lib/actions/profile";
 import type { User } from "@/lib/schemas";
 
 const ACCEPTED = "image/jpeg,image/png,image/webp";

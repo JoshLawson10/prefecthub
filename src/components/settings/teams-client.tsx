@@ -14,9 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlusIcon, MoreHorizontalIcon, ShieldIcon, UserIcon } from "lucide-react";
-import { inviteMember, updateMemberRole, removeMember } from "@/lib/actions";
-import type { User } from "@/lib/schemas";
-import type { WorkspaceData } from "@/lib/data/workspace";
+import { inviteMember, updateMemberRole, removeMember } from "@/lib/actions/members";
+import type { User, Workspace } from "@/lib/schemas";
 
 const ROLE_CONFIG: Record<string, {
   label: string;
@@ -130,7 +129,7 @@ interface TeamsClientProps {
   currentUser: User;
   members: User[];
   membersByRole: Record<string, User[]>;
-  workspace: WorkspaceData | null;
+  workspace: Workspace | null;
 }
 
 export function TeamsClient({ currentUser, members, membersByRole, workspace }: TeamsClientProps) {
