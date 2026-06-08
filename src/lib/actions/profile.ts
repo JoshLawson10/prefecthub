@@ -170,12 +170,11 @@ export async function completeOnboarding(data: OnboardingData) {
     throw new Error(`Failed to create profile: ${profileError.message}`);
   }
 
+  // Mark the invitation as accepted — auth_user_id is not a real column,
+  // the profile row with the matching workspace_id is the source of truth.
   await supabase
     .from("invitations")
-    .update({
-      status: "accepted",
-      auth_user_id: authUser.user.id,
-    })
+    .update({ status: "accepted" })
     .eq("id", invitation.id);
 
   const { error: signInError } = await supabase.auth.signInWithPassword({

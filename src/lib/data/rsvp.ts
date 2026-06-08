@@ -10,10 +10,7 @@ export const getRsvp = cache(async (rsvpId: string): Promise<RSVP | null> => {
     .eq("id", rsvpId)
     .single();
   if (error) return null;
-  return {
-    ...data,
-    created_at: new Date(data.created_at),
-  };
+  return data;
 });
 
 export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
@@ -28,7 +25,7 @@ export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
     console.error("Error fetching event RSVPs:", error);
     return [];
   }
-  return data.map((r) => ({ ...r, created_at: new Date(r.created_at) }));
+  return data;
 }
 
 export const getRsvpByEmail = cache(
@@ -41,7 +38,7 @@ export const getRsvpByEmail = cache(
       .eq("email", email)
       .maybeSingle();
     if (error || !data) return null;
-    return { ...data, created_at: new Date(data.created_at) };
+    return data;
   },
 );
 

@@ -21,7 +21,12 @@ export async function uploadDocument(
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
-  const storagePath = `${input.eventId}/${Date.now()}-${input.file.name}`;
+  // Sanitise filename: strip path separators and limit to safe characters
+  const safeName = input.file.name
+    .replace(/[/\\]/g, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "_")
+    .slice(0, 200);
+  const storagePath = `${input.eventId}/${Date.now()}-${safeName}`;
   const buffer = await input.file.arrayBuffer();
 
   const { error: uploadError } = await supabase.storage
