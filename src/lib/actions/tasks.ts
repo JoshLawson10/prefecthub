@@ -37,15 +37,26 @@ export async function updateTaskStatus(input: {
   status: TaskStatus;
 }): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
   const { error } = await supabase
     .from("tasks")
     .update({ status: input.status, updated_at: new Date().toISOString() })
-    .eq("id", input.taskId);
+    .eq("id", input.taskId)
+    .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
 }
 
 export async function deleteTask(taskId: string): Promise<void> {
   const supabase = await createClient();
-  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("tasks")
+    .delete()
+    .eq("id", taskId)
+    .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
 }

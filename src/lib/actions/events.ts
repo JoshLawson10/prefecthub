@@ -49,7 +49,7 @@ export async function createEvent(input: CreateEventInput): Promise<void> {
   });
 
   if (error) throw new Error(error.message);
-  revalidateTag("events", "max");
+  revalidateTag("events");
 }
 
 export async function updateEventStatus(
@@ -57,12 +57,16 @@ export async function updateEventStatus(
   status: EventStatus,
 ): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
   const { error } = await supabase
     .from("events")
     .update({ status, updated_at: new Date().toISOString() })
-    .eq("id", eventId);
+    .eq("id", eventId)
+    .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
-  revalidateTag("events", "max");
+  revalidateTag("events");
 }
 
 export async function restoreEvent(eventId: string): Promise<void> {

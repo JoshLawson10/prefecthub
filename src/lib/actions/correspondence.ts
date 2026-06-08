@@ -35,9 +35,13 @@ export async function logCorrespondence(
 
 export async function deleteCorrespondenceLog(id: string): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
   const { error } = await supabase
     .from("correspondence_logs")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
 }

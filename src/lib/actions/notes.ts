@@ -30,15 +30,26 @@ export async function updateNote(
   body: string,
 ): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
   const { error } = await supabase
     .from("notes")
     .update({ title, body, updated_at: new Date().toISOString() })
-    .eq("id", id);
+    .eq("id", id)
+    .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
 }
 
 export async function deleteNote(id: string): Promise<void> {
   const supabase = await createClient();
-  const { error } = await supabase.from("notes").delete().eq("id", id);
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("notes")
+    .delete()
+    .eq("id", id)
+    .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
 }
