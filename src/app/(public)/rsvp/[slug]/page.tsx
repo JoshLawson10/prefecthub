@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { getEventBySlug } from "@/lib/data/events";
 import { getRsvpStats } from "@/lib/data/rsvp";
 import { getCurrentWorkspace } from "@/lib/data/workspaces";
-import { formatEventDate, formatEventTime } from "@/lib/format";
+import { formatEventDate, formatEventTime } from "@/lib/utils/format";
 
 interface Props {
   params: Promise<{ slug: string }>;
