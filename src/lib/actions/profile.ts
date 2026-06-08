@@ -56,6 +56,34 @@ export async function deleteAccount(memberId: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+export async function changePassword(input: {
+  currentPassword: string;
+  newPassword: string;
+}): Promise<void> {
+  if (input.newPassword.length < 8) {
+    throw new Error("Password must be at least 8 characters");
+  }
+
+  const supabase = await createClient();
+
+  // Re-authenticate with current password to verify identity
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user?.email) throw new Error("Not authenticated");
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: input.currentPassword,
+  });
+  if (signInError) throw new Error("Current password is incorrect");
+
+  const { error } = await supabase.auth.updateUser({
+    password: input.newPassword,
+  });
+  if (error) throw new Error(error.message);
+}
+
 interface OnboardingData {
   token: string;
   firstName: string;

@@ -16,14 +16,47 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CheckIcon, MonitorSmartphoneIcon } from "lucide-react";
 import { getDeviceSessions } from "@/lib/data/settings";
+import { changePassword } from "@/lib/actions/profile";
 
 export default function SecurityPage() {
+  const [currentPw, setCurrentPw] = useState("");
+  const [newPw, setNewPw] = useState("");
+  const [confirmPw, setConfirmPw] = useState("");
+  const [saving, setSaving] = useState(false);
   const [pwSaved, setPwSaved] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handlePasswordSave() {
-    setPwSaved(true);
-    setTimeout(() => setPwSaved(false), 2000);
+  const sessions = getDeviceSessions();
+
+  async function handlePasswordSave() {
+    setError(null);
+
+    if (newPw !== confirmPw) {
+      setError("New passwords don't match");
+      return;
+    }
+    if (newPw.length < 8) {
+      setError("Password must be at least 8 characters");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await changePassword({ currentPassword: currentPw, newPassword: newPw });
+      setPwSaved(true);
+      setCurrentPw("");
+      setNewPw("");
+      setConfirmPw("");
+      setTimeout(() => setPwSaved(false), 2000);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update password");
+    } finally {
+      setSaving(false);
+    }
   }
+
+  const canSave =
+    !saving && currentPw.length > 0 && newPw.length >= 8 && newPw === confirmPw;
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,6 +76,9 @@ export default function SecurityPage() {
                 type="password"
                 placeholder="Enter current password"
                 className="max-w-sm"
+                value={currentPw}
+                onChange={(e) => setCurrentPw(e.target.value)}
+                disabled={saving}
               />
             </Field>
             <Separator />
@@ -53,6 +89,9 @@ export default function SecurityPage() {
                 type="password"
                 placeholder="At least 8 characters"
                 className="max-w-sm"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+                disabled={saving}
               />
             </Field>
             <Field>
@@ -64,16 +103,22 @@ export default function SecurityPage() {
                 type="password"
                 placeholder="Re-enter new password"
                 className="max-w-sm"
+                value={confirmPw}
+                onChange={(e) => setConfirmPw(e.target.value)}
+                disabled={saving}
               />
             </Field>
+            {error && <p className="text-sm text-destructive">{error}</p>}
           </FieldGroup>
         </CardContent>
         <CardFooter className="justify-end">
-          <Button onClick={handlePasswordSave}>
+          <Button onClick={handlePasswordSave} disabled={!canSave}>
             {pwSaved ? (
               <>
                 <CheckIcon /> Updated
               </>
+            ) : saving ? (
+              "Updating..."
             ) : (
               "Update password"
             )}
@@ -89,7 +134,7 @@ export default function SecurityPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-0 py-0">
-          {getDeviceSessions().map((session, i) => (
+          {sessions.map((session, i) => (
             <div key={session.id}>
               {i > 0 && <Separator />}
               <div className="flex items-center justify-between px-4 py-3.5">
@@ -107,7 +152,7 @@ export default function SecurityPage() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {session.location} Â· Last active {session.last_active}
+                      {session.location} á Last active {session.last_active}
                     </p>
                   </div>
                 </div>
