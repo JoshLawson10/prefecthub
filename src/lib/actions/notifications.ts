@@ -8,10 +8,14 @@ export async function markNotificationRead(
   notificationId: string,
 ): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
   const { error } = await supabase
     .from("notifications")
     .update({ read: true })
-    .eq("id", notificationId);
+    .eq("id", notificationId)
+    .eq("user_id", currentUser.id);
   if (error) throw new Error(error.message);
 }
 
@@ -32,10 +36,14 @@ export async function deleteNotification(
   notificationId: string,
 ): Promise<void> {
   const supabase = await createClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
   const { error } = await supabase
     .from("notifications")
     .delete()
-    .eq("id", notificationId);
+    .eq("id", notificationId)
+    .eq("user_id", currentUser.id);
   if (error) throw new Error(error.message);
 }
 
