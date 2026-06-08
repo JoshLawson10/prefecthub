@@ -30,16 +30,18 @@ export function withFilters<
 
   if (filters.dateRange) {
     if (filters.dateRange.start) {
-      filteredQuery = filteredQuery.gte(
-        "date_start",
-        filters.dateRange.start.toISOString(),
-      );
+      const start =
+        filters.dateRange.start instanceof Date
+          ? filters.dateRange.start.toISOString()
+          : filters.dateRange.start;
+      filteredQuery = filteredQuery.gte("date_start", start);
     }
     if (filters.dateRange.end) {
-      filteredQuery = filteredQuery.lte(
-        "date_end",
-        filters.dateRange.end.toISOString(),
-      );
+      const end =
+        filters.dateRange.end instanceof Date
+          ? filters.dateRange.end.toISOString()
+          : filters.dateRange.end;
+      filteredQuery = filteredQuery.lte("date_end", end);
     }
   }
 

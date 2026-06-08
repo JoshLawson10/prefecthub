@@ -305,6 +305,14 @@ export const CalendarItemSchema = z.object({
   text_class:  z.string(),
 });
 
+export const UserProductivitySchema = z.object({
+  userId:          z.string().uuid(),
+  tasksAssigned:   z.number().int().min(0),
+  tasksCompleted:  z.number().int().min(0),
+  tasksOverdue:    z.number().int().min(0),
+  completionRate:  z.number().min(0).max(1),
+});
+
 // ---------------------------------------------------------------------------
 // Insert / Update helpers
 // ---------------------------------------------------------------------------
@@ -375,6 +383,7 @@ export type UpdateRSVP      = z.infer<typeof UpdateRSVPSchema>;
 
 export type CalendarItemType = z.infer<typeof CalendarItemTypeSchema>;
 export type CalendarItem     = z.infer<typeof CalendarItemSchema>;
+export type UserProductivity = z.infer<typeof UserProductivitySchema>;
 
 // ---------------------------------------------------------------------------
 // Helpers

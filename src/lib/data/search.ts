@@ -51,9 +51,8 @@ export async function search(query: string): Promise<SearchResult[]> {
       id: e.id,
       type: "event",
       title: e.title,
-      description: `${e.location} · ${e.status}`,
-      event_id: e.id,
-      created_at: new Date(e.created_at),
+      meta: `${e.location} · ${e.status}`,
+      href: `/events/${e.id}`,
     });
   });
 
@@ -65,9 +64,8 @@ export async function search(query: string): Promise<SearchResult[]> {
       id: t.id,
       type: "task",
       title: t.title,
-      description: `${eventTitle} · ${t.status}`,
-      event_id: t.event_id,
-      created_at: new Date(t.created_at),
+      meta: `${eventTitle} · ${t.status}`,
+      href: `/events/${t.event_id}/tasks`,
     });
   });
 
@@ -79,9 +77,8 @@ export async function search(query: string): Promise<SearchResult[]> {
       id: n.id,
       type: "note",
       title: n.title,
-      description: eventTitle,
-      event_id: n.event_id,
-      created_at: new Date(n.created_at),
+      meta: eventTitle,
+      href: `/events/${n.event_id}/notes`,
     });
   });
 
@@ -93,9 +90,8 @@ export async function search(query: string): Promise<SearchResult[]> {
       id: c.id,
       type: "correspondence",
       title: c.subject,
-      description: `${c.contact_name} · ${eventTitle}`,
-      event_id: c.event_id,
-      created_at: new Date(c.created_at),
+      meta: `${c.contact_name} · ${eventTitle}`,
+      href: `/events/${c.event_id}/correspondence`,
     });
   });
 
