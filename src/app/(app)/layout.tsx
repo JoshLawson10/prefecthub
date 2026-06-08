@@ -26,9 +26,6 @@ export default async function AppLayout({
     year: workspace?.year ?? 0,
   };
 
-  console.log("User Profile:", userProfile);
-  console.log("Workspace Data:", workspaceData);
-
   return (
     <SidebarProvider>
       <AppSidebar user={userProfile} workspace={workspaceData} />

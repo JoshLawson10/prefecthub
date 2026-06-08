@@ -129,12 +129,6 @@ async function sendInvitationEmail(
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/onboard?token=${token}`;
   const expiresIn = 7;
 
-  if (process.env.NODE_ENV === "development") {
-    console.log(`\n Invitation email to: ${email}`);
-    console.log(`Invite link: ${inviteUrl}\n`);
-    return;
-  }
-
   const emailHTML = getInvitationEmailTemplate({
     inviterName,
     workspaceName,
@@ -143,24 +137,26 @@ async function sendInvitationEmail(
     expiresIn,
   });
 
-  console.log(`\nInvitation email to: ${email}`);
-  console.log(`Invite link: ${inviteUrl}`);
-  console.log(`Email content:\n${emailHTML}\n`);
-
-  // Example with Resend (uncomment when you have API key):
-  /*
-  const { Resend } = await import('resend');
-  const resend = new Resend(process.env.RESEND_API_KEY);
-  
-  const { data, error } = await resend.emails.send({
-    from: 'PrefectHub <noreply@prefecthub.com>',
-    to: [email],
-    subject: `You're invited to join ${workspaceName} on PrefectHub`,
-    html: emailHtml,
-  });
-  
-  if (error) {
-    console.error('Failed to send email:', error);
+  if (process.env.NODE_ENV === "development") {
+    console.log(`\n[DEV] Invitation email to: ${email}`);
+    console.log(`[DEV] Invite link: ${inviteUrl}\n`);
+    return;
   }
-  */
+
+  // TODO: Plug in your email provider (e.g. Resend) before deploying.
+  // Uncomment and configure the block below:
+  //
+  // const { Resend } = await import('resend');
+  // const resend = new Resend(process.env.RESEND_API_KEY);
+  // const { error } = await resend.emails.send({
+  //   from: 'PrefectHub <noreply@prefecthub.com>',
+  //   to: [email],
+  //   subject: `You're invited to join ${workspaceName} on PrefectHub`,
+  //   html: emailHTML,
+  // });
+  // if (error) throw new Error(`Failed to send invitation email: ${error.message}`);
+
+  throw new Error(
+    "Email sending is not configured. Set up an email provider (e.g. Resend) before deploying to production.",
+  );
 }

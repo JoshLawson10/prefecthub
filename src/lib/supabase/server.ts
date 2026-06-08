@@ -21,7 +21,9 @@ export const createClient = cache(async () => {
               cookieStore.set(name, value, options),
             );
           } catch {
-            // Handle error
+            // setAll is called from a Server Component where cookies are
+            // read-only. The session is still refreshed via the middleware,
+            // so this error can be safely ignored.
           }
         },
       },

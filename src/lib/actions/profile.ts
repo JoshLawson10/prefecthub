@@ -12,7 +12,9 @@ export interface UpdateProfileInput {
 
 export async function updateProfile(input: UpdateProfileInput): Promise<void> {
   const supabase = await createClient();
-  const { error } = await supabase
+
+  // Update the users table
+  const { error: dbError } = await supabase
     .from("users")
     .update({
       full_name: input.fullName,
@@ -20,7 +22,13 @@ export async function updateProfile(input: UpdateProfileInput): Promise<void> {
       updated_at: new Date().toISOString(),
     })
     .eq("id", input.memberId);
-  if (error) throw new Error(error.message);
+  if (dbError) throw new Error(dbError.message);
+
+  // Keep Supabase auth email in sync so login still works after an email change
+  const { error: authError } = await supabase.auth.updateUser({
+    email: input.email,
+  });
+  if (authError) throw new Error(authError.message);
 }
 
 export interface UploadAvatarInput {
