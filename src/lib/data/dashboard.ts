@@ -63,6 +63,17 @@ export async function getRecentActivity(limit = 10): Promise<Activity[]> {
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 
+  // Fetch workspace member IDs first, then filter notifications to only those
+  // users. Filtering via a join predicate on users.workspace_id in PostgREST
+  // acts as a column filter, not a row-level workspace guard.
+  const { data: members } = await supabase
+    .from("users")
+    .select("id")
+    .eq("workspace_id", currentUser.workspace_id);
+
+  const memberIds = (members ?? []).map((m) => m.id);
+  if (memberIds.length === 0) return [];
+
   const { data, error } = await supabase
     .from("notifications")
     .select(
@@ -72,7 +83,7 @@ export async function getRecentActivity(limit = 10): Promise<Activity[]> {
       event:events(*)
     `,
     )
-    .eq("users.workspace_id", currentUser.workspace_id)
+    .in("user_id", memberIds)
     .order("created_at", { ascending: false })
     .limit(limit);
 
