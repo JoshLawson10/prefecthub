@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { getCurrentUser } from "@/lib//data/users";
+import { getCurrentUser } from "@/lib/data/users";
 import { getWorkspace } from "@/lib/data/workspaces";
 import { getInvitationEmailTemplate } from "@/lib/emails/invitation";
 import { randomBytes } from "crypto";

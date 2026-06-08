@@ -49,7 +49,9 @@ export default function SecurityPage() {
       setConfirmPw("");
       setTimeout(() => setPwSaved(false), 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update password");
+      setError(
+        err instanceof Error ? err.message : "Failed to update password",
+      );
     } finally {
       setSaving(false);
     }
@@ -152,7 +154,7 @@ export default function SecurityPage() {
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {session.location} á Last active {session.last_active}
+                      {session.location} Â· Last active: {session.last_active}
                     </p>
                   </div>
                 </div>

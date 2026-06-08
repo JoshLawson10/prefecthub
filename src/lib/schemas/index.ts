@@ -313,6 +313,23 @@ export const UserProductivitySchema = z.object({
   completionRate:  z.number().min(0).max(1),
 });
 
+export const UserNotificationPreferencesSchema = z.object({
+  user_id:               z.string().uuid(),
+  task_overdue:          z.boolean().default(true),
+  task_assigned:         z.boolean().default(true),
+  task_completed:        z.boolean().default(false),
+  rsvp_updates:          z.boolean().default(false),
+  event_created:         z.boolean().default(true),
+  event_updated:         z.boolean().default(false),
+  correspondence_logged: z.boolean().default(false),
+  member_added:          z.boolean().default(false),
+  updated_at:            timestamp,
+});
+
+export const DefaultNotificationPreferences = UserNotificationPreferencesSchema
+  .omit({ user_id: true, updated_at: true })
+  .parse({});
+
 // ---------------------------------------------------------------------------
 // Insert / Update helpers
 // ---------------------------------------------------------------------------
@@ -384,6 +401,7 @@ export type UpdateRSVP      = z.infer<typeof UpdateRSVPSchema>;
 export type CalendarItemType = z.infer<typeof CalendarItemTypeSchema>;
 export type CalendarItem     = z.infer<typeof CalendarItemSchema>;
 export type UserProductivity = z.infer<typeof UserProductivitySchema>;
+export type UserNotificationPreferences = z.infer<typeof UserNotificationPreferencesSchema>;
 
 // ---------------------------------------------------------------------------
 // Helpers

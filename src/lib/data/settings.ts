@@ -18,7 +18,7 @@ export function getDeviceSessions(): DeviceSession[] {
     {
       id: "current",
       device: "Current browser",
-      location: "Ñ",
+      location: "Unknown",
       last_active: "Just now",
       current: true,
     },
