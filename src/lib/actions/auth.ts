@@ -8,7 +8,12 @@ export async function login(formData: FormData) {
 
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const redirectTo = (formData.get("redirectTo") as string) || "/dashboard";
+  const rawRedirect = (formData.get("redirectTo") as string) || "/dashboard";
+  // Guard against open-redirect: only allow relative paths starting with /
+  const redirectTo =
+    rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
+      ? rawRedirect
+      : "/dashboard";
 
   if (!email || !password) {
     const errorMessage = encodeURIComponent("Email and password are required");
