@@ -1,9 +1,8 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { type User, type UserRole, type Invitation } from "@/lib/schemas";
+import { type User, type UserRole } from "@/lib/schemas";
 import { revalidatePath } from "next/cache";
-import { randomBytes } from "crypto";
 import { getCurrentUser } from "@/lib/data/users";
 
 export async function updateUserProfile(
@@ -86,39 +85,6 @@ export async function deleteUserAvatar(userId: string): Promise<void> {
   if (error) throw new Error(`Failed to delete avatar: ${error.message}`);
 
   revalidatePath("/settings/profile");
-}
-
-export async function inviteToWorkspace(
-  email: string,
-  role: UserRole,
-): Promise<Invitation> {
-  const supabase = await createClient();
-  const currentUser = await getCurrentUser();
-
-  if (!currentUser?.workspace_id) {
-    throw new Error("No workspace found");
-  }
-
-  const token = randomBytes(32).toString("hex");
-
-  const { data: invitation, error } = await supabase
-    .from("invitations")
-    .insert({
-      email,
-      workspace_id: currentUser.workspace_id,
-      role,
-      invited_by: currentUser.id,
-      token,
-      expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    })
-    .select()
-    .single();
-
-  if (error) throw new Error(`Failed to create invitation: ${error.message}`);
-
-  // TODO: Send email with invite link
-
-  return invitation;
 }
 
 export async function removeFromWorkspace(userId: string): Promise<void> {
