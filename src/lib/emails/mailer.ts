@@ -31,3 +31,14 @@ export function getMailTransport() {
   if (!_transport) _transport = createTransport();
   return _transport;
 }
+
+/**
+ * Verifies the SMTP connection and credentials.
+ * Call this from an API route during setup to confirm Gmail auth is working.
+ * Returns true on success, throws a descriptive error on failure.
+ */
+export async function verifyMailTransport(): Promise<true> {
+  const transport = getMailTransport();
+  await transport.verify();
+  return true;
+}

@@ -138,9 +138,10 @@ async function sendInvitationEmail(
     expiresIn,
   });
 
-  if (process.env.NODE_ENV === "development") {
+  if (process.env.NODE_ENV === "development" && process.env.SEND_EMAILS !== "true") {
     console.log(`\n[DEV] Invitation email → ${email}`);
-    console.log(`[DEV] Invite link: ${inviteUrl}\n`);
+    console.log(`[DEV] Invite link: ${inviteUrl}`);
+    console.log(`[DEV] Set SEND_EMAILS=true in .env to send real emails in dev\n`);
     return;
   }
 
