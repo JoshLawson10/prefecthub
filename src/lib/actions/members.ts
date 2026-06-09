@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/data/users";
 import { getWorkspace } from "@/lib/data/workspaces";
 import { getInvitationEmailTemplate } from "@/lib/emails/invitation";
+import { getMailTransport } from "@/lib/emails/mailer";
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 
@@ -129,7 +130,7 @@ async function sendInvitationEmail(
   const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/onboard?token=${token}`;
   const expiresIn = 7;
 
-  const emailHTML = getInvitationEmailTemplate({
+  const html = getInvitationEmailTemplate({
     inviterName,
     workspaceName,
     role,
@@ -138,25 +139,16 @@ async function sendInvitationEmail(
   });
 
   if (process.env.NODE_ENV === "development") {
-    console.log(`\n[DEV] Invitation email to: ${email}`);
+    console.log(`\n[DEV] Invitation email → ${email}`);
     console.log(`[DEV] Invite link: ${inviteUrl}\n`);
     return;
   }
 
-  // TODO: Plug in your email provider (e.g. Resend) before deploying.
-  // Uncomment and configure the block below:
-  //
-  // const { Resend } = await import('resend');
-  // const resend = new Resend(process.env.RESEND_API_KEY);
-  // const { error } = await resend.emails.send({
-  //   from: 'PrefectHub <noreply@prefecthub.com>',
-  //   to: [email],
-  //   subject: `You're invited to join ${workspaceName} on PrefectHub`,
-  //   html: emailHTML,
-  // });
-  // if (error) throw new Error(`Failed to send invitation email: ${error.message}`);
-
-  throw new Error(
-    "Email sending is not configured. Set up an email provider (e.g. Resend) before deploying to production.",
-  );
+  const transport = getMailTransport();
+  await transport.sendMail({
+    from: `"PrefectHub" <${process.env.MAIL_USERNAME}>`,
+    to: email,
+    subject: `You've been invited to join ${workspaceName} on PrefectHub`,
+    html,
+  });
 }
