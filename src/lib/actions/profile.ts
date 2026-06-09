@@ -152,7 +152,7 @@ export async function completeOnboarding(data: OnboardingData) {
 
   const initials = `${data.firstName[0]}${data.lastName[0]}`.toUpperCase();
 
-  const { data: profile, error: profileError } = await supabase
+  const { data: profile, error: profileError } = await adminClient
     .from("users")
     .insert({
       id: authUser.user.id,
@@ -170,9 +170,8 @@ export async function completeOnboarding(data: OnboardingData) {
     throw new Error(`Failed to create profile: ${profileError.message}`);
   }
 
-  // Mark the invitation as accepted — auth_user_id is not a real column,
-  // the profile row with the matching workspace_id is the source of truth.
-  await supabase
+  // Mark the invitation as accepted — use adminClient as user has no session yet
+  await adminClient
     .from("invitations")
     .update({ status: "accepted" })
     .eq("id", invitation.id);
@@ -186,7 +185,9 @@ export async function completeOnboarding(data: OnboardingData) {
     console.error("Auto-login failed:", signInError);
   }
 
-  await supabase.from("notifications").insert({
+  // Use adminClient for the welcome notification too — RLS requires
+  // an authenticated session which may not be set yet at this point
+  await adminClient.from("notifications").insert({
     user_id: authUser.user.id,
     type: "member_added",
     title: "Welcome to Prefect Hub!",
