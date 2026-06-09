@@ -13,6 +13,7 @@ export function LoginForm({
 }: React.ComponentProps<"form">) {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const success = searchParams.get("success");
   const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   return (
@@ -36,6 +37,14 @@ export function LoginForm({
           <div className="rounded-md bg-destructive/10 border border-destructive/20 px-4 py-3">
             <p className="text-sm text-destructive">
               {decodeURIComponent(error)}
+            </p>
+          </div>
+        )}
+
+        {success && (
+          <div className="rounded-md bg-green-500/10 border border-green-500/20 px-4 py-3">
+            <p className="text-sm text-green-600 dark:text-green-400">
+              {decodeURIComponent(success)}
             </p>
           </div>
         )}

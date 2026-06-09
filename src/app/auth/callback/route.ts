@@ -13,8 +13,14 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.verifyOtp({ token_hash, type });
 
     if (!error) {
-      const redirectTo =
-        type === "invite" ? "/onboard" : (next ?? "/dashboard");
+      let redirectTo: string;
+      if (type === "invite") {
+        redirectTo = "/onboard";
+      } else if (type === "recovery") {
+        redirectTo = "/reset-password";
+      } else {
+        redirectTo = next ?? "/dashboard";
+      }
       return NextResponse.redirect(`${origin}${redirectTo}`);
     }
 
