@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { cache } from "react";
 import type { User } from "@/lib/schemas";
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
+  // Use the regular client only for the auth check (needs the session cookie)
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -10,15 +12,21 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 
   if (!authUser) return null;
 
-  const { data, error } = await supabase
+  // Use the admin client for all DB reads/writes so RLS never blocks
+  // a legitimate server-side profile lookup.
+  const admin = createAdminClient();
+
+  const { data, error } = await admin
     .from("users")
     .select("*")
     .eq("id", authUser.id)
     .single();
 
   if (error || !data) {
+    // Auto-create a minimal profile for OAuth / magic-link users who
+    // bypass the normal onboarding flow.
     const fullName =
-      authUser.user_metadata?.full_name || authUser.email?.split("@")[0];
+      authUser.user_metadata?.full_name || authUser.email?.split("@")[0] || "User";
     const initials = fullName
       .split(" ")
       .map((n: string) => n[0])
@@ -26,7 +34,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
       .toUpperCase()
       .slice(0, 2);
 
-    const { data: newProfile, error: insertError } = await supabase
+    const { data: newProfile, error: insertError } = await admin
       .from("users")
       .insert({
         id: authUser.id,
@@ -40,7 +48,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
       .single();
 
     if (insertError) {
-      console.error("Failed to create user profile:", insertError);
+      console.error("Failed to create user profile:", insertError.message);
       return null;
     }
 
