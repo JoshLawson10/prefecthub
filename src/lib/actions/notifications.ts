@@ -1,13 +1,13 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
 import type { NotifType } from "@/lib/schemas";
 
 export async function markNotificationRead(
   notificationId: string,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -20,7 +20,7 @@ export async function markNotificationRead(
 }
 
 export async function markAllNotificationsRead(): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -35,7 +35,7 @@ export async function markAllNotificationsRead(): Promise<void> {
 export async function deleteNotification(
   notificationId: string,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -48,7 +48,7 @@ export async function deleteNotification(
 }
 
 export async function clearAllNotifications(): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -73,7 +73,7 @@ export interface CreateNotificationInput {
 export async function createNotification(
   input: CreateNotificationInput,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { error } = await supabase.from("notifications").insert({
     user_id: input.userId,
     type: input.type,
@@ -91,7 +91,7 @@ export async function createNotification(
 export async function broadcastNotification(
   input: Omit<CreateNotificationInput, "userId">,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) throw new Error("Not authenticated");
 

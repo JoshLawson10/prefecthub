@@ -1,18 +1,14 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { Workspace } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
-export const getCurrentWorkspace = cache(
-  async (): Promise<Workspace | null> => {
+export async function getCurrentWorkspace(): Promise<Workspace | null> {
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return null;
     return getWorkspace(currentUser.workspace_id);
-  },
-);
+}
 
-export const getWorkspace = cache(
-  async (workspaceId: string): Promise<Workspace | null> => {
+export async function getWorkspace(workspaceId: string): Promise<Workspace | null> {
     if (!workspaceId) {
       return null;
     }
@@ -29,5 +25,4 @@ export const getWorkspace = cache(
       return null;
     }
     return data;
-  },
-);
+}

@@ -1,8 +1,7 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { RSVP, RSVPStats } from "@/lib/schemas";
 
-export const getRsvp = cache(async (rsvpId: string): Promise<RSVP | null> => {
+export async function getRsvp(rsvpId: string): Promise<RSVP | null> {
   const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("rsvps")
@@ -28,8 +27,7 @@ export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
   return data;
 }
 
-export const getRsvpByEmail = cache(
-  async (eventId: string, email: string): Promise<RSVP | null> => {
+export async function getRsvpByEmail(eventId: string, email: string): Promise<RSVP | null> {
     const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("rsvps")
@@ -39,8 +37,7 @@ export const getRsvpByEmail = cache(
       .maybeSingle();
     if (error || !data) return null;
     return data;
-  },
-);
+}
 
 export async function getRsvpStats(eventId: string): Promise<RSVPStats> {
   const supabase = createQueryClient();

@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import {
   InsertWorkspaceSchema,
   UpdateWorkspaceSchema,
@@ -14,7 +14,7 @@ export async function createWorkspace(
   data: Omit<Workspace, "id" | "created_at" | "updated_at">,
   userId: string,
 ): Promise<Workspace> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const validatedData = InsertWorkspaceSchema.parse(data);
 
@@ -42,7 +42,7 @@ export async function updateWorkspace(
   workspaceId: string,
   data: Partial<Workspace>,
 ): Promise<Workspace> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const validatedData = UpdateWorkspaceSchema.parse(data);
 
@@ -61,7 +61,7 @@ export async function updateWorkspace(
 }
 
 export async function deleteWorkspace(workspaceId: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
 
   if (!currentUser) throw new Error("Not authenticated");

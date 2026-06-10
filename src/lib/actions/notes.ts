@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
 
 export interface CreateNoteInput {
@@ -10,7 +10,7 @@ export interface CreateNoteInput {
 }
 
 export async function createNote(input: CreateNoteInput): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -29,7 +29,7 @@ export async function updateNote(
   title: string,
   body: string,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -42,7 +42,7 @@ export async function updateNote(
 }
 
 export async function deleteNote(id: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 

@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import type { EventRole } from "@/lib/schemas";
 import { revalidatePath } from "next/cache";
 
@@ -9,7 +9,7 @@ export async function addEventMember(
   userId: string,
   role: EventRole = "member",
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { error } = await supabase.from("event_members").insert({
     event_id: eventId,
@@ -26,7 +26,7 @@ export async function removeEventMember(
   eventId: string,
   userId: string,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { error } = await supabase
     .from("event_members")
@@ -44,7 +44,7 @@ export async function updateEventMemberRole(
   userId: string,
   role: EventRole,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { error } = await supabase
     .from("event_members")
@@ -62,7 +62,7 @@ export async function bulkAddEventMembers(
   eventId: string,
   userIds: string[],
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const members = userIds.map((userId) => ({
     event_id: eventId,
@@ -81,7 +81,7 @@ export async function assignEventLead(
   eventId: string,
   userId: string,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   await supabase
     .from("event_members")

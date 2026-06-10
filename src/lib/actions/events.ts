@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
-import { revalidateTag } from "next/cache";
+import { createQueryClient } from "@/lib/supabase/query";
+import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/data/users";
-import type { EventStatus } from "@/types";
+import type { EventStatus } from "@/lib/schemas";
 
 export interface CreateEventInput {
   title: string;
@@ -18,7 +18,7 @@ export interface CreateEventInput {
 }
 
 export async function createEvent(input: CreateEventInput): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -49,14 +49,15 @@ export async function createEvent(input: CreateEventInput): Promise<void> {
   });
 
   if (error) throw new Error(error.message);
-  revalidateTag("events");
+  revalidatePath("/events");
+  revalidatePath("/dashboard");
 }
 
 export async function updateEventStatus(
   eventId: string,
   status: EventStatus,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -66,7 +67,9 @@ export async function updateEventStatus(
     .eq("id", eventId)
     .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
-  revalidateTag("events");
+  revalidatePath("/events");
+  revalidatePath("/archive");
+  revalidatePath("/dashboard");
 }
 
 export async function restoreEvent(eventId: string): Promise<void> {

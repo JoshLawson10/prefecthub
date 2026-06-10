@@ -1,5 +1,4 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import {
   type UserNotificationPreferences,
   DefaultNotificationPreferences,
@@ -29,5 +28,4 @@ export const getNotificationPreferences = cache(
 
     const { user_id: _uid, updated_at: _ua, ...prefs } = data;
     return prefs;
-  },
-);
+}

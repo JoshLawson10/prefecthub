@@ -1,5 +1,4 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { CorrespondenceLog } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
@@ -8,8 +7,7 @@ const LOG_SELECT = `
   logged_by_user:users!logged_by(full_name, initials)
 `;
 
-export const getCorrespondence = cache(
-  async (logId: string): Promise<CorrespondenceLog | null> => {
+export async function getCorrespondence(logId: string): Promise<CorrespondenceLog | null> {
     const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("correspondence_logs")
@@ -18,8 +16,7 @@ export const getCorrespondence = cache(
       .single();
     if (error) return null;
     return data;
-  },
-);
+}
 
 export async function getEventCorrespondence(
   eventId: string,

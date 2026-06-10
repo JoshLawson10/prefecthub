@@ -1,9 +1,8 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { Note } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
-export const getNote = cache(async (noteId: string): Promise<Note | null> => {
+export async function getNote(noteId: string): Promise<Note | null> {
   const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("notes")

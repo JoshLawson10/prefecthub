@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
 import type { LogType } from "@/types";
 
@@ -16,7 +16,7 @@ export interface LogCorrespondenceInput {
 export async function logCorrespondence(
   input: LogCorrespondenceInput,
 ): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -34,7 +34,7 @@ export async function logCorrespondence(
 }
 
 export async function deleteCorrespondenceLog(id: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 

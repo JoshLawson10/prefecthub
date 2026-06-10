@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { type User, type UserRole } from "@/lib/schemas";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/data/users";
@@ -9,7 +9,7 @@ export async function updateUserProfile(
   userId: string,
   data: Partial<User>,
 ): Promise<User> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data: user, error } = await supabase
     .from("users")
@@ -29,7 +29,7 @@ export async function updateUserAvatar(
   userId: string,
   file: File,
 ): Promise<{ avatar_url: string }> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const fileExt = file.name.split(".").pop();
   const fileName = `${userId}-${Date.now()}.${fileExt}`;
@@ -62,7 +62,7 @@ export async function updateUserAvatar(
 }
 
 export async function deleteUserAvatar(userId: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data: user } = await supabase
     .from("users")
@@ -88,7 +88,7 @@ export async function deleteUserAvatar(userId: string): Promise<void> {
 }
 
 export async function removeFromWorkspace(userId: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
 
   if (!currentUser?.workspace_id) throw new Error("No workspace found");
@@ -125,7 +125,7 @@ export async function updateUserRole(
   userId: string,
   role: UserRole,
 ): Promise<User> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
 
   if (!currentUser?.workspace_id) throw new Error("No workspace found");
@@ -168,7 +168,7 @@ export async function acceptInvitation(
   token: string,
   userData: { full_name: string; password: string },
 ): Promise<User> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data: invitation, error: inviteError } = await supabase
     .from("invitations")

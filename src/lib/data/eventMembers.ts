@@ -1,5 +1,4 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { User, Event, EventRole } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
@@ -48,8 +47,7 @@ export async function getUserEvents(userId?: string): Promise<Event[]> {
     .filter((event): event is Event => event !== null);
 }
 
-export const checkUserInEvent = cache(
-  async (eventId: string, userId?: string): Promise<boolean> => {
+export async function checkUserInEvent(eventId: string, userId?: string): Promise<boolean> {
     const supabase = createQueryClient();
     const targetId = userId ?? (await getCurrentUser())?.id;
     if (!targetId) return false;
@@ -62,11 +60,9 @@ export const checkUserInEvent = cache(
 
     if (error) return false;
     return (count ?? 0) > 0;
-  },
-);
+}
 
-export const getEventLead = cache(
-  async (eventId: string): Promise<User | null> => {
+export async function getEventLead(eventId: string): Promise<User | null> {
     const supabase = createQueryClient();
 
     const { data, error } = await supabase
@@ -78,5 +74,4 @@ export const getEventLead = cache(
 
     if (error || !data) return null;
     return (data as unknown as { user: User | null }).user ?? null;
-  },
-);
+}

@@ -1,8 +1,9 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
-import type { TaskPriority, TaskStatus } from "@/types";
+import { revalidatePath } from "next/cache";
+import type { TaskPriority, TaskStatus } from "@/lib/schemas";
 
 export interface CreateTaskInput {
   eventId: string;
@@ -14,7 +15,7 @@ export interface CreateTaskInput {
 }
 
 export async function createTask(input: CreateTaskInput): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -30,13 +31,16 @@ export async function createTask(input: CreateTaskInput): Promise<void> {
   });
 
   if (error) throw new Error(error.message);
+  revalidatePath("/tasks");
+  revalidatePath(`/events/${input.eventId}/tasks`);
+  revalidatePath("/dashboard");
 }
 
 export async function updateTaskStatus(input: {
   taskId: string;
   status: TaskStatus;
 }): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -46,10 +50,12 @@ export async function updateTaskStatus(input: {
     .eq("id", input.taskId)
     .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
+  revalidatePath("/tasks");
+  revalidatePath("/dashboard");
 }
 
 export async function deleteTask(taskId: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -59,4 +65,6 @@ export async function deleteTask(taskId: string): Promise<void> {
     .eq("id", taskId)
     .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
+  revalidatePath("/tasks");
+  revalidatePath("/dashboard");
 }

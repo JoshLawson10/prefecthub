@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
@@ -17,7 +17,7 @@ export async function uploadDocument(
     throw new Error(`${input.file.name} exceeds the 10 MB limit.`);
   }
 
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
@@ -54,7 +54,7 @@ export async function uploadDocument(
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data: doc, error: fetchError } = await supabase
     .from("documents")

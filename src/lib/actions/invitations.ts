@@ -1,9 +1,9 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 
 export async function verifyInvitationToken(token: string) {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data: invitation, error } = await supabase
     .from("invitations")

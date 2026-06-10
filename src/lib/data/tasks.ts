@@ -1,11 +1,10 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { Task, Filters, TaskStatus, TaskStats } from "@/lib/schemas";
 import { withFilters, withPagination } from "@/lib/utils/database";
 import { getCurrentUser } from "@/lib/data/users";
 import type { Pagination } from "@/lib/schemas";
 
-export const getTask = cache(async (taskId: string): Promise<Task | null> => {
+export async function getTask(taskId: string): Promise<Task | null> {
   const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("tasks")

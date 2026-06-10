@@ -1,11 +1,9 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { Event, EventStats, Filters, Pagination } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 import { withFilters, withPagination } from "@/lib/utils/database";
 
-export const getWorkspaceEvents = cache(
-  async (filters?: Filters, pagination?: Pagination): Promise<Event[]> => {
+export async function getWorkspaceEvents(filters?: Filters, pagination?: Pagination): Promise<Event[]> {
     const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return [];
@@ -26,12 +24,11 @@ export const getWorkspaceEvents = cache(
       return [];
     }
     return data;
-  },
-);
+}
 
 export const getEvents = getWorkspaceEvents;
 
-export const getArchivedEvents = cache(async (): Promise<Event[]> => {
+export async function getArchivedEvents(): Promise<Event[]> {
   const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
@@ -50,8 +47,7 @@ export const getArchivedEvents = cache(async (): Promise<Event[]> => {
   return data;
 });
 
-export const getEvent = cache(
-  async (eventId: string): Promise<Event | null> => {
+export async function getEvent(eventId: string): Promise<Event | null> {
     const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("events")
@@ -60,11 +56,9 @@ export const getEvent = cache(
       .single();
     if (error) return null;
     return data;
-  },
-);
+}
 
-export const getUpcomingEvents = cache(
-  async (limit?: number): Promise<Event[]> => {
+export async function getUpcomingEvents(limit?: number): Promise<Event[]> {
     const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return [];
@@ -81,11 +75,9 @@ export const getUpcomingEvents = cache(
     const { data, error } = await query;
     if (error) return [];
     return data;
-  },
-);
+}
 
-export const getEventsByDateRange = cache(
-  async (start: Date, end: Date): Promise<Event[]> => {
+export async function getEventsByDateRange(start: Date, end: Date): Promise<Event[]> {
     const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return [];
@@ -100,11 +92,9 @@ export const getEventsByDateRange = cache(
 
     if (error) return [];
     return data;
-  },
-);
+}
 
-export const getEventBySlug = cache(
-  async (slug: string): Promise<Event | null> => {
+export async function getEventBySlug(slug: string): Promise<Event | null> {
     const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("events")
@@ -113,11 +103,9 @@ export const getEventBySlug = cache(
       .single();
     if (error) return null;
     return data;
-  },
-);
+}
 
-export const getEventStats = cache(
-  async (eventId: string): Promise<EventStats> => {
+export async function getEventStats(eventId: string): Promise<EventStats> {
     const supabase = createQueryClient();
     const [tasksRes, rsvpsRes, teamRes] = await Promise.all([
       supabase.from("tasks").select("status").eq("event_id", eventId),
@@ -138,14 +126,14 @@ export const getEventStats = cache(
       pendingTasks: tasks.filter((t) => t.status !== "done").length,
       totalMembers: teamRes.count ?? 0,
     };
-  },
-);
+}
 
-export const getRsvpCount = cache(async (eventId: string): Promise<number> => {
+export async function getRsvpCount(eventId: string): Promise<number> {
   const supabase = createQueryClient();
   const { count } = await supabase
     .from("rsvps")
     .select("*", { count: "exact", head: true })
     .eq("event_id", eventId);
   return count ?? 0;
-});
+}
+}

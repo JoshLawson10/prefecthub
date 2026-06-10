@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 
 export interface SubmitRsvpInput {
   eventId: string;
@@ -11,7 +11,7 @@ export interface SubmitRsvpInput {
 }
 
 export async function submitRsvp(input: SubmitRsvpInput): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   // Check capacity before inserting
   const { data: event } = await supabase

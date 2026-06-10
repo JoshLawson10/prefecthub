@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentUser } from "@/lib/data/users";
 import { getWorkspace } from "@/lib/data/workspaces";
@@ -13,7 +13,7 @@ export async function updateMemberRole(input: {
   memberId: string;
   newRole: string;
 }): Promise<void> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { error } = await supabase
     .from("users")
     .update({ role: input.newRole, updated_at: new Date().toISOString() })
@@ -28,7 +28,7 @@ export async function removeMember(memberId: string): Promise<void> {
 }
 
 export async function inviteMember(email: string) {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
 
   if (!currentUser?.workspace_id) {

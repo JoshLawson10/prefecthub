@@ -1,5 +1,4 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { Document } from "@/lib/schemas";
 
 const DOC_SELECT = `
@@ -7,8 +6,7 @@ const DOC_SELECT = `
   uploader:users!uploaded_by(full_name, initials)
 `;
 
-export const getDocument = cache(
-  async (documentId: string): Promise<Document | null> => {
+export async function getDocument(documentId: string): Promise<Document | null> {
     const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("documents")
@@ -17,8 +15,7 @@ export const getDocument = cache(
       .single();
     if (error) return null;
     return data;
-  },
-);
+}
 
 export async function getEventDocuments(eventId: string): Promise<Document[]> {
   const supabase = createQueryClient();

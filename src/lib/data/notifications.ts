@@ -1,5 +1,4 @@
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { Notification } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
@@ -45,7 +44,7 @@ export async function getUnreadNotifications(): Promise<Notification[]> {
   return data;
 }
 
-export const getUnreadCount = cache(async (): Promise<number> => {
+export async function getUnreadCount(): Promise<number> {
   const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return 0;
