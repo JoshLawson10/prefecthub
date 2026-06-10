@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { Task, Filters, TaskStatus, TaskStats } from "@/lib/schemas";
 import { withFilters, withPagination } from "@/lib/utils/database";
@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/data/users";
 import type { Pagination } from "@/lib/schemas";
 
 export const getTask = cache(async (taskId: string): Promise<Task | null> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("tasks")
     .select(
@@ -23,7 +23,7 @@ export async function getEventTasks(
   filters?: Filters,
   pagination?: Pagination,
 ): Promise<Task[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   let query = supabase
     .from("tasks")
@@ -47,7 +47,7 @@ export async function getEventTasks(
 export const getTasksByEvent = getEventTasks;
 
 export async function getUserTasks(status?: TaskStatus[]): Promise<Task[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return [];
 
@@ -72,7 +72,7 @@ export async function getUserTasks(status?: TaskStatus[]): Promise<Task[]> {
 }
 
 export async function getTasks(filters?: Filters): Promise<Task[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 
@@ -95,7 +95,7 @@ export async function getTasks(filters?: Filters): Promise<Task[]> {
 }
 
 export async function getOverdueTasks(): Promise<Task[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return [];
 
@@ -116,7 +116,7 @@ export async function getOverdueTasks(): Promise<Task[]> {
 }
 
 export async function getTasksDueSoon(days: number): Promise<Task[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return [];
 
@@ -143,7 +143,7 @@ export async function getTasksDueSoon(days: number): Promise<Task[]> {
 }
 
 export async function getTaskStats(eventId: string): Promise<TaskStats> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data: tasks } = await supabase
     .from("tasks")
     .select("status, priority")

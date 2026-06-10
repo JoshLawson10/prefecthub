@@ -1,9 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { RSVP, RSVPStats } from "@/lib/schemas";
 
 export const getRsvp = cache(async (rsvpId: string): Promise<RSVP | null> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("rsvps")
     .select("*")
@@ -14,7 +14,7 @@ export const getRsvp = cache(async (rsvpId: string): Promise<RSVP | null> => {
 });
 
 export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("rsvps")
     .select("*")
@@ -30,7 +30,7 @@ export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
 
 export const getRsvpByEmail = cache(
   async (eventId: string, email: string): Promise<RSVP | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("rsvps")
       .select("*")
@@ -43,7 +43,7 @@ export const getRsvpByEmail = cache(
 );
 
 export async function getRsvpStats(eventId: string): Promise<RSVPStats> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("rsvps")
     .select("guest_count, dietary_notes")
@@ -73,7 +73,7 @@ export async function getRsvpStats(eventId: string): Promise<RSVPStats> {
 }
 
 export async function getRsvpCount(eventId: string): Promise<number> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { count } = await supabase
     .from("rsvps")
     .select("*", { count: "exact", head: true })

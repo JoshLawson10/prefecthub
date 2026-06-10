@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { Event, EventStats, Filters, Pagination } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
@@ -6,7 +6,7 @@ import { withFilters, withPagination } from "@/lib/utils/database";
 
 export const getWorkspaceEvents = cache(
   async (filters?: Filters, pagination?: Pagination): Promise<Event[]> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return [];
 
@@ -32,7 +32,7 @@ export const getWorkspaceEvents = cache(
 export const getEvents = getWorkspaceEvents;
 
 export const getArchivedEvents = cache(async (): Promise<Event[]> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 
@@ -52,7 +52,7 @@ export const getArchivedEvents = cache(async (): Promise<Event[]> => {
 
 export const getEvent = cache(
   async (eventId: string): Promise<Event | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("events")
       .select("*")
@@ -65,7 +65,7 @@ export const getEvent = cache(
 
 export const getUpcomingEvents = cache(
   async (limit?: number): Promise<Event[]> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return [];
 
@@ -86,7 +86,7 @@ export const getUpcomingEvents = cache(
 
 export const getEventsByDateRange = cache(
   async (start: Date, end: Date): Promise<Event[]> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser?.workspace_id) return [];
 
@@ -105,7 +105,7 @@ export const getEventsByDateRange = cache(
 
 export const getEventBySlug = cache(
   async (slug: string): Promise<Event | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("events")
       .select("*")
@@ -118,7 +118,7 @@ export const getEventBySlug = cache(
 
 export const getEventStats = cache(
   async (eventId: string): Promise<EventStats> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const [tasksRes, rsvpsRes, teamRes] = await Promise.all([
       supabase.from("tasks").select("status").eq("event_id", eventId),
       supabase.from("rsvps").select("guest_count").eq("event_id", eventId),
@@ -142,7 +142,7 @@ export const getEventStats = cache(
 );
 
 export const getRsvpCount = cache(async (eventId: string): Promise<number> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { count } = await supabase
     .from("rsvps")
     .select("*", { count: "exact", head: true })

@@ -1,11 +1,11 @@
-import type { CalendarItem } from "@/types";
-import { createClient } from "@/lib/supabase/server";
+import type { CalendarItem } from "@/lib/schemas";
+import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
 import { getEventsByDateRange } from "@/lib/data/events";
 import { format, startOfMonth, endOfMonth, addMonths } from "date-fns";
 
 export async function getCalendarItems(month?: Date): Promise<CalendarItem[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 

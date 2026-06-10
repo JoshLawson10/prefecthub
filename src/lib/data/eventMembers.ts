@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { User, Event, EventRole } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/data/users";
 export async function getEventMembers(
   eventId: string,
 ): Promise<(User & { event_role: EventRole })[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data, error } = await supabase
     .from("event_members")
@@ -29,7 +29,7 @@ export async function getEventMembers(
 export const getTeamByEvent = getEventMembers;
 
 export async function getUserEvents(userId?: string): Promise<Event[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const targetId = userId ?? (await getCurrentUser())?.id;
   if (!targetId) return [];
 
@@ -50,7 +50,7 @@ export async function getUserEvents(userId?: string): Promise<Event[]> {
 
 export const checkUserInEvent = cache(
   async (eventId: string, userId?: string): Promise<boolean> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const targetId = userId ?? (await getCurrentUser())?.id;
     if (!targetId) return false;
 
@@ -67,7 +67,7 @@ export const checkUserInEvent = cache(
 
 export const getEventLead = cache(
   async (eventId: string): Promise<User | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
 
     const { data, error } = await supabase
       .from("event_members")

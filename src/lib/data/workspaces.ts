@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { Workspace } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
@@ -17,7 +17,7 @@ export const getWorkspace = cache(
       return null;
     }
 
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("workspaces")
       .select("*")

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { User } from "@/lib/schemas";
 
@@ -59,7 +60,7 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 });
 
 export const getUser = cache(async (userId: string): Promise<User | null> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("users")
     .select("*")
@@ -70,7 +71,7 @@ export const getUser = cache(async (userId: string): Promise<User | null> => {
 });
 
 export async function getWorkspaceMembers(): Promise<User[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 
@@ -81,7 +82,7 @@ export async function getWorkspaceMembers(): Promise<User[]> {
     .order("full_name");
 
   if (error) {
-    console.error("Error fetching workspace members:", error);
+    console.error("Error fetching workspace members:", error.message);
     return [];
   }
   return data;
@@ -100,7 +101,7 @@ export async function getMembersByRole(): Promise<Record<string, User[]>> {
 
 export const getUserByEmail = cache(
   async (email: string): Promise<User | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("users")
       .select("*")

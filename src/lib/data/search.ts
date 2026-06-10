@@ -1,11 +1,11 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import type { SearchResult } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
 export async function search(query: string): Promise<SearchResult[]> {
   if (!query || query.trim().length < 2) return [];
 
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 

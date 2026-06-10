@@ -1,10 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { Note } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
 
 export const getNote = cache(async (noteId: string): Promise<Note | null> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("notes")
     .select("*, author:users!author_id(full_name, initials)")
@@ -15,7 +15,7 @@ export const getNote = cache(async (noteId: string): Promise<Note | null> => {
 });
 
 export async function getEventNotes(eventId: string): Promise<Note[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("notes")
     .select("*, author:users!author_id(full_name, initials)")
@@ -32,7 +32,7 @@ export async function getEventNotes(eventId: string): Promise<Note[]> {
 export const getNotesByEvent = getEventNotes;
 
 export async function getUserNotes(): Promise<Note[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return [];
 
@@ -50,7 +50,7 @@ export async function getUserNotes(): Promise<Note[]> {
 }
 
 export async function searchNotes(query: string): Promise<Note[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 

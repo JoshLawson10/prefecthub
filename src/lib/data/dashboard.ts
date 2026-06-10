@@ -3,10 +3,10 @@ import type { DashboardStats, Activity } from "@/lib/schemas";
 import { getCurrentUser, getWorkspaceMembers } from "@/lib/data/users";
 import { getWorkspaceEvents, getArchivedEvents } from "@/lib/data/events";
 import { getTasks } from "@/lib/data/tasks";
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 
 export const getDashboardStats = cache(async (): Promise<DashboardStats> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) {
     return {
@@ -59,7 +59,7 @@ export const getDashboardStats = cache(async (): Promise<DashboardStats> => {
 });
 
 export async function getRecentActivity(limit = 10): Promise<Activity[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 
@@ -121,7 +121,7 @@ export async function getEventActivityFeed(
   eventId: string,
   limit = 20,
 ): Promise<Activity[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
 
   const { data, error } = await supabase
     .from("notifications")

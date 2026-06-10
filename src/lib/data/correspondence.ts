@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { CorrespondenceLog } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
@@ -10,7 +10,7 @@ const LOG_SELECT = `
 
 export const getCorrespondence = cache(
   async (logId: string): Promise<CorrespondenceLog | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("correspondence_logs")
       .select(LOG_SELECT)
@@ -24,7 +24,7 @@ export const getCorrespondence = cache(
 export async function getEventCorrespondence(
   eventId: string,
 ): Promise<CorrespondenceLog[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("correspondence_logs")
     .select(LOG_SELECT)
@@ -45,7 +45,7 @@ export async function getCorrespondenceByContact(
   eventId: string,
   email: string,
 ): Promise<CorrespondenceLog[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("correspondence_logs")
     .select(LOG_SELECT)
@@ -63,7 +63,7 @@ export async function getCorrespondenceByContact(
 export async function searchCorrespondence(
   query: string,
 ): Promise<CorrespondenceLog[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) return [];
 

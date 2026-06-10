@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { Notification } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/data/users";
 export async function getNotifications(
   limit?: number,
 ): Promise<Notification[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return [];
 
@@ -27,7 +27,7 @@ export async function getNotifications(
 }
 
 export async function getUnreadNotifications(): Promise<Notification[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return [];
 
@@ -46,7 +46,7 @@ export async function getUnreadNotifications(): Promise<Notification[]> {
 }
 
 export const getUnreadCount = cache(async (): Promise<number> => {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.id) return 0;
 

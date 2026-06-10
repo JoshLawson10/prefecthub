@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import {
   type UserNotificationPreferences,
@@ -15,7 +15,7 @@ export const getNotificationPreferences = cache(
   async (): Promise<
     Omit<UserNotificationPreferences, "user_id" | "updated_at">
   > => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const currentUser = await getCurrentUser();
     if (!currentUser) return DefaultNotificationPreferences;
 

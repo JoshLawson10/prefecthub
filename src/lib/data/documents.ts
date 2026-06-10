@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createQueryClient } from "@/lib/supabase/query";
 import { cache } from "react";
 import type { Document } from "@/lib/schemas";
 
@@ -9,7 +9,7 @@ const DOC_SELECT = `
 
 export const getDocument = cache(
   async (documentId: string): Promise<Document | null> => {
-    const supabase = await createClient();
+    const supabase = createQueryClient();
     const { data, error } = await supabase
       .from("documents")
       .select(DOC_SELECT)
@@ -21,7 +21,7 @@ export const getDocument = cache(
 );
 
 export async function getEventDocuments(eventId: string): Promise<Document[]> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("documents")
     .select(DOC_SELECT)
@@ -40,7 +40,7 @@ export const getDocumentsByEvent = getEventDocuments;
 export async function getDocumentDownloadUrl(
   documentId: string,
 ): Promise<string | null> {
-  const supabase = await createClient();
+  const supabase = createQueryClient();
   const doc = await getDocument(documentId);
   if (!doc) return null;
 
