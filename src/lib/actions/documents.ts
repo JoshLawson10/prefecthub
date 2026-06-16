@@ -2,6 +2,7 @@
 
 import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
+import { revalidatePath } from "next/cache";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB
 
@@ -51,6 +52,8 @@ export async function uploadDocument(
     await supabase.storage.from("documents").remove([storagePath]);
     throw new Error(dbError.message);
   }
+
+  revalidatePath(`/events/${input.eventId}/documents`);
 }
 
 export async function deleteDocument(documentId: string): Promise<void> {
@@ -58,7 +61,7 @@ export async function deleteDocument(documentId: string): Promise<void> {
 
   const { data: doc, error: fetchError } = await supabase
     .from("documents")
-    .select("storage_path")
+    .select("storage_path, event_id")
     .eq("id", documentId)
     .single();
 
@@ -74,4 +77,6 @@ export async function deleteDocument(documentId: string): Promise<void> {
     .delete()
     .eq("id", documentId);
   if (dbError) throw new Error(dbError.message);
+
+  revalidatePath(`/events/${doc.event_id}/documents`);
 }
