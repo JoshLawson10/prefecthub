@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import type { TimelineEntry, TimelineItemType } from "@/types";
+import type { TimelineEntry, TimelineItemType } from "@/lib/schemas";
 
 const ENTRY_CONFIG: Record<
   TimelineItemType,

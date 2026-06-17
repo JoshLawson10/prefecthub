@@ -305,6 +305,27 @@ export const CalendarItemSchema = z.object({
   text_class:  z.string(),
 });
 
+export const TimelineItemTypeSchema = z.enum([
+  "event_created",
+  "task_created",
+  "task_completed",
+  "task_overdue",
+  "email",
+  "meeting",
+  "phone",
+  "note_created",
+  "document_uploaded",
+]);
+
+export const TimelineEntrySchema = z.object({
+  id:              z.string(),
+  type:            TimelineItemTypeSchema,
+  title:           z.string(),
+  meta:            z.string().optional(),
+  timestamp:       z.string(),
+  author_initials: z.string().optional(),
+});
+
 export const UserProductivitySchema = z.object({
   userId:          z.string().uuid(),
   tasksAssigned:   z.number().int().min(0),
@@ -400,6 +421,8 @@ export type UpdateRSVP      = z.infer<typeof UpdateRSVPSchema>;
 
 export type CalendarItemType = z.infer<typeof CalendarItemTypeSchema>;
 export type CalendarItem     = z.infer<typeof CalendarItemSchema>;
+export type TimelineItemType = z.infer<typeof TimelineItemTypeSchema>;
+export type TimelineEntry    = z.infer<typeof TimelineEntrySchema>;
 export type UserProductivity = z.infer<typeof UserProductivitySchema>;
 export type UserNotificationPreferences = z.infer<typeof UserNotificationPreferencesSchema>;
 

@@ -2,6 +2,7 @@
 
 import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
+import { revalidatePath } from "next/cache";
 
 export interface CreateNoteInput {
   eventId: string;
@@ -22,6 +23,7 @@ export async function createNote(input: CreateNoteInput): Promise<void> {
     workspace_id: currentUser.workspace_id,
   });
   if (error) throw new Error(error.message);
+  revalidatePath(`/events/${input.eventId}/notes`);
 }
 
 export async function updateNote(
@@ -39,6 +41,7 @@ export async function updateNote(
     .eq("id", id)
     .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
+  revalidatePath("/events");
 }
 
 export async function deleteNote(id: string): Promise<void> {
@@ -52,4 +55,5 @@ export async function deleteNote(id: string): Promise<void> {
     .eq("id", id)
     .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
+  revalidatePath("/events");
 }

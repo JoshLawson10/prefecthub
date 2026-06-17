@@ -2,7 +2,8 @@
 
 import { createQueryClient } from "@/lib/supabase/query";
 import { getCurrentUser } from "@/lib/data/users";
-import type { LogType } from "@/types";
+import { revalidatePath } from "next/cache";
+import type { LogType } from "@/lib/schemas";
 
 export interface LogCorrespondenceInput {
   eventId: string;
@@ -31,6 +32,7 @@ export async function logCorrespondence(
     workspace_id: currentUser.workspace_id,
   });
   if (error) throw new Error(error.message);
+  revalidatePath(`/events/${input.eventId}/correspondence`);
 }
 
 export async function deleteCorrespondenceLog(id: string): Promise<void> {
@@ -38,10 +40,18 @@ export async function deleteCorrespondenceLog(id: string): Promise<void> {
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
+  const { data: log } = await supabase
+    .from("correspondence_logs")
+    .select("event_id")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase
     .from("correspondence_logs")
     .delete()
     .eq("id", id)
     .eq("workspace_id", currentUser.workspace_id);
   if (error) throw new Error(error.message);
+
+  if (log?.event_id) revalidatePath(`/events/${log.event_id}/correspondence`);
 }
