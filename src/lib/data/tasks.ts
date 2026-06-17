@@ -15,7 +15,7 @@ export async function getTask(taskId: string): Promise<Task | null> {
     .single();
   if (error) return null;
   return data;
-});
+}
 
 export async function getEventTasks(
   eventId: string,

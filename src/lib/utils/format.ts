@@ -10,7 +10,7 @@ export function formatEventDate(event: {
   const sameDay = start.toDateString() === end.toDateString();
 
   if (sameDay) {
-    return `${format(start, "MMM d, yyyy")} · ${format(start, "h:mm a")} - ${format(end, "h:mm a")}`;
+    return `${format(start, "MMM d, yyyy")}`;
   }
 
   return `${format(start, "MMM d, h:mm a")} - ${format(end, "MMM d, h:mm a")}`;

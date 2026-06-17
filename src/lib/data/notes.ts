@@ -11,7 +11,7 @@ export async function getNote(noteId: string): Promise<Note | null> {
     .single();
   if (error) return null;
   return data;
-});
+}
 
 export async function getEventNotes(eventId: string): Promise<Note[]> {
   const supabase = createQueryClient();

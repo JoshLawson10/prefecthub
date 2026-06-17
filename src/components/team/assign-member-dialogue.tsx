@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
-import { assignTeamMember } from "@/lib/actions/team";
+import { addEventMember } from "@/lib/actions/eventMembers";
 import type { EventRole, User } from "@/lib/schemas";
 
 interface AssignMemberDialogProps {
@@ -43,7 +43,7 @@ export function AssignMemberDialog({
   async function handleSubmit() {
     if (!memberId || !role) return;
     setLoading(true);
-    await assignTeamMember({ eventId, memberId, role: role as EventRole });
+    await addEventMember(eventId, memberId, role);
     setLoading(false);
     setMemberId("");
     setRole("");

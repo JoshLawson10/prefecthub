@@ -4,6 +4,7 @@ import {
   DefaultNotificationPreferences,
 } from "@/lib/schemas";
 import { getCurrentUser } from "@/lib/data/users";
+import { cache } from "react";
 
 /**
  * Returns the current user's notification preferences.
@@ -28,4 +29,5 @@ export const getNotificationPreferences = cache(
 
     const { user_id: _uid, updated_at: _ua, ...prefs } = data;
     return prefs;
-}
+  },
+);

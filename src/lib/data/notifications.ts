@@ -57,4 +57,4 @@ export async function getUnreadCount(): Promise<number> {
 
   if (error) return 0;
   return count ?? 0;
-});
+}
