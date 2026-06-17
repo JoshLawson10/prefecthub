@@ -33,17 +33,3 @@ export async function getEventDocuments(eventId: string): Promise<Document[]> {
 }
 
 export const getDocumentsByEvent = getEventDocuments;
-
-export async function getDocumentDownloadUrl(
-  documentId: string,
-): Promise<string | null> {
-  const supabase = createQueryClient();
-  const doc = await getDocument(documentId);
-  if (!doc) return null;
-
-  const { data } = await supabase.storage
-    .from("documents")
-    .createSignedUrl(doc.storage_path, 60 * 60); // 1 hour expiry
-
-  return data?.signedUrl ?? null;
-}

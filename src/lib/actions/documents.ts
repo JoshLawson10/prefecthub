@@ -80,3 +80,26 @@ export async function deleteDocument(documentId: string): Promise<void> {
 
   revalidatePath(`/events/${doc.event_id}/documents`);
 }
+
+export async function getDocumentDownloadUrl(
+  documentId: string,
+): Promise<string | null> {
+  const supabase = createQueryClient();
+  const currentUser = await getCurrentUser();
+  if (!currentUser) throw new Error("Not authenticated");
+
+  const { data: doc } = await supabase
+    .from("documents")
+    .select("storage_path, workspace_id")
+    .eq("id", documentId)
+    .eq("workspace_id", currentUser.workspace_id)
+    .single();
+
+  if (!doc) return null;
+
+  const { data } = await supabase.storage
+    .from("documents")
+    .createSignedUrl(doc.storage_path, 60 * 60);
+
+  return data?.signedUrl ?? null;
+}

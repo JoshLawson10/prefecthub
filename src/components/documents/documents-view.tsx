@@ -24,8 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { uploadDocument, deleteDocument } from "@/lib/actions/documents";
-import { getDocumentDownloadUrl } from "@/lib/data/documents";
+import { uploadDocument, deleteDocument, getDocumentDownloadUrl } from "@/lib/actions/documents";
 import type { Document } from "@/lib/schemas";
 
 const MAX_BYTES = 10 * 1024 * 1024; // 10 MB

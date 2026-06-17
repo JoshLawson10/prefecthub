@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   SearchIcon,
   MailIcon,
@@ -27,8 +27,7 @@ import {
 } from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import type { CorrespondenceLog, LogType, User } from "@/lib/schemas";
-import { getUser } from "@/lib/data/users";
-import { formatCorrespondenceDate } from "@/lib/utils/format"; // Import the new function
+import { formatCorrespondenceDate } from "@/lib/utils/format";
 
 const LOG_TYPE_CONFIG: Record<
   LogType,
@@ -65,30 +64,12 @@ type TypeFilter = (typeof TYPE_FILTERS)[number];
 
 interface CorrespondenceViewProps {
   logs: CorrespondenceLog[];
+  userMap: Record<string, User>;
 }
 
-export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
+export function CorrespondenceView({ logs, userMap }: CorrespondenceViewProps) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
-  const [userMap, setUserMap] = useState<Map<string, User>>(new Map());
-
-  // Fetch all unique user data once when logs change
-  useEffect(() => {
-    const uniqueUserIds = [...new Set(logs.map((log) => log.logged_by))];
-
-    const fetchUsers = async () => {
-      const newUserMap = new Map<string, User>();
-      for (const userId of uniqueUserIds) {
-        const user = await getUser(userId);
-        if (user) {
-          newUserMap.set(userId, user);
-        }
-      }
-      setUserMap(newUserMap);
-    };
-
-    fetchUsers();
-  }, [logs]);
 
   const filtered = useMemo(() => {
     let result = logs;
@@ -136,7 +117,6 @@ export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
         </div>
       </div>
 
-      {/* Table */}
       <Card className="py-0 overflow-hidden">
         <Table>
           <TableHeader>
@@ -163,7 +143,7 @@ export function CorrespondenceView({ logs }: CorrespondenceViewProps) {
             ) : (
               filtered.map((log) => {
                 const config = LOG_TYPE_CONFIG[log.type];
-                const user = userMap.get(log.logged_by);
+                const user = userMap[log.logged_by];
                 return (
                   <TableRow key={log.id} className="cursor-pointer">
                     <TableCell>
