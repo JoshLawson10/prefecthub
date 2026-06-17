@@ -2,6 +2,7 @@ import { Header } from "@/components/ui/header";
 import { NotesView } from "@/components/notes/notes-view";
 import { CreateNoteSheet } from "@/components/notes/create-note-sheet";
 import { getEventNotes } from "@/lib/data/notes";
+import { getWorkspaceMembers } from "@/lib/data/users";
 
 export default async function NotesPage({
   params,
@@ -9,13 +10,18 @@ export default async function NotesPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const notes = await getEventNotes(id);
+  const [notes, members] = await Promise.all([
+    getEventNotes(id),
+    getWorkspaceMembers(),
+  ]);
+
+  const userMap = Object.fromEntries(members.map((m) => [m.id, m]));
 
   return (
     <div>
       <Header title="Notes" actions={<CreateNoteSheet eventId={id} />} />
       <div className="mt-4">
-        <NotesView notes={notes} />
+        <NotesView notes={notes} userMap={userMap} />
       </div>
     </div>
   );
