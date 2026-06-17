@@ -17,7 +17,6 @@ export async function saveNotificationPreferences(
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
-  // Validate before touching the DB
   UserNotificationPreferencesSchema.omit({
     user_id: true,
     updated_at: true,

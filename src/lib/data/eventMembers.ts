@@ -47,31 +47,34 @@ export async function getUserEvents(userId?: string): Promise<Event[]> {
     .filter((event): event is Event => event !== null);
 }
 
-export async function checkUserInEvent(eventId: string, userId?: string): Promise<boolean> {
-    const supabase = createQueryClient();
-    const targetId = userId ?? (await getCurrentUser())?.id;
-    if (!targetId) return false;
+export async function checkUserInEvent(
+  eventId: string,
+  userId?: string,
+): Promise<boolean> {
+  const supabase = createQueryClient();
+  const targetId = userId ?? (await getCurrentUser())?.id;
+  if (!targetId) return false;
 
-    const { count, error } = await supabase
-      .from("event_members")
-      .select("*", { count: "exact", head: true })
-      .eq("event_id", eventId)
-      .eq("user_id", targetId);
+  const { count, error } = await supabase
+    .from("event_members")
+    .select("*", { count: "exact", head: true })
+    .eq("event_id", eventId)
+    .eq("user_id", targetId);
 
-    if (error) return false;
-    return (count ?? 0) > 0;
+  if (error) return false;
+  return (count ?? 0) > 0;
 }
 
 export async function getEventLead(eventId: string): Promise<User | null> {
-    const supabase = createQueryClient();
+  const supabase = createQueryClient();
 
-    const { data, error } = await supabase
-      .from("event_members")
-      .select("user:users(*)")
-      .eq("event_id", eventId)
-      .eq("event_role", "lead")
-      .maybeSingle();
+  const { data, error } = await supabase
+    .from("event_members")
+    .select("user:users(*)")
+    .eq("event_id", eventId)
+    .eq("event_role", "lead")
+    .maybeSingle();
 
-    if (error || !data) return null;
-    return (data as unknown as { user: User | null }).user ?? null;
+  if (error || !data) return null;
+  return (data as unknown as { user: User | null }).user ?? null;
 }

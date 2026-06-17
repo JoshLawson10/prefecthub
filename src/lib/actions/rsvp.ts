@@ -13,7 +13,6 @@ export interface SubmitRsvpInput {
 export async function submitRsvp(input: SubmitRsvpInput): Promise<void> {
   const supabase = createQueryClient();
 
-  // Check capacity before inserting
   const { data: event } = await supabase
     .from("events")
     .select("max_capacity")

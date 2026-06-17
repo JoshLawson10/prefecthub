@@ -6,11 +6,6 @@ import {
 import { getCurrentUser } from "@/lib/data/users";
 import { cache } from "react";
 
-/**
- * Returns the current user's notification preferences.
- * If no row exists yet (first visit), returns the schema defaults without
- * writing to the DB the upsert in saveNotificationPreferences handles that.
- */
 export const getNotificationPreferences = cache(
   async (): Promise<
     Omit<UserNotificationPreferences, "user_id" | "updated_at">

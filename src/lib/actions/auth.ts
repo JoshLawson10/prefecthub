@@ -9,7 +9,6 @@ export async function login(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const rawRedirect = (formData.get("redirectTo") as string) || "/dashboard";
-  // Guard against open-redirect: only allow relative paths starting with /
   const redirectTo =
     rawRedirect.startsWith("/") && !rawRedirect.startsWith("//")
       ? rawRedirect
@@ -51,13 +50,14 @@ export async function requestPasswordReset(formData: FormData) {
   const email = formData.get("email") as string;
 
   if (!email) {
-    redirect(`/forgot-password?error=${encodeURIComponent("Email is required")}`);
+    redirect(
+      `/forgot-password?error=${encodeURIComponent("Email is required")}`,
+    );
   }
 
   const supabase = await createClient();
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    // Supabase appends token_hash + type=recovery to this URL
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
   });
 
@@ -65,7 +65,6 @@ export async function requestPasswordReset(formData: FormData) {
     redirect(`/forgot-password?error=${encodeURIComponent(error.message)}`);
   }
 
-  // Always show success — never confirm whether an email exists
   redirect(`/forgot-password?success=true`);
 }
 
@@ -74,11 +73,15 @@ export async function resetPassword(formData: FormData) {
   const confirm = formData.get("confirm") as string;
 
   if (!password || password.length < 8) {
-    redirect(`/reset-password?error=${encodeURIComponent("Password must be at least 8 characters")}`);
+    redirect(
+      `/reset-password?error=${encodeURIComponent("Password must be at least 8 characters")}`,
+    );
   }
 
   if (password !== confirm) {
-    redirect(`/reset-password?error=${encodeURIComponent("Passwords don't match")}`);
+    redirect(
+      `/reset-password?error=${encodeURIComponent("Passwords don't match")}`,
+    );
   }
 
   const supabase = await createClient();
@@ -89,5 +92,7 @@ export async function resetPassword(formData: FormData) {
     redirect(`/reset-password?error=${encodeURIComponent(error.message)}`);
   }
 
-  redirect("/login?success=" + encodeURIComponent("Password updated. Please sign in."));
+  redirect(
+    "/login?success=" + encodeURIComponent("Password updated. Please sign in."),
+  );
 }

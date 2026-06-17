@@ -10,7 +10,7 @@ export async function getRsvp(rsvpId: string): Promise<RSVP | null> {
     .single();
   if (error) return null;
   return data;
-});
+}
 
 export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
   const supabase = createQueryClient();
@@ -27,16 +27,19 @@ export async function getEventRsvps(eventId: string): Promise<RSVP[]> {
   return data;
 }
 
-export async function getRsvpByEmail(eventId: string, email: string): Promise<RSVP | null> {
-    const supabase = createQueryClient();
-    const { data, error } = await supabase
-      .from("rsvps")
-      .select("*")
-      .eq("event_id", eventId)
-      .eq("email", email)
-      .maybeSingle();
-    if (error || !data) return null;
-    return data;
+export async function getRsvpByEmail(
+  eventId: string,
+  email: string,
+): Promise<RSVP | null> {
+  const supabase = createQueryClient();
+  const { data, error } = await supabase
+    .from("rsvps")
+    .select("*")
+    .eq("event_id", eventId)
+    .eq("email", email)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data;
 }
 
 export async function getRsvpStats(eventId: string): Promise<RSVPStats> {

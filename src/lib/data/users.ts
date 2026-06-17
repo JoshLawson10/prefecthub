@@ -5,7 +5,6 @@ import { cache } from "react";
 import type { User } from "@/lib/schemas";
 
 export const getCurrentUser = cache(async (): Promise<User | null> => {
-  // Use the regular client only for the auth check (needs the session cookie)
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -13,8 +12,6 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
 
   if (!authUser) return null;
 
-  // Use the admin client for all DB reads/writes so RLS never blocks
-  // a legitimate server-side profile lookup.
   const admin = createAdminClient();
 
   const { data, error } = await admin
@@ -24,10 +21,10 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
     .single();
 
   if (error || !data) {
-    // Auto-create a minimal profile for OAuth / magic-link users who
-    // bypass the normal onboarding flow.
     const fullName =
-      authUser.user_metadata?.full_name || authUser.email?.split("@")[0] || "User";
+      authUser.user_metadata?.full_name ||
+      authUser.email?.split("@")[0] ||
+      "User";
     const initials = fullName
       .split(" ")
       .map((n: string) => n[0])

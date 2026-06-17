@@ -13,7 +13,6 @@ export interface UpdateProfileInput {
 export async function updateProfile(input: UpdateProfileInput): Promise<void> {
   const supabase = await createClient();
 
-  // Update the users table
   const { error: dbError } = await supabase
     .from("users")
     .update({
@@ -24,7 +23,6 @@ export async function updateProfile(input: UpdateProfileInput): Promise<void> {
     .eq("id", input.memberId);
   if (dbError) throw new Error(dbError.message);
 
-  // Keep Supabase auth email in sync so login still works after an email change
   const { error: authError } = await supabase.auth.updateUser({
     email: input.email,
   });
@@ -74,7 +72,6 @@ export async function changePassword(input: {
 
   const supabase = await createClient();
 
-  // Re-authenticate with current password to verify identity
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -170,7 +167,6 @@ export async function completeOnboarding(data: OnboardingData) {
     throw new Error(`Failed to create profile: ${profileError.message}`);
   }
 
-  // Mark the invitation as accepted — use adminClient as user has no session yet
   await adminClient
     .from("invitations")
     .update({ status: "accepted" })
@@ -185,8 +181,6 @@ export async function completeOnboarding(data: OnboardingData) {
     console.error("Auto-login failed:", signInError);
   }
 
-  // Use adminClient for the welcome notification too — RLS requires
-  // an authenticated session which may not be set yet at this point
   await adminClient.from("notifications").insert({
     user_id: authUser.user.id,
     type: "member_added",

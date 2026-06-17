@@ -22,7 +22,6 @@ export async function uploadDocument(
   const currentUser = await getCurrentUser();
   if (!currentUser) throw new Error("Not authenticated");
 
-  // Sanitise filename: strip path separators and limit to safe characters
   const safeName = input.file.name
     .replace(/[/\\]/g, "")
     .replace(/[^a-zA-Z0-9._-]/g, "_")

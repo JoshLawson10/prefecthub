@@ -7,15 +7,17 @@ const LOG_SELECT = `
   logged_by_user:users!logged_by(full_name, initials)
 `;
 
-export async function getCorrespondence(logId: string): Promise<CorrespondenceLog | null> {
-    const supabase = createQueryClient();
-    const { data, error } = await supabase
-      .from("correspondence_logs")
-      .select(LOG_SELECT)
-      .eq("id", logId)
-      .single();
-    if (error) return null;
-    return data;
+export async function getCorrespondence(
+  logId: string,
+): Promise<CorrespondenceLog | null> {
+  const supabase = createQueryClient();
+  const { data, error } = await supabase
+    .from("correspondence_logs")
+    .select(LOG_SELECT)
+    .eq("id", logId)
+    .single();
+  if (error) return null;
+  return data;
 }
 
 export async function getEventCorrespondence(

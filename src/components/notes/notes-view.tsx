@@ -11,13 +11,15 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import type { EventNote } from "@/lib/schemas";
+import type { Note } from "@/lib/schemas";
+import { getUser } from "@/lib/data/users";
+import { formatDateTime } from "@/lib/utils/format";
 
 interface NotesViewProps {
-  notes: EventNote[];
+  notes: Note[];
 }
 
-export function NotesView({ notes }: NotesViewProps) {
+export async function NotesView({ notes }: NotesViewProps) {
   if (notes.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 gap-3">
@@ -29,9 +31,16 @@ export function NotesView({ notes }: NotesViewProps) {
     );
   }
 
+  const notesWithAuthors = await Promise.all(
+    notes.map(async (note) => ({
+      ...note,
+      author: await getUser(note.author_id),
+    })),
+  );
+
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-      {notes.map((note) => (
+      {notesWithAuthors.map((note) => (
         <Card
           key={note.id}
           className="flex flex-col cursor-pointer hover:shadow-md transition-shadow"
@@ -48,12 +57,16 @@ export function NotesView({ notes }: NotesViewProps) {
           <CardFooter className="justify-between pt-3 pb-3">
             <div className="flex items-center gap-2">
               <Avatar size="sm">
-                <AvatarFallback>{note.author_initials}</AvatarFallback>
+                <AvatarFallback>
+                  {note.author?.initials || note.author_id}
+                </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-xs font-medium">{note.author_name}</p>
+                <p className="text-xs font-medium">
+                  {note.author?.full_name || note.author_id}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {note.updated_at}
+                  {formatDateTime(note.updated_at)}
                 </p>
               </div>
             </div>
