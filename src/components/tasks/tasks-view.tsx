@@ -110,7 +110,6 @@ const PRIORITY_SORT: Record<TaskPriority, number> = {
 type StatusFilter = TaskStatus | "all";
 type PriorityFilter = TaskPriority | "all";
 
-// Safely extract joined relation fields — Supabase joins land as nested objects
 function assigneeName(task: Task): string | null {
   return (task as any).assigned_user?.full_name ?? null;
 }
@@ -483,7 +482,7 @@ export function TasksView({
         {totalPages > 1 && (
           <div className="flex items-center justify-between border-t border-border px-4 py-3">
             <p className="text-xs text-muted-foreground">
-              {(safePage - 1) * PAGE_SIZE + 1}–
+              {(safePage - 1) * PAGE_SIZE + 1}-
               {Math.min(safePage * PAGE_SIZE, filtered.length)} of{" "}
               {filtered.length} tasks
             </p>

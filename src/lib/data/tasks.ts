@@ -3,8 +3,17 @@ import type { Task, Filters, TaskStatus, TaskStats } from "@/lib/schemas";
 import { withFilters, withPagination } from "@/lib/utils/database";
 import { getCurrentUser } from "@/lib/data/users";
 import type { Pagination } from "@/lib/schemas";
+import { updateTaskStatus } from "@/lib/actions/tasks";
 
 export async function getTask(taskId: string): Promise<Task | null> {
+  function checkOverdue(task: Task) {
+    if (!task.due_date) return;
+    const now = new Date();
+    const due = new Date(task.due_date);
+    if (due < now && task.status !== "done") {
+      updateTaskStatus({ taskId: task.id, status: "overdue" });
+    }
+  }
   const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("tasks")
@@ -14,6 +23,8 @@ export async function getTask(taskId: string): Promise<Task | null> {
     .eq("id", taskId)
     .single();
   if (error) return null;
+
+  if (data) checkOverdue(data);
   return data;
 }
 
