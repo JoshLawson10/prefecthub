@@ -37,14 +37,16 @@ export interface UploadAvatarInput {
 export async function uploadAvatar(input: UploadAvatarInput): Promise<void> {
   const supabase = await createClient();
   const buffer = await input.file.arrayBuffer();
-  const fileName = `${input.memberId}-${Date.now()}`;
+  const fileName = `${Date.now()}.${input.file.name.split(".").pop()}`;
+
+  const filePath = `${input.memberId}/${fileName}`;
 
   const { error: uploadError } = await supabase.storage
     .from("avatars")
-    .upload(fileName, buffer, { contentType: input.file.type, upsert: true });
+    .upload(filePath, buffer, { contentType: input.file.type, upsert: true });
   if (uploadError) throw new Error(uploadError.message);
 
-  const { data } = supabase.storage.from("avatars").getPublicUrl(fileName);
+  const { data } = supabase.storage.from("avatars").getPublicUrl(filePath);
 
   const { error: updateError } = await supabase
     .from("users")
