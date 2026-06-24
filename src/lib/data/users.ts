@@ -1,10 +1,9 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createQueryClient } from "@/lib/supabase/query";
-import { cache } from "react";
 import type { User } from "@/lib/schemas";
 
-export const getCurrentUser = cache(async (): Promise<User | null> => {
+export async function getCurrentUser(): Promise<User | null> {
   const supabase = await createClient();
   const {
     data: { user: authUser },
@@ -54,9 +53,9 @@ export const getCurrentUser = cache(async (): Promise<User | null> => {
   }
 
   return data;
-});
+}
 
-export const getUser = cache(async (userId: string): Promise<User | null> => {
+export async function getUser(userId: string): Promise<User | null> {
   const supabase = createQueryClient();
   const { data, error } = await supabase
     .from("users")
@@ -65,7 +64,7 @@ export const getUser = cache(async (userId: string): Promise<User | null> => {
     .single();
   if (error) return null;
   return data;
-});
+}
 
 export async function getWorkspaceMembers(): Promise<User[]> {
   const supabase = createQueryClient();
@@ -96,18 +95,16 @@ export async function getMembersByRole(): Promise<Record<string, User[]>> {
   );
 }
 
-export const getUserByEmail = cache(
-  async (email: string): Promise<User | null> => {
-    const supabase = createQueryClient();
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("email", email)
-      .maybeSingle();
-    if (error) return null;
-    return data;
-  },
-);
+export async function getUserByEmail(email: string): Promise<User | null> {
+  const supabase = createQueryClient();
+  const { data, error } = await supabase
+    .from("users")
+    .select("*")
+    .eq("email", email)
+    .maybeSingle();
+  if (error) return null;
+  return data;
+}
 
 export async function getUserRole(): Promise<string | null> {
   const user = await getCurrentUser();

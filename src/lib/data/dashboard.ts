@@ -1,11 +1,10 @@
-import { cache } from "react";
 import type { DashboardStats, Activity } from "@/lib/schemas";
 import { getCurrentUser, getWorkspaceMembers } from "@/lib/data/users";
 import { getWorkspaceEvents, getArchivedEvents } from "@/lib/data/events";
 import { getTasks } from "@/lib/data/tasks";
 import { createQueryClient } from "@/lib/supabase/query";
 
-export const getDashboardStats = cache(async (): Promise<DashboardStats> => {
+export async function getDashboardStats(): Promise<DashboardStats> {
   const supabase = createQueryClient();
   const currentUser = await getCurrentUser();
   if (!currentUser?.workspace_id) {
@@ -56,7 +55,7 @@ export const getDashboardStats = cache(async (): Promise<DashboardStats> => {
     totalMembers: members.length,
     activeMembers: activeMembers.length,
   };
-});
+}
 
 export async function getRecentActivity(limit = 10): Promise<Activity[]> {
   const supabase = createQueryClient();
