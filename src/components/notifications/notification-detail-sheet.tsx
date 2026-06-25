@@ -100,9 +100,10 @@ export function NotificationDetailSheet({
 
   const config = TYPE_CONFIG[notification.type];
 
-  const receivedLabel = notification.received_at
-    ? format(parseISO(notification.received_at), "EEEE d MMMM yyyy 'at' h:mm a")
-    : notification.timestamp;
+  const receivedLabel = format(
+    parseISO(notification.created_at),
+    "EEEE d MMMM yyyy 'at' h:mm a",
+  );
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -159,22 +160,18 @@ export function NotificationDetailSheet({
               </div>
             </div>
 
-            {notification.event_title && (
+            {notification.event_id && (
               <div className="flex items-start gap-3 px-4 py-3">
                 <CalendarPlusIcon className="size-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
                   <p className="text-xs text-muted-foreground">Event</p>
-                  {notification.event_id ? (
-                    <Link
-                      href={`/events/${notification.event_id}`}
-                      className="text-sm mt-0.5 text-primary hover:underline block"
-                      onClick={() => onOpenChange(false)}
-                    >
-                      {notification.event_title}
-                    </Link>
-                  ) : (
-                    <p className="text-sm mt-0.5">{notification.event_title}</p>
-                  )}
+                  <Link
+                    href={`/events/${notification.event_id}`}
+                    className="text-sm mt-0.5 text-primary hover:underline block"
+                    onClick={() => onOpenChange(false)}
+                  >
+                    View event
+                  </Link>
                 </div>
               </div>
             )}
@@ -196,14 +193,14 @@ export function NotificationDetailSheet({
           </div>
         </div>
 
-        {notification.action && (
+        {notification.action_href && notification.action_label && (
           <div className="border-t px-6 py-4">
             <Button asChild className="w-full gap-2">
               <Link
-                href={notification.action.href}
+                href={notification.action_href}
                 onClick={() => onOpenChange(false)}
               >
-                {notification.action.label}
+                {notification.action_label}
                 <ArrowRightIcon className="size-4" />
               </Link>
             </Button>

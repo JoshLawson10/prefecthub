@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { format, parseISO } from "date-fns";
 import {
   CheckSquareIcon,
   MailIcon,
@@ -151,16 +152,16 @@ export function NotificationsView({
                       <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                         {notif.description}
                       </p>
-                      {notif.event_title && (
+                      {notif.event_id && (
                         <p className="text-xs text-muted-foreground/70 mt-1">
-                          {notif.event_title}
+                          Event attached
                         </p>
                       )}
                     </div>
 
                     <div className="flex shrink-0 flex-col items-end gap-2 mt-0.5">
                       <span className="text-xs text-muted-foreground tabular-nums">
-                        {notif.timestamp}
+                        {format(parseISO(notif.created_at), "d MMM")}
                       </span>
                       <ChevronRightIcon className="size-4 text-muted-foreground/40" />
                     </div>
