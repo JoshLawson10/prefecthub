@@ -363,6 +363,8 @@ export type EventRole = z.infer<typeof EventRoleSchema>;
 export type TaskPriority = z.infer<typeof TaskPrioritySchema>;
 export type TaskStatus = z.infer<typeof TaskStatusSchema>;
 export type NotifType = z.infer<typeof NotifTypeSchema>;
+/** Alias for NotifType — use either name */
+export type NotificationType = NotifType;
 
 export type Workspace = z.infer<typeof WorkspaceSchema>;
 export type User = z.infer<typeof UserSchema>;
