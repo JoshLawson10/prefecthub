@@ -31,6 +31,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useServerAction } from "@/hooks/use-server-action";
 import { createEvent } from "@/lib/actions/events";
 
 export function NewEventDialog() {
@@ -40,15 +41,21 @@ export function NewEventDialog() {
   const [dateOpen, setDateOpen] = useState(false);
   const [startTime, setStartTime] = useState("10:30");
   const [endTime, setEndTime] = useState("12:30");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const { execute, isPending } = useServerAction(createEvent, {
+    successMessage: "Event created",
+    onSuccess: () => {
+      setOpen(false);
+      setDate(undefined);
+      setCollectRsvps(false);
+    },
+  });
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!date) return;
-
     const data = new FormData(e.currentTarget);
-    setLoading(true);
-    await createEvent({
+    execute({
       title: data.get("event-title") as string,
       description: (data.get("event-description") as string) || null,
       date,
@@ -58,8 +65,6 @@ export function NewEventDialog() {
       collectRsvps,
       maxCapacity: collectRsvps ? Number(data.get("max-rsvps")) || null : null,
     });
-    setLoading(false);
-    setOpen(false);
   }
 
   return (
@@ -198,8 +203,8 @@ export function NewEventDialog() {
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={!date || loading}>
-              {loading ? "Creating…" : "Create event"}
+            <Button type="submit" disabled={!date || isPending}>
+              {isPending ? "Creating…" : "Create event"}
             </Button>
           </DialogFooter>
         </form>

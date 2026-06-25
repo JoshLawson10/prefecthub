@@ -11,6 +11,7 @@ import {
   FieldLabel,
   FieldDescription,
 } from "@/components/ui/field";
+import { useServerAction } from "@/hooks/use-server-action";
 import { submitRsvp } from "@/lib/actions/rsvp";
 
 interface RSVPFormProps {

@@ -33,6 +33,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { useServerAction } from "@/hooks/use-server-action";
 import { createTask } from "@/lib/actions/tasks";
 import type { TaskPriority, User } from "@/lib/schemas";
 
@@ -52,13 +53,21 @@ export function CreateTaskDialog({
   const [dateOpen, setDateOpen] = useState(false);
   const [assigneeId, setAssigneeId] = useState("");
   const [priority, setPriority] = useState<string>("");
-  const [loading, setLoading] = useState(false);
+
+  const { execute, isPending } = useServerAction(createTask, {
+    successMessage: "Task created",
+    onSuccess: () => {
+      setOpen(false);
+      setDueDate(undefined);
+      setAssigneeId("");
+      setPriority("");
+    },
+  });
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    setLoading(true);
-    await createTask({
+    execute({
       eventId,
       title: data.get("title") as string,
       description: (data.get("description") as string) || null,
@@ -66,11 +75,6 @@ export function CreateTaskDialog({
       priority: (priority as TaskPriority) || "medium",
       dueDate: dueDate ?? null,
     });
-    setLoading(false);
-    setDueDate(undefined);
-    setAssigneeId("");
-    setPriority("");
-    setOpen(false);
   }
 
   return (
@@ -186,8 +190,8 @@ export function CreateTaskDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Creating…" : "Create task"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Creating…" : "Create task"}
             </Button>
           </DialogFooter>
         </form>

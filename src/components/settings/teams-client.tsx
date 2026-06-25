@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { UserPlusIcon, MoreHorizontalIcon, ShieldIcon, UserIcon } from "lucide-react";
+import { useServerAction } from "@/hooks/use-server-action";
 import { inviteMember, updateMemberRole, removeMember } from "@/lib/actions/members";
 import type { User, Workspace } from "@/lib/schemas";
 
@@ -47,23 +48,28 @@ function RoleBadge({ role }: { role: string }) {
 }
 
 function ManageDialog({ member }: { member: User }) {
-  const [open,    setOpen]    = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  async function handleRoleChange() {
-    setLoading(true);
+  const { execute: execRoleChange, isPending: roleChanging } = useServerAction(updateMemberRole, {
+    successMessage: "Role updated",
+    onSuccess: () => setOpen(false),
+  });
+
+  const { execute: execRemove, isPending: removing } = useServerAction(removeMember, {
+    successMessage: `${member.full_name} removed`,
+    onSuccess: () => setOpen(false),
+  });
+
+  const loading = roleChanging || removing;
+
+  function handleRoleChange() {
     const newRole = member.role === "admin" ? "prefect" : "admin";
-    await updateMemberRole({ memberId: member.id, newRole });
-    setLoading(false);
-    setOpen(false);
+    execRoleChange({ memberId: member.id, newRole });
   }
 
-  async function handleRemove() {
+  function handleRemove() {
     if (!confirm(`Remove ${member.full_name} from the workspace?`)) return;
-    setLoading(true);
-    await removeMember(member.id);
-    setLoading(false);
-    setOpen(false);
+    execRemove(member.id);
   }
 
   return (
@@ -134,17 +140,15 @@ interface TeamsClientProps {
 
 export function TeamsClient({ currentUser, members, membersByRole, workspace }: TeamsClientProps) {
   const [inviteEmail, setInviteEmail] = useState("");
-  const [sent,        setSent]        = useState(false);
-  const [loading,     setLoading]     = useState(false);
 
-  async function handleInvite() {
+  const { execute: execInvite, isPending: inviting } = useServerAction(inviteMember, {
+    successMessage: "Invitation sent",
+    onSuccess: () => setInviteEmail(""),
+  });
+
+  function handleInvite() {
     if (!inviteEmail.trim()) return;
-    setLoading(true);
-    await inviteMember(inviteEmail.trim());
-    setLoading(false);
-    setSent(true);
-    setInviteEmail("");
-    setTimeout(() => setSent(false), 3000);
+    execInvite(inviteEmail.trim());
   }
 
   const sections = Object.keys(membersByRole);
@@ -173,9 +177,9 @@ export function TeamsClient({ currentUser, members, membersByRole, workspace }: 
               onChange={(e) => setInviteEmail(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleInvite()}
             />
-            <Button onClick={handleInvite} disabled={!inviteEmail.trim() || loading}>
+            <Button onClick={handleInvite} disabled={!inviteEmail.trim() || inviting}>
               <UserPlusIcon />
-              {sent ? "Sent!" : loading ? "Sending…" : "Invite"}
+              {inviting ? "Sending…" : "Invite"}
             </Button>
           </div>
         </CardContent>

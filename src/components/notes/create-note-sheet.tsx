@@ -14,6 +14,7 @@ import {
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useServerAction } from "@/hooks/use-server-action";
 import { createNote } from "@/lib/actions/notes";
 
 interface CreateNoteSheetProps {
@@ -22,19 +23,20 @@ interface CreateNoteSheetProps {
 
 export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  const { execute, isPending } = useServerAction(createNote, {
+    successMessage: "Note saved",
+    onSuccess: () => setOpen(false),
+  });
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    setLoading(true);
-    await createNote({
+    execute({
       eventId,
       title: data.get("title") as string,
       body: data.get("body") as string,
     });
-    setLoading(false);
-    setOpen(false);
   }
 
   return (
@@ -81,8 +83,8 @@ export function CreateNoteSheet({ eventId }: CreateNoteSheetProps) {
                 Cancel
               </Button>
             </SheetClose>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving…" : "Save note"}
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Saving…" : "Save note"}
             </Button>
           </SheetFooter>
         </form>

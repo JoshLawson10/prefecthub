@@ -8,7 +8,8 @@ import { Field, FieldLabel, FieldDescription, FieldGroup } from "@/components/ui
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { CheckIcon, UploadIcon, Trash2Icon } from "lucide-react";
+import { UploadIcon, Trash2Icon } from "lucide-react";
+import { useServerAction } from "@/hooks/use-server-action";
 import { updateProfile, uploadAvatar, deleteAccount } from "@/lib/actions/profile";
 import type { User } from "@/lib/schemas";
 
@@ -20,24 +21,26 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ profile }: ProfileFormProps) {
-  const [saved,       setSaved]       = useState(false);
-  const [saveLoading, setSaveLoading] = useState(false);
   const [avatarUrl,   setAvatarUrl]   = useState<string | null>(profile.avatar_url ?? null);
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleSave(e: React.FormEvent<HTMLFormElement>) {
+  const { execute: execSave, isPending: saveLoading } = useServerAction(updateProfile, {
+    successMessage: "Profile saved",
+  });
+
+  const { execute: execDeleteAccount } = useServerAction(deleteAccount, {
+    errorMessage: "Failed to delete account.",
+  });
+
+  function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    setSaveLoading(true);
-    await updateProfile({
+    execSave({
       memberId: profile.id,
       fullName: data.get("full_name") as string,
       email:    data.get("email") as string,
     });
-    setSaveLoading(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
   }
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -70,7 +73,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
 
   async function handleDeleteAccount() {
     if (!confirm("Are you sure? This cannot be undone.")) return;
-    await deleteAccount(profile.id);
+    execDeleteAccount(profile.id);
   }
 
   return (
@@ -125,7 +128,7 @@ export function ProfileForm({ profile }: ProfileFormProps) {
           <CardFooter className="justify-end gap-2">
             <Button type="reset" variant="outline">Discard</Button>
             <Button type="submit" disabled={saveLoading}>
-              {saved ? <><CheckIcon /> Saved</> : saveLoading ? "Saving…" : "Save changes"}
+              {saveLoading ? "Saving…" : "Save changes"}
             </Button>
           </CardFooter>
         </form>

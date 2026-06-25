@@ -33,6 +33,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { useServerAction } from "@/hooks/use-server-action";
 import { updateTaskStatus } from "@/lib/actions/tasks";
 import type { Task, TaskStatus, TaskPriority } from "@/lib/schemas";
 import { formatShortDate } from "@/lib/utils/format";
@@ -146,8 +147,10 @@ export function TasksView({
     [initialTasks, statusOverrides],
   );
 
+  const { execute: execUpdateStatus } = useServerAction(updateTaskStatus);
+
   const toggleDone = useCallback(
-    async (task: Task) => {
+    (task: Task) => {
       const current = (statusOverrides[task.id] ?? task.status) as TaskStatus;
       const next: TaskStatus =
         current === "done"
@@ -155,9 +158,9 @@ export function TasksView({
               "todo") as TaskStatus)
           : "done";
       setStatusOverrides((prev) => ({ ...prev, [task.id]: next }));
-      await updateTaskStatus({ taskId: task.id, status: next });
+      execUpdateStatus({ taskId: task.id, status: next });
     },
-    [initialTasks, statusOverrides],
+    [initialTasks, statusOverrides, execUpdateStatus],
   );
 
   const counts = useMemo(

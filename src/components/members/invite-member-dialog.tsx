@@ -15,20 +15,24 @@ import {
 } from "@/components/ui/dialog";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { useServerAction } from "@/hooks/use-server-action";
 import { inviteMember } from "@/lib/actions/members";
 
 export function InviteMemberDialog() {
   const [open, setOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleInvite() {
+  const { execute, isPending } = useServerAction(inviteMember, {
+    successMessage: "Invitation sent",
+    onSuccess: () => {
+      setEmail("");
+      setOpen(false);
+    },
+  });
+
+  function handleInvite() {
     if (!email.trim()) return;
-    setLoading(true);
-    await inviteMember(email.trim());
-    setLoading(false);
-    setEmail("");
-    setOpen(false);
+    execute(email.trim());
   }
 
   return (
@@ -66,8 +70,8 @@ export function InviteMemberDialog() {
               Cancel
             </Button>
           </DialogClose>
-          <Button onClick={handleInvite} disabled={!email.trim() || loading}>
-            <UserPlusIcon /> {loading ? "Sending…" : "Send invite"}
+          <Button onClick={handleInvite} disabled={!email.trim() || isPending}>
+            <UserPlusIcon /> {isPending ? "Sending…" : "Send invite"}
           </Button>
         </DialogFooter>
       </DialogContent>
