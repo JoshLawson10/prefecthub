@@ -23,6 +23,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 // import { restoreEvent } from "@/lib/actions";
+import { useServerAction } from "@/hooks/use-server-action";
+import { updateEventStatus } from "@/lib/actions/events";
 import { formatEventDate, formatEventTime } from "@/lib/utils/format";
 import type { Event } from "@/lib/schemas";
 
@@ -44,13 +46,17 @@ function RestoreDialog({
   eventTitle: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  async function handleRestore() {
-    setLoading(true);
-    // await restoreEvent(eventId);
-    setLoading(false);
-    setOpen(false);
+  const { execute: execRestore, isPending: loading } = useServerAction(
+    updateEventStatus,
+    {
+      successMessage: "Event restored",
+      onSuccess: () => setOpen(false),
+    },
+  );
+
+  function handleRestore() {
+    execRestore(eventId, "upcoming");
   }
 
   return (

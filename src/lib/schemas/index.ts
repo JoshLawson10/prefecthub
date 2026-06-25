@@ -156,6 +156,11 @@ export const DocumentSchema = z.object({
   uploaded_by: z.uuid(),
   created_at: timestamp,
   workspace_id: z.uuid(),
+  // Joined from users table via data/documents.ts select
+  uploader: z
+    .object({ full_name: z.string(), initials: z.string() })
+    .nullable()
+    .optional(),
 });
 
 export const NotificationSchema = z.object({

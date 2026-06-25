@@ -26,24 +26,24 @@ export function RSVPForm({
   maxCapacity,
 }: RSVPFormProps) {
   const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
+
+  const { execute, isPending } = useServerAction(submitRsvp, {
+    onSuccess: () => setSubmitted(true),
+  });
 
   const isFull = maxCapacity !== null && currentCount >= maxCapacity;
   const spotsLeft = maxCapacity !== null ? maxCapacity - currentCount : null;
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    setLoading(true);
-    await submitRsvp({
+    execute({
       eventId,
       name: data.get("name") as string,
       email: data.get("email") as string,
       guestCount: Number(data.get("guest_count")) || 1,
       dietaryNotes: (data.get("dietary_notes") as string) || null,
     });
-    setLoading(false);
-    setSubmitted(true);
   }
 
   if (submitted) {
@@ -122,8 +122,8 @@ export function RSVPForm({
         </p>
       )}
 
-      <Button type="submit" className="w-full" disabled={isFull || loading}>
-        {isFull ? "Event is full" : loading ? "Submitting…" : "Confirm RSVP"}
+      <Button type="submit" className="w-full" disabled={isFull || isPending}>
+        {isFull ? "Event is full" : isPending ? "Submitting…" : "Confirm RSVP"}
       </Button>
       <p className="text-center text-xs text-muted-foreground">
         Your details are only shared with the prefect team.
