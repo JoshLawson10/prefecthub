@@ -20,6 +20,11 @@ export async function getCurrentUser(): Promise<User | null> {
     .single();
 
   if (error || !data) {
+    // Only auto-create a profile if the auth user has a confirmed email.
+    // During onboarding the user is freshly created and completeOnboarding
+    // will insert the proper profile row — don't race it with a shell row.
+    if (!authUser.email_confirmed_at) return null;
+
     const fullName =
       authUser.user_metadata?.full_name ||
       authUser.email?.split("@")[0] ||

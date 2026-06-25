@@ -120,14 +120,16 @@ export async function completeOnboarding(data: OnboardingData) {
     throw new Error("Invitation has already been used");
   }
 
-  const { data: existingUser } = await supabase
+  const { data: existingUser } = await adminClient
     .from("users")
     .select("id")
     .eq("email", invitation.email)
-    .single();
+    .maybeSingle();
 
   if (existingUser) {
-    throw new Error("User with this email already exists");
+    throw new Error(
+      "An account with this email already exists. Try signing in instead.",
+    );
   }
 
   const { data: authUser, error: createError } =
@@ -142,6 +144,14 @@ export async function completeOnboarding(data: OnboardingData) {
 
   if (createError) {
     console.error("Failed to create user:", createError);
+    if (
+      createError.message.includes("already been registered") ||
+      createError.message.toLowerCase().includes("already exists")
+    ) {
+      throw new Error(
+        "An account with this email already exists. Try signing in instead.",
+      );
+    }
     throw new Error(`Failed to create account: ${createError.message}`);
   }
 
@@ -153,14 +163,17 @@ export async function completeOnboarding(data: OnboardingData) {
 
   const { data: profile, error: profileError } = await adminClient
     .from("users")
-    .insert({
-      id: authUser.user.id,
-      email: invitation.email,
-      full_name: `${data.firstName} ${data.lastName}`,
-      initials,
-      workspace_id: invitation.workspace_id,
-      role: invitation.role,
-    })
+    .upsert(
+      {
+        id: authUser.user.id,
+        email: invitation.email,
+        full_name: `${data.firstName} ${data.lastName}`,
+        initials,
+        workspace_id: invitation.workspace_id,
+        role: invitation.role,
+      },
+      { onConflict: "id" },
+    )
     .select()
     .single();
 
