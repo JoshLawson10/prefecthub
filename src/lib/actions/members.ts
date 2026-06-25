@@ -127,7 +127,7 @@ async function sendInvitationEmail(
   workspaceName: string,
   role: string,
 ) {
-  const inviteUrl = `${process.env.NEXT_PUBLIC_APP_URL}/onboard?token=${token}`;
+  const inviteUrl = `${process.env.SITE_URL}/onboard?token=${token}`;
   const expiresIn = 7;
 
   const html = getInvitationEmailTemplate({

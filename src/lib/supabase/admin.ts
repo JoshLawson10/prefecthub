@@ -5,7 +5,7 @@ export function createAdminClient() {
     throw new Error("Admin client can only be used on the server");
   }
 
-  const serviceRoleKey = process.env.NEXT_SUPABASE_SECRET_KEY;
+  const serviceRoleKey = process.env.SUPABASE_SECRET_KEY;
 
   if (!serviceRoleKey) {
     throw new Error(
@@ -13,7 +13,7 @@ export function createAdminClient() {
     );
   }
 
-  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceRoleKey, {
+  return createClient(process.env.SUPABASE_URL!, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
