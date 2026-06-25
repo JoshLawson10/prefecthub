@@ -30,17 +30,15 @@ export function withFilters<
 
   if (filters.dateRange) {
     if (filters.dateRange.start) {
+      const rawStart = filters.dateRange.start;
       const start =
-        filters.dateRange.start instanceof Date
-          ? filters.dateRange.start.toISOString()
-          : filters.dateRange.start;
+        (rawStart as unknown) instanceof Date ? rawStart.toString() : rawStart;
       filteredQuery = filteredQuery.gte("date_start", start);
     }
     if (filters.dateRange.end) {
+      const rawEnd = filters.dateRange.end;
       const end =
-        filters.dateRange.end instanceof Date
-          ? filters.dateRange.end.toISOString()
-          : filters.dateRange.end;
+        (rawEnd as unknown) instanceof Date ? rawEnd.toString() : rawEnd;
       filteredQuery = filteredQuery.lte("date_end", end);
     }
   }

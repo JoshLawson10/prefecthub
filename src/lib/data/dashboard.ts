@@ -95,19 +95,19 @@ export async function getRecentActivity(limit = 10): Promise<Activity[]> {
       type: n.type,
       title: n.title,
       description: n.description ?? "",
-      created_at: new Date(n.created_at),
+      created_at: n.created_at,
       user: {
         ...n.user,
-        created_at: new Date(n.user.created_at),
-        updated_at: new Date(n.user.updated_at),
+        created_at: n.user.created_at,
+        updated_at: n.user.updated_at,
       },
       event: n.event
         ? {
             ...n.event,
-            date_start: new Date(n.event.date_start),
-            date_end: new Date(n.event.date_end),
-            created_at: new Date(n.event.created_at),
-            updated_at: new Date(n.event.updated_at),
+            date_start: n.event.date_start,
+            date_end: n.event.date_end,
+            created_at: n.event.created_at,
+            updated_at: n.event.updated_at,
           }
         : undefined,
     }));
@@ -144,19 +144,19 @@ export async function getEventActivityFeed(
       type: n.type,
       title: n.title,
       description: n.description ?? "",
-      created_at: new Date(n.created_at),
+      created_at: n.created_at,
       user: {
         ...n.user,
-        created_at: new Date(n.user.created_at),
-        updated_at: new Date(n.user.updated_at),
+        created_at: n.user.created_at,
+        updated_at: n.user.updated_at,
       },
       event: n.event
         ? {
             ...n.event,
-            date_start: new Date(n.event.date_start),
-            date_end: new Date(n.event.date_end),
-            created_at: new Date(n.event.created_at),
-            updated_at: new Date(n.event.updated_at),
+            date_start: n.event.date_start,
+            date_end: n.event.date_end,
+            created_at: n.event.created_at,
+            updated_at: n.event.updated_at,
           }
         : undefined,
     }));
